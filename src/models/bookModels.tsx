@@ -1,12 +1,12 @@
 export interface BookSliceMdel{
     structureName:string,
-    lstBookItem:BookItemModel[]
+    lstBookItem:StationItemModel[]
 }
-export interface BookItemModel{
+export interface StationItemModel{
     idStation:number,
-    stationStat:StationStatsModel[]
+    stationStat:OrientationStatsModel[]
 }
-export interface StationStatsModel{
+export interface OrientationStatsModel{
     idOrientation:number,
     upNumber: number,
     centerNumber: number,

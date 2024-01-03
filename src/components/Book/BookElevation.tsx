@@ -1,53 +1,38 @@
-import { Button, Col, Drawer, Form, Input, InputNumber, Popover, Row, Space, Upload } from 'antd'
+import { Button, Col, Drawer, Form, Input, InputNumber, Popover, Row, Space, Upload, Popconfirm } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import { useSelector, useDispatch } from 'react-redux'
 import { useFormik } from 'formik'
 import React, { useState } from 'react'
-import { string } from 'yup'
-import { BookItemModel, StationStatsModel } from '../../models/bookModels'
-import { BarsOutlined, EditOutlined, DeleteOutlined, MoreOutlined } from '@ant-design/icons'
+import { number, string } from 'yup'
+import { StationItemModel, OrientationStatsModel } from '../../models/bookModels'
+import { BarsOutlined, EditOutlined, DeleteOutlined, MoreOutlined, CheckOutlined } from '@ant-design/icons'
 import BookManager from './BookManager'
 import { RootState } from '../../redux/configStore'
+import { setLstBookItem } from '../../redux/bookSlice'
 type Props = {}
 
-let defaultStationStatValue: StationStatsModel = {
+let defaultOrientationValue: OrientationStatsModel = {
     idOrientation: -1,
     upNumber: 0,
     centerNumber: 0,
     downNumber: 0,
     note: ""
 }
-const renderStation = (station: BookItemModel[]) => {
-    return station.map((stationItem, indexStation) => {
-        return <div key={indexStation} className='text-sm'>
-            {stationItem.stationStat.map((orientation, indexOrientation) => {
-                return <div className='grid grid-cols-5 '>
-                    <p>{orientation.upNumber}</p>
-                    <p>{orientation.centerNumber}</p>
-                    <p>{orientation.downNumber}</p>
-                    <p className=' text-left'>{orientation.note}</p>
-                    <div>
-                        <Popover placement="topRight" title={"Hành động"} content={<Space>
-                            <Button><EditOutlined /></Button>
-                            <Button><DeleteOutlined /></Button>
-                        </Space>} trigger="click">
-                            <Button type='link'><MoreOutlined /></Button>
-                        </Popover>
-                    </div>
-                </div>
-            })}
-            {indexStation >= station.length - 1 ? <hr className='col-span-5 my-2' /> : ''}
-        </div>
-    })
+let defaultStationValue: StationItemModel = {
+    idStation: -1,
+    stationStat: []
 }
+
 function Book({ }: Props) {
     const [open, setOpen] = useState(false);
+    const [editId, setEditId] = useState(-1)
+    const [editValue, setEditValue] = useState('')
     let { structureName, lstBookItem } = useSelector((state: RootState) => state.bookSlice)
-    let [currentStation, setCurrentStation] = useState<StationStatsModel[]>([])
+    let [currentStation, setCurrentStation] = useState<StationItemModel>(defaultStationValue)
+    let dispatch = useDispatch()
     const formik = useFormik({
-        initialValues: defaultStationStatValue,
+        initialValues: defaultOrientationValue,
         onSubmit: () => {
-
         }
     })
     let accuracy = (formik.values.upNumber + formik.values.downNumber) / 2 - formik.values.centerNumber
@@ -55,10 +40,67 @@ function Book({ }: Props) {
     const showDrawer = () => {
         setOpen(true);
     };
-
     const onClose = () => {
         setOpen(false);
     };
+    const deleteOrientation = async (indexStation: number, indexOrientation: number) => {
+        let newBook = JSON.parse(JSON.stringify(lstBookItem))
+        newBook[indexStation].stationStat.splice(indexOrientation, 1)
+        await dispatch(setLstBookItem({ lstBookItem: [...newBook] }))
+    }
+    const editOrientation = async (indexStation: number, indexOrientation: number) => {
+        let newBook = JSON.parse(JSON.stringify(lstBookItem))
+        newBook[indexStation].stationStat[indexOrientation] = { ...newBook[indexStation].stationStat[indexOrientation], note: editValue }
+        await dispatch(setLstBookItem({ lstBookItem: [...newBook] }))
+    }
+    const renderStation = (station: StationItemModel[]) => {
+        return station.map((stationItem, indexStation) => {
+            return <div key={indexStation} className='text-sm'>
+                {stationItem.stationStat.map((orientation, indexOrientation) => {
+                    return <div key={indexOrientation} className='grid grid-cols-5 hover:bg-slate-100'>
+                        <p>{orientation.upNumber}</p>
+                        <p>{orientation.centerNumber}</p>
+                        <p>{orientation.downNumber}</p>
+                        <p className=' text-left'>{orientation.note}</p>
+                        <div>
+                            <Popover placement="topRight" title={"Hành động"} content={<Space>
+                                <Button onClick={async () => {
+                                    await setEditId(orientation.idOrientation)
+                                    await setEditValue(orientation.note)
+                                }}><EditOutlined /></Button>
+                                <Popconfirm
+                                    title="Delete the task"
+                                    description="Are you sure to delete this task?"
+                                    onConfirm={() => {
+                                        deleteOrientation(indexStation, indexOrientation)
+                                    }}
+                                    okType='danger'
+                                    okText="Yes"
+                                    cancelText="No"
+                                >
+                                    <Button danger ><DeleteOutlined /></Button>
+                                </Popconfirm>
+                            </Space>} trigger="click">
+                                <Button type='link'><MoreOutlined /></Button>
+                            </Popover>
+                        </div>
+                        {orientation.idOrientation === editId ? <Space.Compact className='col-span-5 my-2'>
+                            <Input value={editValue} onChange={async (event) => {
+                                await setEditValue(event.target.value)
+                            }} />
+                            <Button color='green' type="default" onClick={async () => {
+                                await setEditId(-1)
+                                await setEditValue('')
+                                editOrientation(indexStation, indexOrientation)
+                            }}><CheckOutlined /></Button>
+                        </Space.Compact> : ''}
+
+                        {indexOrientation >= stationItem.stationStat.length - 1 ? <hr className='col-span-5 my-2' /> : ''}
+                    </div>
+                })}
+            </div>
+        })
+    }
     return (
         <div className='max-w-3xl m-auto p-4 my-4'>
             <Drawer
@@ -107,7 +149,6 @@ function Book({ }: Props) {
                             labelCol={{ span: 4 }}
                             wrapperCol={{ span: 20 }}>
                             <InputNumber name='centerNumber' value={formik.values.centerNumber} onChange={(value) => {
-                                console.log(typeof value);
                                 if (value !== null) {
                                     formik.setFieldValue('centerNumber', value)
                                 } else {
@@ -147,14 +188,17 @@ function Book({ }: Props) {
                 <Space >
                     <Button disabled={formik.values.centerNumber !== 0 ? false : true} onClick={async () => {
                         if (formik.values.centerNumber !== 0) {
-                            let stationUpdate = [...currentStation]
-                            stationUpdate.push({
+                            let orientationCurrent: OrientationStatsModel
+                            orientationCurrent = {
                                 idOrientation: Date.now(),
                                 upNumber: formik.values.upNumber,
                                 centerNumber: formik.values.centerNumber,
                                 downNumber: formik.values.downNumber,
                                 note: formik.values.note,
-                            })
+                            }
+                            let stationUpdate: StationItemModel = { ...currentStation }
+                            stationUpdate.idStation = Date.now()
+                            stationUpdate.stationStat.push(orientationCurrent)
                             await formik.setFieldValue('upNumber', 0)
                             await formik.setFieldValue('centerNumber', 0)
                             await formik.setFieldValue('downNumber', 0)
@@ -162,23 +206,20 @@ function Book({ }: Props) {
                             await setCurrentStation(stationUpdate)
                         }
                     }}>Thêm điểm mia</Button>
-                    <Button disabled={currentStation.length > 1 ? false : true} onClick={async () => {
+                    <Button disabled={currentStation.stationStat.length > 1 ? false : true} onClick={async () => {
                         let lstUpdate = [...lstBookItem]
-                        // lstUpdate.push(currentStation)
+                        lstUpdate.push(currentStation)
                         await formik.setFieldValue('upNumber', 0)
                         await formik.setFieldValue('centerNumber', 0)
                         await formik.setFieldValue('downNumber', 0)
                         await formik.setFieldValue('note', '')
-                        // await setLstBookItem(lstUpdate)
-                        await setCurrentStation([])
+                        await dispatch(setLstBookItem({ lstBookItem: lstUpdate }))
+                        await setCurrentStation(defaultStationValue)
                     }}>Kết thúc trạm</Button>
                 </Space>
             </div>
             <div className='bg-slate-200 my-2' >
-                {renderStation([{
-                    idStation: -1,
-                    stationStat: currentStation
-                }])}
+                {renderStation([currentStation])}
             </div>
             <div className='my-2'>
                 {renderStation(lstBookItem)}

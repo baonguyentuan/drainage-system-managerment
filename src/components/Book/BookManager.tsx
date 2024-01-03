@@ -1,5 +1,7 @@
 import { Button, Input, Upload } from 'antd'
 import React, { useState } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom';
+import configRouter from '../../untils/config/configRouter';
 
 const { Search } = Input;
 type Props = {}
@@ -7,6 +9,7 @@ type Props = {}
 const BookManager = (props: Props) => {
   let [structureName, setStructureName] = useState<string>('')
   let [lstBookItem, setLstBookItem] = useState<any[]>([])
+  let navigate=useNavigate()
   const renderLstBook = () => {
 
   }
@@ -34,7 +37,7 @@ const BookManager = (props: Props) => {
 
         }}>Tạo sổ đo mới</Button>
         <Button className='col-span-2'>Xuất sổ đo sang định dạng TXT</Button>
-        <Button className='col-span-2'>Tính toán sổ đo</Button>
+        <Button className='col-span-2' onClick={()=>{navigate(configRouter.private.book_caculate)}}>Tính toán sổ đo</Button>
       </div>
       <Search className='mb-2' placeholder="Nhập tên sổ đo" />
       <p className='text-left'>Sổ đo gần đây</p>

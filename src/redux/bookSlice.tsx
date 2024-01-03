@@ -1,34 +1,34 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  structureName: '',
+  structureName: 'test',
   lstBookItem: [
     {
       "idStation": 1,
       "stationStat": [
         {
-          "idOrientation": 1,
+          "idOrientation": 2,
           "upNumber": 1000,
           "centerNumber": 1030,
           "downNumber": 1060,
           "note": "IV-THO-01"
         },
         {
-          "idOrientation": 2,
+          "idOrientation": 3,
           "upNumber": 2001,
           "centerNumber": 2105,
           "downNumber": 2210,
           "note": "tc450"
         },
         {
-          "idOrientation": 3,
+          "idOrientation": 4,
           "upNumber": 2340,
           "centerNumber": 2500,
           "downNumber": 2660,
           "note": "cos gui dinh oc"
         },
         {
-          "idOrientation": 4,
+          "idOrientation": 5,
           "upNumber": 3012,
           "centerNumber": 3241,
           "downNumber": 4001,
@@ -37,17 +37,17 @@ const initialState = {
       ]
     },
     {
-      "idStation": 2,
+      "idStation": 6,
       "stationStat": [
         {
-          "idOrientation": 1,
+          "idOrientation": 7,
           "upNumber": 1000,
           "centerNumber": 1030,
           "downNumber": 1060,
           "note": ""
         },
         {
-          "idOrientation": 4,
+          "idOrientation": 8,
           "upNumber": 3012,
           "centerNumber": 3241,
           "downNumber": 4001,
@@ -56,17 +56,17 @@ const initialState = {
       ]
     },
     {
-      "idStation": 2,
+      "idStation": 9,
       "stationStat": [
         {
-          "idOrientation": 1,
+          "idOrientation": 10,
           "upNumber": 1000,
           "centerNumber": 1030,
           "downNumber": 1060,
           "note": ""
         },
         {
-          "idOrientation": 4,
+          "idOrientation": 11,
           "upNumber": 3012,
           "centerNumber": 3241,
           "downNumber": 4001,
@@ -85,11 +85,13 @@ const bookSlice = createSlice({
       state.structureName = action.payload.structureName
     },
     setLstBookItem: (state, action) => {
+      console.log(action.payload.lstBookItem);
+      
       state.lstBookItem = action.payload.lstBookItem
     }
   }
 });
 
-export const { } = bookSlice.actions
+export const { setLstBookItem,setStructureName} = bookSlice.actions
 
 export default bookSlice.reducer
