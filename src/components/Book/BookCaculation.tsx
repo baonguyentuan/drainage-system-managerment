@@ -46,6 +46,9 @@ const BookCaculation = (props: Props) => {
         setKeyValue(keyArr)
         setKey(false)
     }
+    const convertArr2String = () => {
+        return keyValue.map(key => `${key.name} ${key.elevation}`).join('\n')
+    }
     useEffect(() => {
         dispatch(convertBookToCalculate({}))
     }, [])
@@ -54,29 +57,31 @@ const BookCaculation = (props: Props) => {
             <h1>{structureName}</h1>
             <div>
                 <h3 className='m-4'>{`${keyValue.length} điểm gốc`}</h3>
-
-                <Radio.Group
-                    optionType="button"
-                    buttonStyle="solid"
-                    onChange={(event) => {
-                        setKeySeclected(event.target.value)
-                    }} value={keySelected}>
-                    {keyValue.map((key, keyIndex) => {
-                        return <Radio value={key.name} key={keyIndex}>{`${key.name}: ${key.elevation}`}</Radio>
-                    })}
-
-                </Radio.Group>
-
                 {key ? <div> <TextArea
                     rows={4}
+                    value={textboxValue}
                     onChange={(event) => {
                         setTextboxValue(event.target.value)
                     }} />
                     <Button className='m-4' onClick={() => {
                         convertTextboxValueToKeyvalue(textboxValue)
-                    }}>Hoàn Thành</Button></div> : <Button className='m-4' onClick={() => {
+                    }}>Hoàn Thành</Button></div> : <div>
+                    <Radio.Group
+                        optionType="button"
+                        buttonStyle="solid"
+                        onChange={(event) => {
+                            setKeySeclected(event.target.value)
+                        }} value={keySelected}>
+                        {keyValue.map((key, keyIndex) => {
+                            return <Radio className='m-2' value={key.name} key={keyIndex}>{`${key.name}: ${key.elevation}`}</Radio>
+                        })}
+
+                    </Radio.Group>
+                    <Button className='m-4' onClick={() => {
+                        setTextboxValue(convertArr2String())
                         setKey(true)
-                    }}>Thêm điểm gốc</Button>}
+                    }}>Điểm gốc</Button>
+                </div>}
             </div>
             <div className='my-2'>
                 {renderStation(lstBookCalculate)}
@@ -131,7 +136,8 @@ const BookCaculation = (props: Props) => {
                         dispatch(setLstBookCalculate({ lstBookItem: [...newBook] }))
                     }
                 }}>Tính sổ đo</Button>
-                <Button>Tạo file bình sai</Button>
+                <Button onClick={() => {
+                }}>Tạo file bình sai</Button>
             </div>
         </div>
     )
