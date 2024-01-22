@@ -9,30 +9,30 @@ const initialState = {
       "stationStat": [
         {
           "idOrientation": 2,
-          "upNumber": 1000,
-          "centerNumber": 1030,
-          "downNumber": 1060,
+          "upNumber": 498,
+          "centerNumber": 385,
+          "downNumber": 272,
           "note": "IV-THO-01"
         },
         {
           "idOrientation": 3,
-          "upNumber": 2001,
-          "centerNumber": 2105,
-          "downNumber": 2210,
+          "upNumber": 1120,
+          "centerNumber": 1060,
+          "downNumber": 1000,
           "note": "tc450"
         },
         {
           "idOrientation": 4,
-          "upNumber": 2340,
-          "centerNumber": 2500,
-          "downNumber": 2660,
+          "upNumber": 1097,
+          "centerNumber": 861,
+          "downNumber": 624,
           "note": "cos gui dinh oc"
         },
         {
           "idOrientation": 5,
-          "upNumber": 3012,
-          "centerNumber": 3241,
-          "downNumber": 4001,
+          "upNumber": 1215,
+          "centerNumber": 1145,
+          "downNumber": 1046,
           "note": "DT1"
         }
       ]
@@ -61,16 +61,16 @@ const initialState = {
       "stationStat": [
         {
           "idOrientation": 10,
-          "upNumber": 1000,
-          "centerNumber": 1050,
-          "downNumber": 1060,
+          "upNumber": 1276,
+          "centerNumber": 1061,
+          "downNumber": 847,
           "note": "DT2"
         },
         {
           "idOrientation": 11,
-          "upNumber": 3012,
-          "centerNumber": 2241,
-          "downNumber": 4001,
+          "upNumber": 1540,
+          "centerNumber": 1290,
+          "downNumber": 1040,
           "note": "DT3"
         }
       ]

@@ -1,6 +1,7 @@
 import { Tabs } from 'antd';
 import React from 'react'
 import ImportCad from '../components/TextTool/ImportCad';
+import CreateMarkSketch from '../components/TextTool/CreateMarkSketch';
 
 type Props = {}
 
@@ -15,6 +16,11 @@ const TextTool = (props: Props) => {
                         key:"importCad",
                         label:"Nhập text và CAD",
                         children:<ImportCad/>
+                    },
+                    {
+                        key:"createMarkSketch",
+                        label:"Tạo form sơ họa mốc",
+                        children:<CreateMarkSketch/>
                     }
                 ]}
             />

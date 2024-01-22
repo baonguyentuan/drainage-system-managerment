@@ -1,9 +1,11 @@
 {
   "name": "drainage-system-managerment",
   "version": "0.1.0",
-  "homepage": "https://baonguyentuan.github.io/drainage-system-managerment",
   "private": true,
   "dependencies": {
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/sortable": "^8.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@reduxjs/toolkit": "^1.9.5",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",

@@ -1,14 +1,16 @@
-import { Button, Col, Drawer, Form, Input, InputNumber, Popover, Row, Space, Upload, Popconfirm } from 'antd'
+import { Button, Col, Drawer, Form, Input, InputNumber, Row, Space, } from 'antd'
+import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import TextArea from 'antd/es/input/TextArea'
 import { useSelector, useDispatch } from 'react-redux'
 import { useFormik } from 'formik'
 import React, { useState } from 'react'
-import { number, string } from 'yup'
 import { StationItemModel, OrientationStatsModel } from '../../models/bookModels'
-import { BarsOutlined, EditOutlined, DeleteOutlined, MoreOutlined, CheckOutlined } from '@ant-design/icons'
+import { BarsOutlined } from '@ant-design/icons'
 import BookManager from './BookManager'
 import { RootState } from '../../redux/configStore'
 import { setLstBookItem } from '../../redux/bookSlice'
+import { SortableContext, arrayMove } from '@dnd-kit/sortable';
+import OrientationElevation from './OrientationElevation';
 type Props = {}
 
 let defaultOrientationValue: OrientationStatsModel = {
@@ -25,8 +27,6 @@ let defaultStationValue: StationItemModel = {
 
 function Book({ }: Props) {
     const [open, setOpen] = useState(false);
-    const [editId, setEditId] = useState(-1)
-    const [editValue, setEditValue] = useState('')
     let { structureName, lstBookItem } = useSelector((state: RootState) => state.bookSlice)
     let [currentStation, setCurrentStation] = useState<StationItemModel>(defaultStationValue)
     let dispatch = useDispatch()
@@ -35,6 +35,16 @@ function Book({ }: Props) {
         onSubmit: () => {
         }
     })
+    const mouseSensor = useSensor(MouseSensor, {
+        activationConstraint: { distance: 10 }
+    })
+    const touchSensor = useSensor(TouchSensor, {
+        activationConstraint: {
+            delay: 250,
+            tolerance: 10
+        }
+    })
+    const sensors = useSensors(mouseSensor, touchSensor)
     let accuracy = (formik.values.upNumber + formik.values.downNumber) / 2 - formik.values.centerNumber
     let distance = (formik.values.upNumber - formik.values.downNumber) / 10
     const showDrawer = () => {
@@ -43,62 +53,32 @@ function Book({ }: Props) {
     const onClose = () => {
         setOpen(false);
     };
-    const deleteOrientation = async (indexStation: number, indexOrientation: number) => {
-        let newBook = JSON.parse(JSON.stringify(lstBookItem))
-        newBook[indexStation].stationStat.splice(indexOrientation, 1)
-        await dispatch(setLstBookItem({ lstBookItem: [...newBook] }))
-    }
-    const editOrientation = async (indexStation: number, indexOrientation: number) => {
-        let newBook = JSON.parse(JSON.stringify(lstBookItem))
-        newBook[indexStation].stationStat[indexOrientation] = { ...newBook[indexStation].stationStat[indexOrientation], note: editValue }
-        await dispatch(setLstBookItem({ lstBookItem: [...newBook] }))
+    const sortOrientation = async (event: any) => {
+        let activeId: number = event.active.id
+        let overId: number = event.over.id
+        let index: number = -1
+        lstBookItem.map((station, staIndex) => {
+            let oriIndex = station.stationStat.findIndex(orientation => orientation.idOrientation === activeId)
+            if (oriIndex !== -1) {
+                index = staIndex
+            }
+        })
+        if (index !== -1) {
+            let newBook = JSON.parse(JSON.stringify(lstBookItem))
+            let activeIndex = lstBookItem[index].stationStat.findIndex(orientation => orientation.idOrientation === event.active.id)
+            let overIndex = lstBookItem[index].stationStat.findIndex(orientation => orientation.idOrientation === event.over.id)
+            newBook[index].stationStat = arrayMove(newBook[index].stationStat, activeIndex, overIndex)
+            await dispatch(setLstBookItem({ lstBookItem: [...newBook] }))
+        }
     }
     const renderStation = (station: StationItemModel[]) => {
         return station.map((stationItem, indexStation) => {
-            return <div key={indexStation} className='text-sm'>
+            return <SortableContext key={stationItem.idStation} items={stationItem.stationStat.map(orient => orient.idOrientation)}
+            >
                 {stationItem.stationStat.map((orientation, indexOrientation) => {
-                    return <div key={indexOrientation} className='grid grid-cols-5 hover:bg-slate-100'>
-                        <p>{orientation.upNumber}</p>
-                        <p>{orientation.centerNumber}</p>
-                        <p>{orientation.downNumber}</p>
-                        <p className=' text-left'>{orientation.note}</p>
-                        <div>
-                            <Popover placement="topRight" title={"Hành động"} content={<Space>
-                                <Button onClick={async () => {
-                                    await setEditId(orientation.idOrientation)
-                                    await setEditValue(orientation.note)
-                                }}><EditOutlined /></Button>
-                                <Popconfirm
-                                    title="Delete the task"
-                                    description="Are you sure to delete this task?"
-                                    onConfirm={() => {
-                                        deleteOrientation(indexStation, indexOrientation)
-                                    }}
-                                    okType='danger'
-                                    okText="Yes"
-                                    cancelText="No"
-                                >
-                                    <Button danger ><DeleteOutlined /></Button>
-                                </Popconfirm>
-                            </Space>} trigger="click">
-                                <Button type='link'><MoreOutlined /></Button>
-                            </Popover>
-                        </div>
-                        {orientation.idOrientation === editId ? <Space.Compact className='col-span-5 my-2'>
-                            <Input value={editValue} onChange={async (event) => {
-                                await setEditValue(event.target.value)
-                            }} />
-                            <Button color='green' type="default" onClick={async () => {
-                                await setEditId(-1)
-                                await setEditValue('')
-                                editOrientation(indexStation, indexOrientation)
-                            }}><CheckOutlined /></Button>
-                        </Space.Compact> : ''}
-
-                        {indexOrientation >= stationItem.stationStat.length - 1 ? <hr className='col-span-5 my-2' /> : ''}
-                    </div>
+                    return <OrientationElevation key={orientation.idOrientation} orientation={orientation} index={[indexStation, indexOrientation]} />
                 })}
-            </div>
+            </SortableContext>
         })
     }
     return (
@@ -218,12 +198,14 @@ function Book({ }: Props) {
                     }}>Kết thúc trạm</Button>
                 </Space>
             </div>
-            <div className='bg-slate-200 my-2' >
-                {renderStation([currentStation])}
-            </div>
-            <div className='my-2'>
-                {renderStation(lstBookItem)}
-            </div>
+            <DndContext onDragEnd={sortOrientation} sensors={sensors}>
+                <div className='bg-slate-200 my-2' >
+                    {renderStation([currentStation])}
+                </div>
+                <div className='my-2'>
+                    {renderStation(lstBookItem)}
+                </div>
+            </DndContext>
         </div >
     )
 }
