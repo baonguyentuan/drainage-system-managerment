@@ -88,6 +88,7 @@ const bookSlice = createSlice({
     },
     setLstBookItem: (state, action) => {
       state.lstBookItem = action.payload.lstBookItem
+      localStorage.setItem("book", JSON.stringify(state.lstBookItem))
     },
     setLstBookCalculate: (state, action) => {
       state.lstBookCalculate = action.payload.lstBookItem
@@ -129,6 +130,6 @@ const bookSlice = createSlice({
   }
 });
 
-export const { setLstBookItem, setStructureName,convertBookToCalculate,setLstBookCalculate } = bookSlice.actions
+export const { setLstBookItem, setStructureName, convertBookToCalculate, setLstBookCalculate } = bookSlice.actions
 
 export default bookSlice.reducer

@@ -34,3 +34,15 @@ export const convertBookToCalculate = (book: StationItemModel[]) => {
     })
     return newBook
 }
+export const formatText = (string: string) => {
+    if (string.length >= 5) {
+        return string
+    } else {
+        let newString: string = ``
+        for (let i = 0; i < 5 - string.length; i++) {
+            newString += " "
+        }
+        newString += string
+        return newString
+    }
+}

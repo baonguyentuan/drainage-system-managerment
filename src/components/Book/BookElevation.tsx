@@ -8,9 +8,10 @@ import { StationItemModel, OrientationStatsModel } from '../../models/bookModels
 import { BarsOutlined } from '@ant-design/icons'
 import BookManager from './BookManager'
 import { RootState } from '../../redux/configStore'
-import { setLstBookItem } from '../../redux/bookSlice'
+import { setLstBookItem, setStructureName } from '../../redux/bookSlice'
 import { SortableContext, arrayMove } from '@dnd-kit/sortable';
 import OrientationElevation from './OrientationElevation';
+import { formatText } from '../../untils/operate/opetate';
 type Props = {}
 
 let defaultOrientationValue: OrientationStatsModel = {
@@ -103,7 +104,7 @@ function Book({ }: Props) {
                         labelCol={{ span: 4 }}
                         wrapperCol={{ span: 20 }}>
                         <Input name='structureName' value={structureName} onChange={(event) => {
-                            // setStructureName(event.target.value)
+                            dispatch(setStructureName({ structureName: event.target.value }))
                         }} />
                     </Form.Item>
                 </Col>
