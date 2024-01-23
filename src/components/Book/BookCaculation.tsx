@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../redux/configStore'
-import { ElevationPointModel, OrientationPointModel, StationCalculationModel, StationItemModel } from '../../models/bookModels'
-import { Button, Checkbox, Input, InputNumber, Popconfirm, Popover, Radio, Space } from 'antd'
-import { KeyOutlined, CheckOutlined } from '@ant-design/icons'
+import { ElevationPointModel, OrientationPointModel, StationCalculationModel} from '../../models/bookModels'
+import { Button,  Input,  Radio} from 'antd'
 import { convertBookToCalculate, setLstBookCalculate } from '../../redux/bookSlice'
 const { TextArea } = Input;
 type Props = {}

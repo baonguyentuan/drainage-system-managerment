@@ -11,7 +11,6 @@ import { RootState } from '../../redux/configStore'
 import { setLstBookItem, setStructureName } from '../../redux/bookSlice'
 import { SortableContext, arrayMove } from '@dnd-kit/sortable';
 import OrientationElevation from './OrientationElevation';
-import { formatText } from '../../untils/operate/opetate';
 type Props = {}
 
 let defaultOrientationValue: OrientationStatsModel = {
@@ -56,7 +55,6 @@ function Book({ }: Props) {
     };
     const sortOrientation = async (event: any) => {
         let activeId: number = event.active.id
-        let overId: number = event.over.id
         let index: number = -1
         lstBookItem.map((station, staIndex) => {
             let oriIndex = station.stationStat.findIndex(orientation => orientation.idOrientation === activeId)
@@ -164,7 +162,9 @@ function Book({ }: Props) {
                 <div className='grid grid-cols-2 mb-4'>
                     <p className={Math.abs(accuracy) > 1.5 ? "text-red-400" : ""}><span>Sai số: </span><span>{accuracy}</span></p>
                     <p><span>Khoảng cách: </span><span>{distance}m</span></p>
-                    <p className='col-span-2'><span>Khoảng cách cộng dồn: </span><span>10m</span></p>
+                    <p className='col-span-2'><span>Khoảng cách cộng dồn: </span><span>{lstBookItem.reduce((acc, station) => {
+                        return acc + ((station.stationStat[0].upNumber - station.stationStat[0].downNumber) / 10) - ((station.stationStat[station.stationStat.length - 1].upNumber - station.stationStat[station.stationStat.length - 1].downNumber) / 10)
+                    }, 0)}</span></p>
                 </div>
                 <Space >
                     <Button disabled={formik.values.centerNumber !== 0 ? false : true} onClick={async () => {

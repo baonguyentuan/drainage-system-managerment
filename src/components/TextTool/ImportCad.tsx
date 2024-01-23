@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
 import { Button, Col, Form, Input, InputNumber, Row, Select } from 'antd';
-import { string } from 'yup';
-import { log } from 'console';
 import configDxf from '../../untils/config/configDxf';
 const { Option } = Select;
 const { TextArea } = Input;

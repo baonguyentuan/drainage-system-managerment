@@ -95,9 +95,9 @@ const bookSlice = createSlice({
     },
     convertBookToCalculate: (state, action) => {
       let newBook: StationCalculationModel[] = []
-      state.lstBookItem.map((station, stationIndex) => {
+      state.lstBookItem.forEach((station, stationIndex) => {
         let newStation: OrientationCalculateStatsModel[] = []
-        station.stationStat.map((orientation, orientationIndex) => {
+        station.stationStat.forEach((orientation, orientationIndex) => {
           const { idOrientation, upNumber, centerNumber, downNumber, note } = orientation
           let distanceCalculate: number
           if (upNumber === 0 && downNumber !== 0) {

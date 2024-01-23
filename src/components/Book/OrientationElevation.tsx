@@ -31,8 +31,11 @@ const OrientationElevation = (props: Props) => {
     }
     const deleteOrientation = async (indexStation: number, indexOrientation: number) => {
         let newBook = JSON.parse(JSON.stringify(lstBookItem))
-        console.log(indexStation);
-        newBook[indexStation].stationStat.splice(indexOrientation, 1)
+        if (newBook[indexStation].stationStat.length > 1) {
+            newBook[indexStation].stationStat.splice(indexOrientation, 1)
+        } else {
+            newBook.splice(indexStation, 1)
+        }
         await dispatch(setLstBookItem({ lstBookItem: [...newBook] }))
     }
     const editOrientation = async (indexStation: number, indexOrientation: number) => {

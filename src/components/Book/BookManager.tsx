@@ -15,9 +15,6 @@ const BookManager = (props: Props) => {
   let { structureName, lstBookItem } = useSelector((state: RootState) => state.bookSlice)
   const dispatch = useDispatch()
   let navigate = useNavigate()
-  const renderLstBook = () => {
-
-  }
   return (
     <div className='max-w-3xl m-auto my-4'>
       <div className='grid grid-cols-2 gap-4 mb-4'>
@@ -53,8 +50,8 @@ const BookManager = (props: Props) => {
         }}>Lấy sổ đo từ bộ nhớ</Button>
         <Button className='col-span-2' onClick={() => {
           let renderText = ``
-          lstBookItem.map((sta, staIndex) => {
-            sta.stationStat.map((ori: OrientationStatsModel, oriIndex: number) => {
+          lstBookItem.forEach((sta, staIndex) => {
+            sta.stationStat.forEach((ori: OrientationStatsModel, oriIndex: number) => {
               if (oriIndex === 0) {
                 renderText += `${formatText(String(staIndex + 1))}    ${formatText(String(ori.upNumber))}    ${formatText(String(ori.centerNumber))}  ${formatText(String(ori.downNumber))}  ${ori.note}\n`
               } else {

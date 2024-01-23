@@ -2,9 +2,9 @@ import { OrientationCalculateStatsModel, StationItemModel } from "../../models/b
 
 export const convertBookToCalculate = (book: StationItemModel[]) => {
     let newBook: any[] = []
-    book.map((station, stationIndex) => {
+    book.forEach((station, stationIndex) => {
         let newStation: OrientationCalculateStatsModel[] = []
-        station.stationStat.map((orientation, orientationIndex) => {
+        station.stationStat.forEach((orientation, orientationIndex) => {
             const { idOrientation, upNumber, centerNumber, downNumber, note } = orientation
             let distanceCalculate: number
             if (upNumber === 0 && downNumber !== 0) {
