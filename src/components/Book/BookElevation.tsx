@@ -13,14 +13,14 @@ import { SortableContext, arrayMove } from '@dnd-kit/sortable';
 import OrientationElevation from './OrientationElevation';
 type Props = {}
 
-let defaultOrientationValue: OrientationStatsModel = {
+const defaultOrientationValue: OrientationStatsModel = {
     idOrientation: -1,
     upNumber: 0,
     centerNumber: 0,
     downNumber: 0,
     note: ""
 }
-let defaultStationValue: StationItemModel = {
+const defaultStationValue: StationItemModel = {
     idStation: -1,
     stationStat: []
 }
@@ -77,6 +77,7 @@ function Book({ }: Props) {
                 {stationItem.stationStat.map((orientation, indexOrientation) => {
                     return <OrientationElevation key={orientation.idOrientation} orientation={orientation} index={[indexStation, indexOrientation]} />
                 })}
+                {station.length > 1 ? <hr className='border-2 border-black' /> : ''}
             </SortableContext>
         })
     }
@@ -190,12 +191,15 @@ function Book({ }: Props) {
                     <Button disabled={currentStation.stationStat.length > 1 ? false : true} onClick={async () => {
                         let lstUpdate = [...lstBookItem]
                         lstUpdate.push(currentStation)
+                        await dispatch(setLstBookItem({ lstBookItem: lstUpdate }))
                         await formik.setFieldValue('upNumber', 0)
                         await formik.setFieldValue('centerNumber', 0)
                         await formik.setFieldValue('downNumber', 0)
                         await formik.setFieldValue('note', '')
-                        await dispatch(setLstBookItem({ lstBookItem: lstUpdate }))
-                        await setCurrentStation(defaultStationValue)
+                        await setCurrentStation({
+                            idStation: -1,
+                            stationStat: []
+                        })
                     }}>Kết thúc trạm</Button>
                 </Space>
             </div>

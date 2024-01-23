@@ -50,7 +50,7 @@ const OrientationElevation = (props: Props) => {
             {...attributes}
             {...listeners}
             key={props.orientation.idOrientation}
-            className={`grid grid-cols-6 items-center hover:bg-slate-100 text-sm bg-slate-200 border-b-2 ${lstBookItem[props.index[0]].stationStat.length - 1 === props.index[1] ? 'border-black' : 'border-white'}`}>
+            className={`grid grid-cols-6 items-center hover:bg-slate-100 text-sm bg-slate-200 border-b-2 border-white`}>
             <p>{orientation.upNumber}</p>
             <p>{orientation.centerNumber}</p>
             <p>{orientation.downNumber}</p>
