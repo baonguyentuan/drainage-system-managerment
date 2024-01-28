@@ -1,16 +1,16 @@
-import { Button, Col, Drawer, Form, Input, InputNumber, Row, Space, } from 'antd'
+import { Button, Col, Form, Input, InputNumber, Row, Space, } from 'antd'
 import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import TextArea from 'antd/es/input/TextArea'
 import { useSelector, useDispatch } from 'react-redux'
 import { useFormik } from 'formik'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StationItemModel, OrientationStatsModel } from '../../models/bookModels'
-import { BarsOutlined } from '@ant-design/icons'
-import BookManager from './BookManager'
 import { RootState } from '../../redux/configStore'
 import { setLstBookItem, setStructureName } from '../../redux/bookSlice'
 import { SortableContext, arrayMove } from '@dnd-kit/sortable';
 import OrientationElevation from './OrientationElevation';
+import OrientationCurrent from './OrientationCurrent';
+import { setPageTitle } from '../../redux/drawerSlice';
 type Props = {}
 
 const defaultOrientationValue: OrientationStatsModel = {
@@ -26,8 +26,8 @@ const defaultStationValue: StationItemModel = {
 }
 
 function Book({ }: Props) {
-    const [open, setOpen] = useState(false);
-    let { structureName, lstBookItem } = useSelector((state: RootState) => state.bookSlice)
+    const { structureName, lstBookItem } = useSelector((state: RootState) => state.bookSlice)
+    const { pageTitle } = useSelector((state: RootState) => state.drawerSlice)
     let [currentStation, setCurrentStation] = useState<StationItemModel>(defaultStationValue)
     let dispatch = useDispatch()
     const formik = useFormik({
@@ -47,16 +47,15 @@ function Book({ }: Props) {
     const sensors = useSensors(mouseSensor, touchSensor)
     let accuracy = (formik.values.upNumber + formik.values.downNumber) / 2 - formik.values.centerNumber
     let distance = (formik.values.upNumber - formik.values.downNumber) / 10
-    const showDrawer = () => {
-        setOpen(true);
-    };
-    const onClose = () => {
-        setOpen(false);
-    };
-    const sortOrientation = async (event: any) => {
+    const sortCurrentStation = async (event: any) => {
+        let activeIndex = currentStation.stationStat.findIndex(ori => ori.idOrientation === event.active.id)
+        let overIndex = currentStation.stationStat.findIndex(ori => ori.idOrientation === event.over.id)
+        await setCurrentStation({ ...currentStation, stationStat: arrayMove(currentStation.stationStat, activeIndex, overIndex) })
+    }
+    const sortStationBook = async (event: any) => {
         let activeId: number = event.active.id
         let index: number = -1
-        lstBookItem.map((station, staIndex) => {
+        lstBookItem.forEach((station, staIndex) => {
             let oriIndex = station.stationStat.findIndex(orientation => orientation.idOrientation === activeId)
             if (oriIndex !== -1) {
                 index = staIndex
@@ -70,6 +69,11 @@ function Book({ }: Props) {
             await dispatch(setLstBookItem({ lstBookItem: [...newBook] }))
         }
     }
+    const renderCurrentStation = (station: StationItemModel) => {
+        return station.stationStat.map((ori, index) => {
+            return <OrientationCurrent orientation={ori} station={station} setStation={setCurrentStation} />
+        })
+    }
     const renderStation = (station: StationItemModel[]) => {
         return station.map((stationItem, indexStation) => {
             return <SortableContext key={stationItem.idStation} items={stationItem.stationStat.map(orient => orient.idOrientation)}
@@ -81,21 +85,12 @@ function Book({ }: Props) {
             </SortableContext>
         })
     }
+    useEffect(() => {
+        if (pageTitle !== "Sổ đo thủy chuẩn")
+            dispatch(setPageTitle({ pageTitle: "Sổ đo thủy chuẩn" }))
+    }, [])
     return (
-        <div className='max-w-3xl m-auto p-4 my-4'>
-            <Drawer
-                title="Quản lý sổ đo"
-                placement="left"
-                onClose={onClose}
-                open={open}
-                key="left"
-            >
-                <BookManager />
-            </Drawer>
-            <div className='flex'>
-                <Button onClick={showDrawer}><BarsOutlined /></Button>
-                <h1 className='flex-1 text-center text-xl font-bold mb-4'>Sổ đo Thủy chuẩn</h1>
-            </div>
+        <div >
             <Form labelAlign='left'>
                 <Col span={24}>
                     <Form.Item
@@ -118,7 +113,6 @@ function Book({ }: Props) {
                                     formik.setFieldValue('upNumber', value)
                                 } else {
                                     formik.setFieldValue('upNumber', 0)
-
                                 }
                             }} />
                         </Form.Item>
@@ -135,7 +129,6 @@ function Book({ }: Props) {
                                     formik.setFieldValue('centerNumber', 0)
                                 }
                             }} />
-
                         </Form.Item>
                     </Col>
                     <Col span={8}>
@@ -179,12 +172,11 @@ function Book({ }: Props) {
                                 note: formik.values.note,
                             }
                             let stationUpdate: StationItemModel = { ...currentStation }
-                            stationUpdate.idStation = Date.now()
+                            if (currentStation.stationStat.length === 0) {
+                                stationUpdate.idStation = Date.now()
+                            }
                             stationUpdate.stationStat.push(orientationCurrent)
-                            await formik.setFieldValue('upNumber', 0)
-                            await formik.setFieldValue('centerNumber', 0)
-                            await formik.setFieldValue('downNumber', 0)
-                            await formik.setFieldValue('note', '')
+                            await formik.resetForm()
                             await setCurrentStation(stationUpdate)
                         }
                     }}>Thêm điểm mia</Button>
@@ -192,10 +184,7 @@ function Book({ }: Props) {
                         let lstUpdate = [...lstBookItem]
                         lstUpdate.push(currentStation)
                         await dispatch(setLstBookItem({ lstBookItem: lstUpdate }))
-                        await formik.setFieldValue('upNumber', 0)
-                        await formik.setFieldValue('centerNumber', 0)
-                        await formik.setFieldValue('downNumber', 0)
-                        await formik.setFieldValue('note', '')
+                        await formik.resetForm()
                         await setCurrentStation({
                             idStation: -1,
                             stationStat: []
@@ -203,10 +192,15 @@ function Book({ }: Props) {
                     }}>Kết thúc trạm</Button>
                 </Space>
             </div>
-            <DndContext onDragEnd={sortOrientation} sensors={sensors}>
-                <div className='bg-slate-200 my-2' >
-                    {renderStation([currentStation])}
-                </div>
+            <DndContext onDragEnd={sortCurrentStation} sensors={sensors}>
+                <SortableContext items={currentStation.stationStat.map(orient => orient.idOrientation)}
+                >
+                    <div className='bg-slate-200 my-2' >
+                        {renderCurrentStation(currentStation)}
+                    </div>
+                </SortableContext>
+            </DndContext>
+            <DndContext onDragEnd={sortStationBook} sensors={sensors}>
                 <div className='my-2'>
                     {renderStation(lstBookItem)}
                 </div>

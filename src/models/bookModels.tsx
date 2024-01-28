@@ -35,3 +35,9 @@ export interface OrientationPointModel{
     centerNumber:number,
     elevation:number
 }
+export interface AdjustPathModel{
+    startPoint:string,
+    endPoint:string,
+    elevation:number,
+    distance:number,
+}

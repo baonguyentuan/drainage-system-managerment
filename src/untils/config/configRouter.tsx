@@ -8,10 +8,10 @@ export default {
     private: {
         map_manager: "/map_manager",
         book_manager: "/book_manager",
-        book: "/book",
+        book: "book",
         convert: "/convert",
         editor: "/editor",
         text_tool: "/text_tool",
-        book_caculate: "/book_caculate"
+        book_calculate: "book_calculate"
     }
 }

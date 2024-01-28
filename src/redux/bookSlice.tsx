@@ -3,7 +3,7 @@ import { OrientationCalculateStatsModel, StationCalculationModel, StationItemMod
 
 const initialState = {
   structureName: '',
-  lstBookItem:[] as StationItemModel[],
+  lstBookItem: [] as StationItemModel[],
   lstBookCalculate: [] as StationCalculationModel[]
 }
 

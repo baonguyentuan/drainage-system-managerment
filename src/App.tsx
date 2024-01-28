@@ -10,6 +10,7 @@ import { Provider } from 'react-redux';
 import { store } from './redux/configStore';
 import TextTool from './pages/TextTool';
 import BookCaculation from './components/Book/BookCaculation';
+import BookLayout from './layouts/BookLayout';
 
 function App() {
   return (
@@ -20,10 +21,13 @@ function App() {
             <Route path='' element={<HomeLayout />}>
               <Route index element={<Home />} />
               <Route path={configRouter.public.home} element={<Home />} />
-              <Route path={configRouter.private.book} element={<Book />} />
-              <Route path={configRouter.private.text_tool} element={<TextTool/>}/>
-              <Route path={configRouter.private.book_caculate} element={<BookCaculation/>}/>
+              <Route path={configRouter.private.text_tool} element={<TextTool />} />
 
+            </Route>
+            <Route path={configRouter.private.book} element={<BookLayout />}>
+              <Route index element={<Book />} />
+              <Route path={configRouter.private.book_calculate} element={<BookCaculation />} />
+              <Route path={configRouter.private.book} element={<Book />} />
             </Route>
           </Routes>
         </BrowserRouter>

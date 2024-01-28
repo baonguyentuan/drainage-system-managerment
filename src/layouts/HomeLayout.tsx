@@ -7,12 +7,12 @@ type Props = {}
 const HomeLayout = (props: Props) => {
   return (
     <div className='w-full'>
-      <div className=' bg-slate-200 px-4 py-2 flex justify-end'>
+      {/* <div className=' bg-slate-200 px-4 py-2 flex justify-end'>
         <Space className='mx-auto'>
           <Button className=' bg-red-300'>Login</Button>
           <Button>Register</Button>
         </Space>
-      </div>
+      </div> */}
       <Outlet />
     </div>
   )
