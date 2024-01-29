@@ -107,12 +107,48 @@ const BookCaculation = (props: Props) => {
                 {renderStation(lstBookCalculate)}
             </div>
             {isAdjust ? <div>
-                <Button onClick={()=>{
-                    let lstPath:AdjustPathModel[]=[]
-                    if(lstAdjust.length>=3){
-                        
+                <Button onClick={() => {
+                    let lstPath: AdjustPathModel[] = []
+                    if (lstAdjust.length >= 3) {
+                        let findMin = Math.min(...lstAdjust)
+                        let tempAdjPath: AdjustPathModel = {
+                            startPoint: '',
+                            endPoint: '',
+                            elevation: 0,
+                            distance: 0,
+                        }
+                        lstBookCalculate.forEach((station, stationIndex) => {
+                            let compareIndex = lstAdjust.findIndex(adj => adj === stationIndex)
+                            if (compareIndex !== -1) {
+                                if (stationIndex === findMin) {
+                                    tempAdjPath.startPoint = station.stationStat[0].note
+                                    tempAdjPath.endPoint = ''
+                                    tempAdjPath.elevation = station.stationStat[0].centerNumber - station.stationStat[station.stationStat.length - 1].centerNumber
+                                    tempAdjPath.distance = (station.stationStat[0].upNumber - station.stationStat[0].downNumber + station.stationStat[station.stationStat.length - 1].upNumber - station.stationStat[station.stationStat.length - 1].downNumber) / 10
+                                } else {
+                                    lstPath.push({ ...tempAdjPath, endPoint: station.stationStat[station.stationStat.length - 1].note })
+                                    tempAdjPath.startPoint = station.stationStat[station.stationStat.length - 1].note
+                                    tempAdjPath.endPoint = ''
+                                    tempAdjPath.elevation = station.stationStat[0].centerNumber - station.stationStat[station.stationStat.length - 1].centerNumber
+                                    tempAdjPath.distance = (station.stationStat[0].upNumber - station.stationStat[0].downNumber + station.stationStat[station.stationStat.length - 1].upNumber - station.stationStat[station.stationStat.length - 1].downNumber) / 10
+                                }
+                            } else {
+                                tempAdjPath.elevation = tempAdjPath.elevation + station.stationStat[0].centerNumber - station.stationStat[station.stationStat.length - 1].centerNumber
+                                tempAdjPath.distance = tempAdjPath.distance + (station.stationStat[0].upNumber - station.stationStat[0].downNumber + station.stationStat[station.stationStat.length - 1].upNumber - station.stationStat[station.stationStat.length - 1].downNumber) / 10
+                            }
+                        })
+                        let renderText = ``
+                        lstPath.forEach((path, pathIndex) => {
+                              renderText += `${path.startPoint}\t${path.endPoint}\t${path.elevation}\t${path.distance}\n`
+                          })
+                        const element = document.createElement("a");
+                        const file = new Blob([renderText], { type: 'text/plain' });
+                        element.href = URL.createObjectURL(file);
+                        element.download = `${structureName}.txt`;
+                        document.body.appendChild(element);
+                        element.click();
                         setIsAdjust(false)
-                    }else{
+                    } else {
                         openNotificationWithIcon(
                             'error',
                             "Xảy ra lỗi trong quá trình tạo file",
@@ -172,7 +208,6 @@ const BookCaculation = (props: Props) => {
                                             elevation: orientElevation
                                         })
                                     }
-
                                 }
                             })
                         })
@@ -188,7 +223,6 @@ const BookCaculation = (props: Props) => {
                     setIsAdjust(!isAdjust)
                 }}>Tạo file bình sai</Button>
             </div>}
-            
         </div >
     )
 }
