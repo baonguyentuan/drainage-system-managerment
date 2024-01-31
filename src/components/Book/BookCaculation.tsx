@@ -9,8 +9,12 @@ import { setPageTitle } from '../../redux/drawerSlice'
 import { openNotificationWithIcon } from '../../untils/operate/notify'
 const { TextArea } = Input;
 type Props = {}
+type AdjustPointPosition = {
+    station: number,
+    orientation: number
+}
 const BookCaculation = (props: Props) => {
-    const { structureName, lstBookCalculate } = useSelector((state: RootState) => state.bookSlice)
+    const { structureName, lstBookCalculate, lstBookItem } = useSelector((state: RootState) => state.bookSlice)
     const { pageTitle } = useSelector((state: RootState) => state.drawerSlice)
     const dispatch = useDispatch()
     const [key, setKey] = useState(false)
@@ -18,12 +22,12 @@ const BookCaculation = (props: Props) => {
     const [keySelected, setKeySeclected] = useState<string>('')
     const [textboxValue, setTextboxValue] = useState<string>('')
     const [isAdjust, setIsAdjust] = useState(false)
-    const [lstAdjust, setLstAdjust] = useState<number[]>([])
+    const [lstAdjust, setLstAdjust] = useState<AdjustPointPosition[]>([])
     const renderStation = (station: StationCalculationModel[]) => {
         return station.map((stationItem, indexStation) => {
-            return <div key={indexStation} className={`text-sm`}>
+            return <div key={stationItem.idStation} className={`text-sm border-b-2`}>
                 {stationItem.stationStat.map((orientation, indexOrientation) => {
-                    return <div key={indexOrientation} className={`grid grid-cols-6 items-center ${lstAdjust.findIndex(adj => adj === indexStation) !== -1 ? 'bg-green-300' : ''} `}>
+                    return <div key={orientation.idOrientation} className={`grid grid-cols-6 items-center ${lstAdjust.findIndex(adj => adj.station === indexStation && adj.orientation === indexOrientation) !== -1 ? 'bg-green-300' : ''} `}>
                         <p>{orientation.upNumber}</p>
                         <p>{orientation.centerNumber}</p>
                         <p>{orientation.downNumber}</p>
@@ -32,19 +36,20 @@ const BookCaculation = (props: Props) => {
                         <p className=' text-left'>{orientation.note}</p>
                         <div className={`${isAdjust ? 'block' : 'hidden'} col-span-2`}>
                             <Button className={`${indexOrientation === stationItem.stationStat.length - 1 || indexOrientation === 0 ? 'hidden' : 'block'} my-2`}><BranchesOutlined /></Button>
-                            <Button className={`${stationItem.stationStat.length - 1 === indexOrientation ? 'block' : 'hidden'} my-2`} onClick={() => {
+                            <Button className={`${stationItem.stationStat.length - 1 === indexOrientation || indexOrientation === 0 ? 'block' : 'hidden'} my-2`} onClick={() => {
                                 let lstAdjustUpdate = [...lstAdjust]
-                                let findIndex = lstAdjust.findIndex(adj => adj === indexStation)
+                                let findIndex = lstAdjust.findIndex(adj => adj.station === indexStation && adj.orientation === indexOrientation)
                                 if (findIndex === -1) {
-                                    lstAdjustUpdate.push(indexStation)
+                                    lstAdjustUpdate.push({
+                                        station: indexStation,
+                                        orientation: indexOrientation
+                                    })
                                 } else {
                                     lstAdjustUpdate.splice(findIndex, 1)
                                 }
                                 setLstAdjust(lstAdjustUpdate)
                             }}><KeyOutlined /></Button>
                         </div>
-
-                        {indexOrientation >= stationItem.stationStat.length - 1 ? <hr className='col-span-5 my-2' /> : ''}
                     </div>
                 })}
             </div>
@@ -72,7 +77,7 @@ const BookCaculation = (props: Props) => {
         if (pageTitle !== "Tính toán sổ đo") {
             dispatch(setPageTitle({ pageTitle: "Tính toán sổ đo" }))
         }
-    }, [])
+    }, [lstBookItem])
     return (
         <div className='m-4'>
             <h1>{structureName}</h1>
@@ -109,44 +114,59 @@ const BookCaculation = (props: Props) => {
             {isAdjust ? <div>
                 <Button onClick={() => {
                     let lstPath: AdjustPathModel[] = []
+                    let tempAdj: AdjustPathModel = {
+                        startPoint: '',
+                        endPoint: '',
+                        elevation: 0,
+                        distance: 0,
+                    }
                     if (lstAdjust.length >= 3) {
-                        let findMin = Math.min(...lstAdjust)
-                        let tempAdjPath: AdjustPathModel = {
-                            startPoint: '',
-                            endPoint: '',
-                            elevation: 0,
-                            distance: 0,
-                        }
-                        lstBookCalculate.forEach((station, stationIndex) => {
-                            let compareIndex = lstAdjust.findIndex(adj => adj === stationIndex)
-                            if (compareIndex !== -1) {
-                                if (stationIndex === findMin) {
-                                    tempAdjPath.startPoint = station.stationStat[0].note
-                                    tempAdjPath.endPoint = ''
-                                    tempAdjPath.elevation = station.stationStat[0].centerNumber - station.stationStat[station.stationStat.length - 1].centerNumber
-                                    tempAdjPath.distance = (station.stationStat[0].upNumber - station.stationStat[0].downNumber + station.stationStat[station.stationStat.length - 1].upNumber - station.stationStat[station.stationStat.length - 1].downNumber) / 10
+                        lstBookCalculate.forEach((station, indexStation) => {
+                            station.stationStat.forEach((orientation, indexOrientation) => {
+                                let compareIndex = lstAdjust.findIndex(adj => adj.station === indexStation && adj.orientation === indexOrientation)
+                                if (compareIndex === -1) {
+                                    if(indexOrientation===station.stationStat.length - 1){
+                                        tempAdj.elevation += station.stationStat[0].centerNumber - station.stationStat[station.stationStat.length - 1].centerNumber
+                                        tempAdj.distance += (station.stationStat[0].upNumber - station.stationStat[0].downNumber + station.stationStat[station.stationStat.length - 1].upNumber - station.stationStat[station.stationStat.length - 1].downNumber) / 10
+                                        console.log(tempAdj);
+                                        
+                                    }
                                 } else {
-                                    lstPath.push({ ...tempAdjPath, endPoint: station.stationStat[station.stationStat.length - 1].note })
-                                    tempAdjPath.startPoint = station.stationStat[station.stationStat.length - 1].note
-                                    tempAdjPath.endPoint = ''
-                                    tempAdjPath.elevation = station.stationStat[0].centerNumber - station.stationStat[station.stationStat.length - 1].centerNumber
-                                    tempAdjPath.distance = (station.stationStat[0].upNumber - station.stationStat[0].downNumber + station.stationStat[station.stationStat.length - 1].upNumber - station.stationStat[station.stationStat.length - 1].downNumber) / 10
+                                    if (indexOrientation === 0) {
+                                        tempAdj.startPoint = orientation.note
+                                        tempAdj.endPoint = ''
+                                        tempAdj.elevation = 0
+                                        tempAdj.distance = 0
+                                    } else {
+                                        tempAdj.endPoint = orientation.note
+                                        tempAdj.elevation += station.stationStat[0].centerNumber - station.stationStat[station.stationStat.length - 1].centerNumber
+                                        tempAdj.distance += (station.stationStat[0].upNumber - station.stationStat[0].downNumber + station.stationStat[station.stationStat.length - 1].upNumber - station.stationStat[station.stationStat.length - 1].downNumber) / 10
+                                        lstPath.push({ ...tempAdj })
+                                        tempAdj.startPoint = orientation.note
+                                        tempAdj.endPoint = ''
+                                        tempAdj.elevation = 0
+                                        tempAdj.distance = 0
+                                    }
                                 }
-                            } else {
-                                tempAdjPath.elevation = tempAdjPath.elevation + station.stationStat[0].centerNumber - station.stationStat[station.stationStat.length - 1].centerNumber
-                                tempAdjPath.distance = tempAdjPath.distance + (station.stationStat[0].upNumber - station.stationStat[0].downNumber + station.stationStat[station.stationStat.length - 1].upNumber - station.stationStat[station.stationStat.length - 1].downNumber) / 10
-                            }
+                            })
                         })
                         let renderText = ``
                         lstPath.forEach((path, pathIndex) => {
-                              renderText += `${path.startPoint}\t${path.endPoint}\t${path.elevation}\t${path.distance}\n`
-                          })
-                        const element = document.createElement("a");
-                        const file = new Blob([renderText], { type: 'text/plain' });
-                        element.href = URL.createObjectURL(file);
-                        element.download = `${structureName}.txt`;
-                        document.body.appendChild(element);
-                        element.click();
+                            renderText += `${path.startPoint}\t${path.endPoint}\t${path.elevation}\t${path.distance}\n`
+                        })
+                        if (renderText !== ``) {
+                            const element = document.createElement("a");
+                            const file = new Blob([renderText], { type: 'text/plain' });
+                            element.href = URL.createObjectURL(file);
+                            element.download = `${structureName}-bs.txt`;
+                            document.body.appendChild(element);
+                            element.click();
+                        } else {
+                            openNotificationWithIcon(
+                                'error',
+                                "Xảy ra lỗi trong quá trình tạo file",
+                                "File trống")
+                        }
                         setIsAdjust(false)
                     } else {
                         openNotificationWithIcon(
