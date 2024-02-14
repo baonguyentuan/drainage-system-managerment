@@ -90,9 +90,9 @@ const BookManager = (props: Props) => {
           lstBookItem.forEach((sta, staIndex) => {
             sta.stationStat.forEach((ori: OrientationStatsModel, oriIndex: number) => {
               if (oriIndex === 0) {
-                renderText += `${formatText(String(staIndex + 1))}\t${formatText(String(ori.upNumber))}\t${formatText(String(ori.centerNumber))}\t${formatText(String(ori.downNumber))}\t${ori.note}\n`
+                renderText += `${formatText(String(staIndex + 1), 5)}\t${formatText(String(ori.upNumber), 5)}\t${formatText(String(ori.centerNumber), 5)}\t${formatText(String(ori.downNumber), 5)}\t${ori.note}\n`
               } else {
-                renderText += `${formatText(String(" "))}\t${formatText(String(ori.upNumber))}\t${formatText(String(ori.centerNumber))}\t${formatText(String(ori.downNumber))}\t${ori.note}\n`
+                renderText += `${formatText(String(" "), 5)}\t${formatText(String(ori.upNumber), 5)}\t${formatText(String(ori.centerNumber), 5)}\t${formatText(String(ori.downNumber), 5)}\t${ori.note}\n`
               }
             })
           })
@@ -103,9 +103,10 @@ const BookManager = (props: Props) => {
           document.body.appendChild(element);
           element.click();
         }}>Xuất sổ đo sang định dạng TXT</Button>
-        <Button className='col-span-2' onClick={() => { 
-          navigate(configRouter.private.book_calculate) 
-          dispatch(closeDrawer())}}>Tính toán sổ đo</Button>
+        <Button className='col-span-2' onClick={() => {
+          navigate(configRouter.private.book_calculate)
+          dispatch(closeDrawer())
+        }}>Tính toán sổ đo</Button>
       </div>
       <Search className='mb-2' placeholder="Nhập tên sổ đo" />
       <p className='text-left'>Sổ đo gần đây</p>

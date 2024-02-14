@@ -1,4 +1,4 @@
 export interface DrawerStats {
     drawerStatus: string,
-    draweeTitle: string,
+    drawerTitle: string,
 }

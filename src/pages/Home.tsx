@@ -20,7 +20,7 @@ const Home = (props: Props) => {
             </div>
             <div className=' home__item__box'>
                 <img className='imgThumb' src={bookImg} alt="book" />
-                <NavLink to={configRouter.private.convert} className='home__link'>Chuyển đổi KML - CAD </NavLink>
+                <NavLink to={configRouter.private.cad_ggearth} className='home__link'>Chuyển đổi KML - CAD </NavLink>
             </div>
             <div className=' home__item__box'>
                 <img className='imgThumb' src={bookImg} alt="book" />

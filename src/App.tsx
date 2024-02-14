@@ -11,6 +11,7 @@ import { store } from './redux/configStore';
 import TextTool from './pages/TextTool';
 import BookCaculation from './components/Book/BookCaculation';
 import BookLayout from './layouts/BookLayout';
+import CadGGEarth from './pages/CadGGEarth';
 
 function App() {
   return (
@@ -22,7 +23,7 @@ function App() {
               <Route index element={<Home />} />
               <Route path={configRouter.public.home} element={<Home />} />
               <Route path={configRouter.private.text_tool} element={<TextTool />} />
-
+              <Route path={configRouter.private.cad_ggearth} element={<CadGGEarth />} />
             </Route>
             <Route path={configRouter.private.book} element={<BookLayout />}>
               <Route index element={<Book />} />

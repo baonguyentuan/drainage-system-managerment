@@ -88,7 +88,7 @@ function Book({ }: Props) {
     useEffect(() => {
         if (pageTitle !== "Sổ đo thủy chuẩn")
             dispatch(setPageTitle({ pageTitle: "Sổ đo thủy chuẩn" }))
-    }, [])
+    }, [lstBookItem])
     return (
         <div >
             <Form labelAlign='left'>
