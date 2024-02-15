@@ -13,5 +13,6 @@ export default {
     text_tool: "/text_tool",
     book_calculate: "book_calculate",
     cad_ggearth: "cad_ggearth",
+    map_create: "map_create",
   },
 };
