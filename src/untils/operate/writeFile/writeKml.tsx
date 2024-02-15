@@ -1,4 +1,5 @@
 import { DxfObjectModel, StyleObjectModel } from "../../../models/cadModel";
+import { checkCoOrdinate } from "../opetate";
 import {
   renderPathFromDxf,
   renderTextFromDxf,
@@ -46,11 +47,6 @@ export const writeKmlFile = (
     lstInsert,
     lstBlock,
   } = dxfObject;
-  // let lstStyle: StyleObjectModel = {
-  //   lstPathStyle: [],
-  //   lstPolygonStyle: [],
-  //   lstPlacemarkStyle: [],
-  // };
   let renderText;
   let renderPath;
   let renderPolygon;
@@ -60,16 +56,59 @@ export const writeKmlFile = (
   let renderStyle;
   for (const obj in arrObject) {
     if (obj === "textObject") {
-      renderText = renderTextFromDxf(lstText, lstTextStyle, lstLayer, null);
+      let newListText = lstText.filter((textObj) => {
+        return checkCoOrdinate({
+          pX: textObj.firstAlignmentPoint.pX,
+          pY: textObj.firstAlignmentPoint.pY,
+          pZ: textObj.firstAlignmentPoint.pZ,
+        });
+      });
+      renderText = renderTextFromDxf(newListText, lstTextStyle, lstLayer, null);
     } else if (obj === "pathObject") {
-      renderPath = renderPathFromDxf(lstPath, lstLayer, null);
-      renderArc = renderArcFromDxf(lstArc, lstLayer, null);
-      renderCircle = renderCircleFromDxf(lstCircle, lstLayer, null);
+      let newListPath = lstPath.filter((pathObj) => {
+        return checkCoOrdinate({
+          pX: pathObj.vertex[0].pX,
+          pY: pathObj.vertex[0].pY,
+          pZ: pathObj.vertex[0].pZ,
+        });
+      });
+      renderPath = renderPathFromDxf(newListPath, lstLayer, null);
+      let newListArc = lstArc.filter((arcObj) => {
+        return checkCoOrdinate({
+          pX: arcObj.centerPoint.pX,
+          pY: arcObj.centerPoint.pY,
+          pZ: arcObj.centerPoint.pZ,
+        });
+      });
+      renderArc = renderArcFromDxf(newListArc, lstLayer, null);
+      let newListCircle = lstCircle.filter((circleObj) => {
+        return checkCoOrdinate({
+          pX: circleObj.centerPoint.pX,
+          pY: circleObj.centerPoint.pY,
+          pZ: circleObj.centerPoint.pZ,
+        });
+      });
+      renderCircle = renderCircleFromDxf(newListCircle, lstLayer, null);
     } else if (obj === "areaObject") {
-      renderPolygon = renderPolygonFromDxf(lstPolygon, lstLayer, null);
+      let newListPolygon = lstPolygon.filter((polygonObj) => {
+        return checkCoOrdinate({
+          pX: polygonObj.elevationPoint[0].epX,
+          pY: polygonObj.elevationPoint[0].epY,
+          pZ: polygonObj.elevationPoint[0].epZ,
+        });
+      });
+      renderPolygon = renderPolygonFromDxf(newListPolygon, lstLayer, null);
     } else if (obj === "blockObject") {
+      let newListInsert = lstInsert.filter((insertObj) => {
+        return checkCoOrdinate({
+          pX: insertObj.insertPoint.pX,
+          pY: insertObj.insertPoint.pY,
+          pZ: insertObj.insertPoint.pZ,
+        });
+      });
+      // console.log(newListInsert);
       renderBlock = renderBlockFromDxf(
-        lstInsert,
+        newListInsert,
         lstBlock,
         lstTextStyle,
         lstLayer

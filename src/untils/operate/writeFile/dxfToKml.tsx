@@ -29,7 +29,6 @@ import {
   TextCad,
 } from "../sections/entitiesSection";
 import { BlockCad } from "../sections/blocksSection";
-import { checkCoOrdinate } from "../opetate";
 export let lstStyle: StyleObjectModel = {
   lstPathStyle: [],
   lstPolygonStyle: [],
@@ -130,6 +129,15 @@ const movePointArcordingToBlockProperties = (
         Math.PI +
       180;
   }
+  console.log(
+    "cal",
+    insertPoint,
+    basePoint,
+    currentPoint,
+    scaleFactor,
+    length,
+  );
+
   return [
     insertPoint.pX +
       basePoint.pX +
@@ -284,9 +292,9 @@ export const renderTextFromDxf = (
         colorValue = convertColorRgb2HexKml(currentLayer.color);
       }
     }
-      return (
-        accumulator +
-        `<Placemark>
+    return (
+      accumulator +
+      `<Placemark>
             <name>${currentValue}</name>
             <styleUrl>#linestyle0</styleUrl>
             <description>${currentText.layerName}</description>
@@ -298,7 +306,7 @@ export const renderTextFromDxf = (
             </LineString>
           </Placemark>
           `
-      );
+    );
   }, ``);
   return renderText;
 };
@@ -527,7 +535,6 @@ export const renderPolygonFromDxf = (
     let renderVertex = ``;
     let pointClose;
     elevationPoint.map((currentVertex, index) => {
-      // let { epX, epY, epZ } = currentVertex;
       if (block !== null) {
         let { insertPoint, basePoint, scaleFactor, rotationAngle } = block;
         let currentPoint = {
@@ -545,12 +552,17 @@ export const renderPolygonFromDxf = (
         currentVertex.epX = x;
         currentVertex.epY = y;
         currentVertex.epZ = z;
+        console.log(insertPoint);
+        console.log(x, y);
+        console.log(layerName, basePoint, scaleFactor, rotationAngle);
       }
+
       let [pX, pY, pZ] = convertVn2000ToWgs84([
         currentVertex.epY,
         currentVertex.epX,
         currentVertex.epZ,
       ]);
+
       if (index === 0) {
         pointClose = ` ${pY},${pX},${pZ}
         `;

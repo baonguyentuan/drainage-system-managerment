@@ -45,6 +45,8 @@ const CadGGEarth = (props: Props) => {
         <Col span={8}>
           <Upload
             accept=".dxf, .kml"
+            multiple={false}
+            maxCount={1}
             showUploadList={true}
             beforeUpload={async (file) => {
               let extFile = file.name.split(".");

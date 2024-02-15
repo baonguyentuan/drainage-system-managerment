@@ -54,10 +54,10 @@ export const formatText = (string: string, length: number) => {
 };
 export const checkCoOrdinate = (ordinate: PointModel) => {
   if (
-    ordinate.pX < BOUNDARY_ORDINATE[1][1] &&
-    ordinate.pX > BOUNDARY_ORDINATE[2][1] &&
-    ordinate.pY < BOUNDARY_ORDINATE[1][2] &&
-    ordinate.pY < BOUNDARY_ORDINATE[2][2]
+    ordinate.pX > BOUNDARY_ORDINATE.hanoi.topLeft[1] &&
+    ordinate.pX < BOUNDARY_ORDINATE.hanoi.bottomRight[1] &&
+    ordinate.pY < BOUNDARY_ORDINATE.hanoi.topLeft[0] &&
+    ordinate.pY > BOUNDARY_ORDINATE.hanoi.bottomRight[0]
   ) {
     return true;
   } else {

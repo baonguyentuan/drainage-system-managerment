@@ -5,7 +5,11 @@ export const DEFAULT_WIDTH = "objWidth";
 export const TEXT_SIZE_WIDTH = 0.77;
 export const TEXT_SIZE_HEIGHT = 1;
 export const MAX_NUMBER_OBJECT = 6;
-export const BOUNDARY_ORDINATE = [
-  [2358333.374, 526915.792],
-  [2289555.102, 619065.766],
-];
+export const BOUNDARY_ORDINATE = {
+  hanoi: {
+    key: "hanoi",
+    name: "Hà Nội",
+    topLeft: [2358333.374, 526915.792],
+    bottomRight: [2289555.102, 619065.766],
+  },
+};
