@@ -106,7 +106,6 @@ export const writeKmlFile = (
           pZ: insertObj.insertPoint.pZ,
         });
       });
-      // console.log(newListInsert);
       renderBlock = renderBlockFromDxf(
         newListInsert,
         lstBlock,

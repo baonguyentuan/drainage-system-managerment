@@ -12,10 +12,10 @@ export class PathCad {
     constructor(id: string) {
         this.id = id;
         this.layerName = '';
-        this.color = -1;
+        this.color = 0;
         this.linetypeName = '';
-        this.linetypeScale = 0;
-        this.lineweight = -1;
+        this.linetypeScale = 1;
+        this.lineweight = 1;
         this.vertex = [];
         this.polylineFlag = 0
     }
@@ -69,7 +69,7 @@ export class PathCad {
                 if (line[1].trim() !== "") {
                     this.setLineweight = Number(line[1].trim())
                 } else {
-                    this.setLineweight = -1
+                    this.setLineweight = 1
                 }
                 break;
             case '48':
@@ -79,7 +79,7 @@ export class PathCad {
                 if (line[1].trim() !== "") {
                     this.setColor = Number(line[1].trim())
                 } else {
-                    this.setColor = -1
+                    this.setColor = 0
                 }
                 break;
             case '70':
@@ -106,10 +106,10 @@ export class TextCad {
         this.layerName = '';
         this.textValue = '';
         this.textStyle = '';
-        this.textHeight = -1;
-        this.widthFactor = 0;
+        this.textHeight = 1;
+        this.widthFactor = 1;
         this.textRotation = 0;
-        this.textColor = -1;
+        this.textColor = 0;
         this.firstAlignmentPoint = { pX: 0, pY: 0, pZ: 0 };
         this.secondAlignmentPoint = { pX: 0, pY: 0, pZ: 0 }
     }
@@ -177,14 +177,14 @@ export class TextCad {
                 if (line[1].trim() !== "") {
                     this.setTextHeight = Number(line[1].trim())
                 } else {
-                    this.setTextHeight = -1
+                    this.setTextHeight = 1
                 }
                 break;
             case '41':
                 if (line[1].trim() !== "") {
                     this.setWidthFactor = Number(line[1].trim())
                 } else {
-                    this.setWidthFactor = -1
+                    this.setWidthFactor = 1
                 }
                 break;
             case '50':
@@ -194,7 +194,7 @@ export class TextCad {
                 if (line[1].trim() !== "") {
                     this.setTextColor = Number(line[1].trim())
                 } else {
-                    this.setTextColor = -1
+                    this.setTextColor = 0
                 }
                 break;
 
@@ -217,7 +217,7 @@ export class HatchCad {
         this.layerName = '';
         this.patternName = '';
         this.patternScale = 0;
-        this.color = -1;
+        this.color = 0;
         this.numberVertex = 0
         this.rotationAngel = 0;
         this.elevationPoint = [];
@@ -280,7 +280,7 @@ export class HatchCad {
                 if (line[1].trim() !== "") {
                     this.setColor = Number(line[1].trim())
                 } else {
-                    this.setColor = -1
+                    this.setColor = 0
                 }
                 break;
             case '72':
@@ -310,10 +310,10 @@ export class CircleCad {
     constructor(id: string) {
         this.id = id;
         this.layerName = '';
-        this.color = -1;
+        this.color = 0;
         this.linetypeName = '';
         this.linetypeScale = 0;
-        this.lineweight = -1;
+        this.lineweight = 1;
         this.centerPoint = { pX: 0, pY: 0, pZ: 0 };
         this.radius = 0;
     }
@@ -362,7 +362,7 @@ export class CircleCad {
                 if (line[1].trim() !== "") {
                     this.setLineweight = Number(line[1].trim())
                 } else {
-                    this.setLineweight = -1
+                    this.setLineweight = 1
                 }
                 break;
             case '48':
@@ -372,7 +372,7 @@ export class CircleCad {
                 if (line[1].trim() !== "") {
                     this.setColor = Number(line[1].trim())
                 } else {
-                    this.setColor = -1
+                    this.setColor = 0
                 }
                 break;
             default:
@@ -395,9 +395,9 @@ export class ArcCad {
     constructor(id: string) {
         this.id = id;
         this.layerName = '';
-        this.color = -1;
+        this.color = 0;
         this.linetypeName = '';
-        this.linetypeScale = -1;
+        this.linetypeScale = 1;
         this.lineweight = 0;
         this.centerPoint = { pX: 0, pY: 0, pZ: 0 };
         this.radius = 0;
@@ -455,7 +455,7 @@ export class ArcCad {
                 if (line[1].trim() !== "") {
                     this.setLineweight = Number(line[1].trim())
                 } else {
-                    this.setLineweight = -1
+                    this.setLineweight = 1
                 }
                 break;
             case '48':
@@ -471,7 +471,7 @@ export class ArcCad {
                 if (line[1].trim() !== "") {
                     this.setColor = Number(line[1].trim())
                 } else {
-                    this.setColor = -1
+                    this.setColor = 0
                 }
                 break;
             default:

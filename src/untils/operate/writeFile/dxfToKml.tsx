@@ -86,7 +86,6 @@ const configStyleFromDxf = (
   }
   return pathStyle;
 };
-
 const movePointArcordingToBlockProperties = (
   insertPoint: PointModel,
   basePoint: PointModel,
@@ -94,63 +93,29 @@ const movePointArcordingToBlockProperties = (
   scaleFactor: ScaleFactorModel,
   rotationAngle: number
 ) => {
-  let length = Math.sqrt(
-    Math.pow(basePoint.pX - currentPoint.pX, 2) +
-      Math.pow(basePoint.pY - currentPoint.pY, 2)
-  );
-  let slopeAngle: number = 0;
-  let deltaX = currentPoint.pX - basePoint.pX;
-  let deltaY = currentPoint.pY - basePoint.pY;
-  if (deltaX === 0 && deltaY > 0) {
-    slopeAngle = 90;
-  } else if (deltaX === 0 && deltaY < 0) {
-    slopeAngle = 270;
-  } else if (deltaX > 0 && deltaY >= 0) {
-    slopeAngle =
-      (Math.atan(
-        (basePoint.pY - currentPoint.pY) / (basePoint.pX - currentPoint.pX)
-      ) *
-        180) /
-      Math.PI;
-  } else if (deltaX > 0 && deltaY <= 0) {
-    slopeAngle =
-      (Math.atan(
-        (basePoint.pY - currentPoint.pY) / (basePoint.pX - currentPoint.pX)
-      ) *
-        180) /
-        Math.PI +
-      360;
-  } else if (deltaX < 0) {
-    slopeAngle =
-      (Math.atan(
-        (basePoint.pY - currentPoint.pY) / (basePoint.pX - currentPoint.pX)
-      ) *
-        180) /
-        Math.PI +
-      180;
-  }
-  console.log(
-    "cal",
-    insertPoint,
-    basePoint,
-    currentPoint,
-    scaleFactor,
-    length,
-  );
-
-  return [
-    insertPoint.pX +
+  let newpX: number = -insertPoint.pX;
+  if (currentPoint.pX < 1000) {
+    let newpX =
       basePoint.pX +
       scaleFactor.sfX *
-        length *
-        cos(convertDegToRad(slopeAngle + rotationAngle)),
-    insertPoint.pY +
-      basePoint.pY +
+        (currentPoint.pX - basePoint.pX) *
+        cos(convertDegToRad(rotationAngle)) -
       scaleFactor.sfY *
-        length *
-        sin(convertDegToRad(slopeAngle + rotationAngle)),
-    insertPoint.pZ,
-  ];
+        (currentPoint.pY - basePoint.pY) *
+        sin(convertDegToRad(rotationAngle));
+  }
+  let newpY: number = -insertPoint.pY;
+  if (currentPoint.pY < 1000) {
+    let newpY =
+      basePoint.pY +
+      scaleFactor.sfX *
+        (currentPoint.pX - basePoint.pX) *
+        sin(convertDegToRad(rotationAngle)) +
+      scaleFactor.sfY *
+        (currentPoint.pY - basePoint.pY) *
+        cos(convertDegToRad(rotationAngle));
+  }
+  return [insertPoint.pX + newpX, insertPoint.pY + newpY, insertPoint.pZ];
 };
 export const renderStyleFromDxf = (
   style: StyleObjectModel,
@@ -199,6 +164,15 @@ export const renderTextFromDxf = (
   block: null | InsertBlockObjectModel
 ) => {
   let renderText = dxfObjectText.reduce((accumulator, currentText) => {
+    let refactorText: string = currentText.textValue;
+    let findText1 = refactorText.lastIndexOf(";");
+    if (findText1 !== -1) {
+      refactorText = refactorText.slice(findText1 + 1);
+      let findText2 = refactorText.lastIndexOf("}");
+      if (findText2 === refactorText.length - 1) {
+        refactorText = refactorText.slice(0, findText2 - 1);
+      }
+    }
     let lengthText = currentText.textValue.split("").length;
     let fontIndex = lstTextStyle.findIndex(
       (style) => style.styleName === currentText.textStyle
@@ -250,10 +224,10 @@ export const renderTextFromDxf = (
       currentText.firstAlignmentPoint.pY +
       (scaleWidth / 2) * sin(radRotation) -
       scaleHeight * cos(radRotation);
-    let pX1 = pX0 - scaleWidth * 6 * cos(radRotation);
-    let pY1 = pY0 - scaleWidth * 6 * sin(radRotation);
-    let pX2 = pX0 + scaleWidth * 6 * cos(radRotation);
-    let pY2 = pY0 + scaleWidth * 6 * sin(radRotation);
+    let pX1 = pX0 - scaleWidth * 7 * cos(radRotation);
+    let pY1 = pY0 - scaleWidth * 7 * sin(radRotation);
+    let pX2 = pX0 + scaleWidth * 7 * cos(radRotation);
+    let pY2 = pY0 + scaleWidth * 7 * sin(radRotation);
     let ordinateFirst = convertVn2000ToWgs84([
       pY1,
       pX1,
@@ -273,13 +247,9 @@ export const renderTextFromDxf = (
         currentText.textValue
       );
     } else if (fontGroup === "tcvn3") {
-      currentValue = convertFont(
-        tcvn3TextArr,
-        vietTextArr,
-        currentText.textValue
-      );
+      currentValue = convertFont(tcvn3TextArr, vietTextArr, refactorText);
     } else {
-      currentValue = currentText.textValue;
+      currentValue = refactorText;
     }
     let colorValue;
     if (currentText.textColor !== -1) {
@@ -357,7 +327,7 @@ export const renderPathFromDxf = (
       renderVertex += ` ${point[1]},${point[0]},${point[2]}
             `;
     });
-    if (polylineFlag !== 0) {
+    if (polylineFlag === 1) {
       renderVertex += vertexClose;
     }
     return (
@@ -552,17 +522,12 @@ export const renderPolygonFromDxf = (
         currentVertex.epX = x;
         currentVertex.epY = y;
         currentVertex.epZ = z;
-        console.log(insertPoint);
-        console.log(x, y);
-        console.log(layerName, basePoint, scaleFactor, rotationAngle);
       }
-
       let [pX, pY, pZ] = convertVn2000ToWgs84([
         currentVertex.epY,
         currentVertex.epX,
         currentVertex.epZ,
       ]);
-
       if (index === 0) {
         pointClose = ` ${pY},${pX},${pZ}
         `;

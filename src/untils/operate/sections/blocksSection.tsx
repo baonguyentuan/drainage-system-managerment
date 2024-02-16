@@ -92,6 +92,8 @@ export class BlockCad {
             default:
                 break;
         }
+        
+        
     }
     readBlockProperties(line: string[]) {
         if (line[0] === '0') {
