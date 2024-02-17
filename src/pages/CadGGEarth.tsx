@@ -1,5 +1,5 @@
 import { Button, Col, Row, Select, SelectProps, Upload } from "antd";
-import React, { useState } from "react";
+import  { useState } from "react";
 import {
   lstArc,
   lstAttDef,
@@ -16,6 +16,7 @@ import {
 } from "../untils/operate/readFile/readDxf";
 import { FileInfoModel } from "../models/fileModel";
 import { writeKmlFile } from "../untils/operate/writeFile/writeKml";
+import { MapContainer, TileLayer } from "react-leaflet";
 
 type Props = {};
 const weightOptions: SelectProps["options"] = [];
@@ -39,10 +40,10 @@ const CadGGEarth = (props: Props) => {
   });
   const [weightObj, setWeightObj] = useState<number>(0);
   return (
-    <div className="p-6">
-      <h1 className="font-bold text-xl mb-4">Chuyển đổi DXF - KML</h1>
+    <div>
       <Row gutter={16}>
         <Col span={8}>
+          <h1 className="font-bold text-xl my-6">Chuyển đổi DXF - KML</h1>
           <Upload
             accept=".dxf, .kml"
             multiple={false}
@@ -69,8 +70,6 @@ const CadGGEarth = (props: Props) => {
           >
             <Button>Chọn file</Button>
           </Upload>
-        </Col>
-        <Col span={16}>
           {fileInfo.name !== "" ? (
             <div>
               <p>
@@ -96,28 +95,50 @@ const CadGGEarth = (props: Props) => {
           ) : (
             ""
           )}
+          <div className="flex justify-around my-4">
+            <Button
+              disabled={fileInfo.name !== "" ? false : true}
+              onClick={() => {
+                writeKmlFile(
+                  fileInfo.name,
+                  {
+                    lstText,
+                    lstTextStyle,
+                    lstLayer,
+                    lstPath,
+                    lstPolygon,
+                    lstArc,
+                    lstCircle,
+                    lstInsert,
+                    lstBlock,
+                    lstAttDef,
+                    lstAttRib,
+                  },
+                  weightObj
+                );
+              }}
+            >
+              Chuyển đổi
+            </Button>
+            <Button>Tải file</Button>
+          </div>
+        </Col>
+        <Col span={16}>
+          <MapContainer
+            className="w-full h-screen"
+            zoomControl={false}
+            center={[21.019098, 105.841385]}
+            zoom={15}
+            scrollWheelZoom={true}
+          >
+            <TileLayer
+              url="http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}"
+              maxZoom={20}
+              subdomains={["mt1", "mt2", "mt3"]}
+            />
+          </MapContainer>
         </Col>
       </Row>
-      <Button
-        disabled={fileInfo.name !== "" ? false : true}
-        onClick={() => {
-          writeKmlFile(fileInfo.name, {
-            lstText,
-            lstTextStyle,
-            lstLayer,
-            lstPath,
-            lstPolygon,
-            lstArc,
-            lstCircle,
-            lstInsert,
-            lstBlock,
-            lstAttDef,
-            lstAttRib,
-          },weightObj);
-        }}
-      >
-        Chuyển đổi
-      </Button>
     </div>
   );
 };

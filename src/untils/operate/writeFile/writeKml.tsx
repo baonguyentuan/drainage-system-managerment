@@ -1,4 +1,4 @@
-import { DxfObjectModel, StyleObjectModel } from "../../../models/cadModel";
+import { DxfObjectModel } from "../../../models/cadModel";
 import { checkCoOrdinate } from "../opetate";
 import {
   renderPathFromDxf,
