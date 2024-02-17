@@ -29,7 +29,12 @@ import {
   TextCad,
 } from "../sections/entitiesSection";
 import { BlockCad } from "../sections/blocksSection";
-import { PlacemarkKmlModel } from "../../../models/ggearthModel";
+import {
+  BlockKmlModel,
+  PathKmlModel,
+  PlacemarkKmlModel,
+  PolygonKmlModel,
+} from "../../../models/ggearthModel";
 export let lstStyle: StyleObjectModel = {
   lstPathStyle: [],
   lstPolygonStyle: [],
@@ -119,144 +124,144 @@ const movePointArcordingToBlockProperties = (
   return [insertPoint.pX + newpX, insertPoint.pY + newpY, insertPoint.pZ];
 };
 //read text form dxf to kml
-export const convertTextFromDxf = (
-  dxfObjectText: TextCad[],
-  lstTextStyle: TextStyleCad[],
-  lstLayer: LayerCad[],
-  block: null | InsertBlockObjectModel
-) => {
-  let renderText:PlacemarkKmlModel[] = dxfObjectText.reduce((accumulator, currentText) => {
-    let refactorText: string = currentText.textValue;
-    let findText1 = refactorText.lastIndexOf(";");
-    if (findText1 !== -1) {
-      refactorText = refactorText.slice(findText1 + 1);
-      let findText2 = refactorText.lastIndexOf("}");
-      if (findText2 === refactorText.length - 1) {
-        refactorText = refactorText.slice(0, findText2 - 1);
-      }
-    }
-    let lengthText = currentText.textValue.split("").length;
-    let fontIndex = lstTextStyle.findIndex(
-      (style) => style.styleName === currentText.textStyle
-    );
-    let primaryFont;
-    if (fontIndex !== -1) {
-      primaryFont = lstTextStyle[fontIndex].primaryFontName;
-    } else {
-      primaryFont = currentText.textStyle;
-    }
-    let textHeight;
-    if (currentText.textHeight !== -1) {
-      textHeight = currentText.textHeight;
-    } else {
-      textHeight = lstTextStyle[fontIndex].textHeight;
-    }
-    let widthFactor;
-    if (currentText.widthFactor !== -1) {
-      widthFactor = currentText.widthFactor;
-    } else {
-      widthFactor = lstTextStyle[fontIndex].widthFactor;
-    }
-    let radRotation = convertDegToRad(currentText.textRotation);
-    if (block !== null) {
-      let { insertPoint, basePoint, scaleFactor, rotationAngle } = block;
-      let currentPoint = {
-        pX: currentText.firstAlignmentPoint.pX,
-        pY: currentText.firstAlignmentPoint.pY,
-        pZ: currentText.firstAlignmentPoint.pZ,
-      };
-      let [pX, pY, pZ] = movePointArcordingToBlockProperties(
-        insertPoint,
-        basePoint,
-        currentPoint,
-        scaleFactor,
-        rotationAngle
-      );
-      currentText.firstAlignmentPoint.pX = pX;
-      currentText.firstAlignmentPoint.pY = pY;
-      currentText.firstAlignmentPoint.pZ = pZ;
-    }
-    let scaleWidth = TEXT_SIZE_WIDTH * textHeight * widthFactor * lengthText;
-    let scaleHeight = TEXT_SIZE_HEIGHT * textHeight * widthFactor;
-    let pX0 =
-      currentText.firstAlignmentPoint.pX +
-      (scaleWidth / 2) * cos(radRotation) -
-      scaleHeight * sin(radRotation);
-    let pY0 =
-      currentText.firstAlignmentPoint.pY +
-      (scaleWidth / 2) * sin(radRotation) -
-      scaleHeight * cos(radRotation);
-    let pX1 = pX0 - scaleWidth * 7 * cos(radRotation);
-    let pY1 = pY0 - scaleWidth * 7 * sin(radRotation);
-    let pX2 = pX0 + scaleWidth * 7 * cos(radRotation);
-    let pY2 = pY0 + scaleWidth * 7 * sin(radRotation);
-    let ordinateFirst = convertVn2000ToWgs84([
-      pY1,
-      pX1,
-      currentText.firstAlignmentPoint.pZ,
-    ]);
-    let ordinateSecond = convertVn2000ToWgs84([
-      pY2,
-      pX2,
-      currentText.firstAlignmentPoint.pZ,
-    ]);
-    let fontGroup = configFont(primaryFont);
-    let currentValue;
-    if (fontGroup === "vni") {
-      currentValue = convertFont(
-        vniTextArr,
-        vietTextArr,
-        currentText.textValue
-      );
-    } else if (fontGroup === "tcvn3") {
-      currentValue = convertFont(tcvn3TextArr, vietTextArr, refactorText);
-    } else {
-      currentValue = refactorText;
-    }
-    let colorValue;
-    if (currentText.textColor !== -1) {
-      colorValue = convertColorRgb2HexKml(currentText.textColor);
-    } else {
-      let currentLayer = lstLayer.find(
-        (layer) => layer.layerName === currentText.layerName
-      );
-      if (currentLayer !== undefined) {
-        colorValue = convertColorRgb2HexKml(currentLayer.color);
-      }
-    }
-    return (
-      accumulator.concat({
-        id: 'string',
-        nameStyle: 'string',
-        pB: currentText.firstAlignmentPoint.pX,
-        pL: currentText.firstAlignmentPoint.pY,
-        pH: currentText.firstAlignmentPoint.pZ,
-        textValue:currentValue,
-        layerName:currentText.layerName
-      })
-    //   `<Placemark>
-    //         <name>${currentValue}</name>
-    //         <styleUrl>#linestyle0</styleUrl>
-    //         <description>${currentText.layerName}</description>
-    //         <LineString>
-    //           <coordinates>
-    //             ${ordinateFirst[1]},${ordinateFirst[0]},${ordinateFirst[2]}
-    //             ${ordinateSecond[1]},${ordinateSecond[0]},${ordinateSecond[2]} 
-    //           </coordinates>
-    //         </LineString>
-    //       </Placemark>
-    //       `
-    );
-  }, []);
-  return renderText;
-};
+// export const convertTextFromDxf = (
+//   dxfObjectText: TextCad[],
+//   lstTextStyle: TextStyleCad[],
+//   lstLayer: LayerCad[],
+//   block: null | InsertBlockObjectModel
+// ) => {
+//   let renderText:PlacemarkKmlModel[] = dxfObjectText.reduce((accumulator, currentText) => {
+//     let refactorText: string = currentText.textValue;
+//     let findText1 = refactorText.lastIndexOf(";");
+//     if (findText1 !== -1) {
+//       refactorText = refactorText.slice(findText1 + 1);
+//       let findText2 = refactorText.lastIndexOf("}");
+//       if (findText2 === refactorText.length - 1) {
+//         refactorText = refactorText.slice(0, findText2 - 1);
+//       }
+//     }
+//     let lengthText = currentText.textValue.split("").length;
+//     let fontIndex = lstTextStyle.findIndex(
+//       (style) => style.styleName === currentText.textStyle
+//     );
+//     let primaryFont;
+//     if (fontIndex !== -1) {
+//       primaryFont = lstTextStyle[fontIndex].primaryFontName;
+//     } else {
+//       primaryFont = currentText.textStyle;
+//     }
+//     let textHeight;
+//     if (currentText.textHeight !== -1) {
+//       textHeight = currentText.textHeight;
+//     } else {
+//       textHeight = lstTextStyle[fontIndex].textHeight;
+//     }
+//     let widthFactor;
+//     if (currentText.widthFactor !== -1) {
+//       widthFactor = currentText.widthFactor;
+//     } else {
+//       widthFactor = lstTextStyle[fontIndex].widthFactor;
+//     }
+//     let radRotation = convertDegToRad(currentText.textRotation);
+//     if (block !== null) {
+//       let { insertPoint, basePoint, scaleFactor, rotationAngle } = block;
+//       let currentPoint = {
+//         pX: currentText.firstAlignmentPoint.pX,
+//         pY: currentText.firstAlignmentPoint.pY,
+//         pZ: currentText.firstAlignmentPoint.pZ,
+//       };
+//       let [pX, pY, pZ] = movePointArcordingToBlockProperties(
+//         insertPoint,
+//         basePoint,
+//         currentPoint,
+//         scaleFactor,
+//         rotationAngle
+//       );
+//       currentText.firstAlignmentPoint.pX = pX;
+//       currentText.firstAlignmentPoint.pY = pY;
+//       currentText.firstAlignmentPoint.pZ = pZ;
+//     }
+//     let scaleWidth = TEXT_SIZE_WIDTH * textHeight * widthFactor * lengthText;
+//     let scaleHeight = TEXT_SIZE_HEIGHT * textHeight * widthFactor;
+//     let pX0 =
+//       currentText.firstAlignmentPoint.pX +
+//       (scaleWidth / 2) * cos(radRotation) -
+//       scaleHeight * sin(radRotation);
+//     let pY0 =
+//       currentText.firstAlignmentPoint.pY +
+//       (scaleWidth / 2) * sin(radRotation) -
+//       scaleHeight * cos(radRotation);
+//     let pX1 = pX0 - scaleWidth * 7 * cos(radRotation);
+//     let pY1 = pY0 - scaleWidth * 7 * sin(radRotation);
+//     let pX2 = pX0 + scaleWidth * 7 * cos(radRotation);
+//     let pY2 = pY0 + scaleWidth * 7 * sin(radRotation);
+//     let ordinateFirst = convertVn2000ToWgs84([
+//       pY1,
+//       pX1,
+//       currentText.firstAlignmentPoint.pZ,
+//     ]);
+//     let ordinateSecond = convertVn2000ToWgs84([
+//       pY2,
+//       pX2,
+//       currentText.firstAlignmentPoint.pZ,
+//     ]);
+//     let fontGroup = configFont(primaryFont);
+//     let currentValue;
+//     if (fontGroup === "vni") {
+//       currentValue = convertFont(
+//         vniTextArr,
+//         vietTextArr,
+//         currentText.textValue
+//       );
+//     } else if (fontGroup === "tcvn3") {
+//       currentValue = convertFont(tcvn3TextArr, vietTextArr, refactorText);
+//     } else {
+//       currentValue = refactorText;
+//     }
+//     let colorValue;
+//     if (currentText.textColor !== -1) {
+//       colorValue = convertColorRgb2HexKml(currentText.textColor);
+//     } else {
+//       let currentLayer = lstLayer.find(
+//         (layer) => layer.layerName === currentText.layerName
+//       );
+//       if (currentLayer !== undefined) {
+//         colorValue = convertColorRgb2HexKml(currentLayer.color);
+//       }
+//     }
+//     return (
+//       accumulator.concat({
+//         id: 'string',
+//         nameStyle: 'string',
+//         pB: currentText.firstAlignmentPoint.pX,
+//         pL: currentText.firstAlignmentPoint.pY,
+//         pH: currentText.firstAlignmentPoint.pZ,
+//         textValue:currentValue,
+//         layerName:currentText.layerName
+//       })
+//     //   `<Placemark>
+//     //         <name>${currentValue}</name>
+//     //         <styleUrl>#linestyle0</styleUrl>
+//     //         <description>${currentText.layerName}</description>
+//     //         <LineString>
+//     //           <coordinates>
+//     //             ${ordinateFirst[1]},${ordinateFirst[0]},${ordinateFirst[2]}
+//     //             ${ordinateSecond[1]},${ordinateSecond[0]},${ordinateSecond[2]}
+//     //           </coordinates>
+//     //         </LineString>
+//     //       </Placemark>
+//     //       `
+//     );
+//   }, []);
+//   return renderText;
+// };
 //read path form dxf
-export const renderPathFromDxf = (
+export const convertPathFromDxf = (
   dxfObjectPath: PathCad[],
   lstLayer: LayerCad[],
   block: null | InsertBlockObjectModel
 ) => {
-  let renderPath = dxfObjectPath.reduce((accumulator, currentPath) => {
+  let renderPath: PathKmlModel[] = dxfObjectPath.map((currentPath, index) => {
     let { layerName, vertex, color, lineweight, id, polylineFlag } =
       currentPath;
     let pathStyle = configStyleFromDxf(
@@ -264,9 +269,12 @@ export const renderPathFromDxf = (
       { layerName, color, lineweight },
       lstLayer
     );
-    let renderVertex = ``;
-    let vertexClose;
-    vertex.map((currentVertex, index) => {
+    let vertexClose: PointModel = {
+      pX: 0,
+      pY: 0,
+      pZ: 0,
+    };
+    let renderVertex: PointModel[] = vertex.map((currentVertex, index) => {
       let point;
       if (block !== null) {
         let { insertPoint, basePoint, scaleFactor, rotationAngle } = block;
@@ -291,100 +299,93 @@ export const renderPathFromDxf = (
         ]);
       }
       if (index === 0) {
-        vertexClose = ` ${point[1]},${point[0]},${point[2]}
-        `;
+        vertexClose = {
+          pX: point[1],
+          pY: point[0],
+          pZ: point[2],
+        };
       }
-      renderVertex += ` ${point[1]},${point[0]},${point[2]}
-            `;
+      if (polylineFlag === 1) {
+        return vertexClose;
+      }
+      return {
+        pX: point[1],
+        pY: point[0],
+        pZ: point[2],
+      };
     });
-    if (polylineFlag === 1) {
-      renderVertex += vertexClose;
-    }
-    return (
-      accumulator +
-      `
-    <Placemark>
-        <name>${id}</name>
-        <description>${layerName}</description>
-        <styleUrl>#${pathStyle}</styleUrl>
-        <LineString>
-          <coordinates>
-            ${renderVertex}
-          </coordinates>
-        </LineString>
-      </Placemark>
-      `
-    );
-  }, ``);
+    return {
+      id,
+      pathName: id,
+      nameStyle: pathStyle,
+      layerName: layerName,
+      vertex: renderVertex,
+    };
+  });
   return renderPath;
 };
-//read circle from dxf
-export const renderCircleFromDxf = (
+export const convertCircleFromDxf = (
   dxfObjectCircle: CircleCad[],
   lstLayer: LayerCad[],
   block: null | InsertBlockObjectModel
 ) => {
-  let renderItemCircle = ``;
-  let renderCircle = dxfObjectCircle.reduce((acc, currentCircle) => {
-    let { id, layerName, centerPoint, color, lineweight, radius } =
-      currentCircle;
-    // let { cPX, cPY, cPZ } = centerPoint;
-    let renderPoint = ``;
-    let pathStyle = configStyleFromDxf(
-      "path",
-      { layerName, color, lineweight },
-      lstLayer
-    );
-    if (block !== null) {
-      let { insertPoint, basePoint, scaleFactor, rotationAngle } = block;
-      let currentPoint = {
-        pX: centerPoint.pX,
-        pY: centerPoint.pY,
-        pZ: centerPoint.pZ,
-      };
-      let [x, y, z] = movePointArcordingToBlockProperties(
-        insertPoint,
-        basePoint,
-        currentPoint,
-        scaleFactor,
-        rotationAngle
+  let renderCircle: PathKmlModel[] = dxfObjectCircle.map(
+    (currentCircle, index) => {
+      let { id, layerName, centerPoint, color, lineweight, radius } =
+        currentCircle;
+      let renderPoint: PointModel[] = [];
+      let pathStyle = configStyleFromDxf(
+        "path",
+        { layerName, color, lineweight },
+        lstLayer
       );
-      centerPoint.pX = x;
-      centerPoint.pY = y;
-      centerPoint.pZ = z;
-      radius = radius * scaleFactor.sfX;
+      if (block !== null) {
+        let { insertPoint, basePoint, scaleFactor, rotationAngle } = block;
+        let currentPoint = {
+          pX: centerPoint.pX,
+          pY: centerPoint.pY,
+          pZ: centerPoint.pZ,
+        };
+        let [x, y, z] = movePointArcordingToBlockProperties(
+          insertPoint,
+          basePoint,
+          currentPoint,
+          scaleFactor,
+          rotationAngle
+        );
+        centerPoint.pX = x;
+        centerPoint.pY = y;
+        centerPoint.pZ = z;
+        radius = radius * scaleFactor.sfX;
+      }
+      for (let i = 0; i <= 360; i += 5) {
+        let xc, yc;
+        xc = centerPoint.pX + radius * cos(convertDegToRad(i));
+        yc = centerPoint.pY + radius * sin(convertDegToRad(i));
+        let point = convertVn2000ToWgs84([yc, xc, centerPoint.pZ]);
+        renderPoint.concat({
+          pX: point[1],
+          pY: point[0],
+          pZ: point[2],
+        });
+      }
+      return {
+        id,
+        pathName: id,
+        nameStyle: pathStyle,
+        layerName: layerName,
+        vertex: renderPoint,
+      };
     }
-    for (let i = 0; i <= 360; i += 5) {
-      let xc, yc;
-      xc = centerPoint.pX + radius * cos(convertDegToRad(i));
-      yc = centerPoint.pY + radius * sin(convertDegToRad(i));
-      let point = convertVn2000ToWgs84([yc, xc, centerPoint.pZ]);
-      renderPoint += `${point[1]},${point[0]},${point[2]}
-      `;
-    }
-    renderItemCircle += `<Placemark>
-        <name>${id}</name>
-        <description>${layerName}</description>
-        <styleUrl>#${pathStyle}</styleUrl>
-        <LineString>
-          <coordinates>
-            ${renderPoint}
-          </coordinates>
-        </LineString>
-      </Placemark>
-      `;
-    return acc + renderItemCircle;
-  }, ``);
+  );
   return renderCircle;
 };
-//read arc from dxf
-export const renderArcFromDxf = (
+export const convertArcFromDxf = (
   dxfObjectArc: ArcCad[],
   lstLayer: LayerCad[],
   block: null | InsertBlockObjectModel
 ) => {
-  let renderItemArc = ``;
-  let renderArc = dxfObjectArc.reduce((acc, currentArc) => {
+  let renderArc: PathKmlModel[] = dxfObjectArc.map((currentArc, index) => {
     let {
       id,
       layerName,
@@ -395,7 +396,7 @@ export const renderArcFromDxf = (
       startAngle,
       endAngle,
     } = currentArc;
-    let renderPoint = ``;
+    let renderPoint: PointModel[] = [];
     let pathStyle = configStyleFromDxf(
       "path",
       { layerName, color, lineweight },
@@ -430,128 +431,122 @@ export const renderArcFromDxf = (
       centerPoint.pX + radius * cos(convertDegToRad(endAngle)),
       centerPoint.pZ,
     ]);
-    renderPoint += `${pointStart[1]},${pointStart[0]},${pointStart[2]}
-    `;
+    renderPoint.concat({
+      pX: pointStart[1],
+      pY: pointStart[0],
+      pZ: pointStart[2],
+    });
     for (let i = Math.floor(startAngle) + 1; i <= Math.floor(endAngle); i++) {
       if (i % 5 === 0) {
         let x, y;
         x = centerPoint.pX + radius * cos(convertDegToRad(i));
         y = centerPoint.pY + radius * sin(convertDegToRad(i));
         let point = convertVn2000ToWgs84([y, x, centerPoint.pZ]);
-        renderPoint += `${point[1]},${point[0]},${point[2]}
-        `;
+        renderPoint.concat({
+          pX: point[1],
+          pY: point[0],
+          pZ: point[2],
+        });
       }
     }
-    renderPoint += `${pointEnd[1]},${pointEnd[0]},${pointEnd[2]}
-    `;
-    renderItemArc += `<Placemark>
-        <name>${id}</name>
-        <description>${layerName}</description>
-        <styleUrl>#${pathStyle}</styleUrl>
-        <LineString>
-          <coordinates>
-            ${renderPoint}
-          </coordinates>
-        </LineString>
-      </Placemark>
-      `;
-    return acc + renderItemArc;
-  }, ``);
+    renderPoint.concat({
+      pX: pointEnd[1],
+      pY: pointEnd[0],
+      pZ: pointEnd[2],
+    });
+    return {
+      id,
+      pathName: id,
+      nameStyle: pathStyle,
+      layerName: layerName,
+      vertex: renderPoint,
+    };
+  });
   return renderArc;
 };
-//read hatch form dxf
-export const renderPolygonFromDxf = (
+export const convertPolygonFromDxf = (
   dxfObjectPolygon: HatchCad[],
   lstLayer: LayerCad[],
   block: null | InsertBlockObjectModel
 ) => {
-  let renderPath = dxfObjectPolygon.reduce((accumulator, currentPath) => {
-    let { id, layerName, elevationPoint, color, patternScale } = currentPath;
-    let pathStyle = configStyleFromDxf(
-      "polygon",
-      { layerName, color, patternScale },
-      lstLayer
-    );
-    let renderVertex = ``;
-    let pointClose;
-    elevationPoint.map((currentVertex, index) => {
-      if (block !== null) {
-        let { insertPoint, basePoint, scaleFactor, rotationAngle } = block;
-        let currentPoint = {
-          pX: currentVertex.epX,
-          pY: currentVertex.epY,
-          pZ: currentVertex.epZ,
-        };
-        let [x, y, z] = movePointArcordingToBlockProperties(
-          insertPoint,
-          basePoint,
-          currentPoint,
-          scaleFactor,
-          rotationAngle
-        );
-        currentVertex.epX = x;
-        currentVertex.epY = y;
-        currentVertex.epZ = z;
-      }
-      let [pX, pY, pZ] = convertVn2000ToWgs84([
-        currentVertex.epY,
-        currentVertex.epX,
-        currentVertex.epZ,
-      ]);
-      if (index === 0) {
-        pointClose = ` ${pY},${pX},${pZ}
-        `;
-      }
-      renderVertex += ` ${pY},${pX},${pZ}
-            `;
-    });
-    renderVertex += pointClose;
-    return (
-      accumulator +
-      `
-    <Placemark>
-        <name>${id}</name>
-        <description>${layerName}</description>
-        <styleUrl>#${pathStyle}</styleUrl>
-        <Polygon>
-				<tessellate>1</tessellate>
-				<outerBoundaryIs>
-					<LinearRing>
-						<coordinates>
-            ${renderVertex}
-						</coordinates>
-					</LinearRing>
-				</outerBoundaryIs>
-			</Polygon>
-      </Placemark>
-      `
-    );
-  }, ``);
-  return renderPath;
+  let renderHatch: PolygonKmlModel[] = dxfObjectPolygon.map(
+    (currentHatch, index) => {
+      let { id, layerName, elevationPoint, color, patternScale } = currentHatch;
+      let pathStyle = configStyleFromDxf(
+        "polygon",
+        { layerName, color, patternScale },
+        lstLayer
+      );
+      let pointClose: PointModel = { pX: 0, pY: 0, pZ: 0 };
+      let renderVertex: PointModel[] = elevationPoint.map(
+        (currentVertex, index) => {
+          if (block !== null) {
+            let { insertPoint, basePoint, scaleFactor, rotationAngle } = block;
+            let currentPoint = {
+              pX: currentVertex.epX,
+              pY: currentVertex.epY,
+              pZ: currentVertex.epZ,
+            };
+            let [x, y, z] = movePointArcordingToBlockProperties(
+              insertPoint,
+              basePoint,
+              currentPoint,
+              scaleFactor,
+              rotationAngle
+            );
+            currentVertex.epX = x;
+            currentVertex.epY = y;
+            currentVertex.epZ = z;
+          }
+          let [pX, pY, pZ] = convertVn2000ToWgs84([
+            currentVertex.epY,
+            currentVertex.epX,
+            currentVertex.epZ,
+          ]);
+          if (index === 0) {
+            pointClose = { pY, pX, pZ };
+          }
+          return { pY, pX, pZ };
+        }
+      );
+      renderVertex.concat(pointClose);
+      return {
+        id,
+        polygonName: id,
+        nameStyle: pathStyle,
+        layerName: layerName,
+        vertex: renderVertex,
+      };
+    }
+  );
+  return renderHatch;
 };
-
-export const renderBlockFromDxf = (
+export const convertBlockFromDxf = (
   insertBlock: InsertBlockCad[],
   lstBlock: BlockCad[],
   lstTextStyle: TextStyleCad[],
   lstLayer: LayerCad[]
 ) => {
-  let renderBlock = ``;
-  insertBlock.map((insert, index) => {
+  let renderBlock: BlockKmlModel = {
+    id: "",
+    path: [],
+    polygon: [],
+    placemark: [],
+  };
+  return insertBlock.map((insert, index) => {
     let { blockName, layerName, insertPoint, scaleFactor, rotationAngle } =
       insert;
-    let renderPath;
-    let renderPolygon;
-    let renderText;
-    let renderArc;
-    let renderCircle;
-    let renderAttdef;
-    let renderInsert;
-    let renderAttrib;
+    let renderPath: PathKmlModel[] = [];
+    let renderPolygon: PolygonKmlModel[] = [];
+    let renderText = [];
+    let renderArc: PathKmlModel[] = [];
+    let renderCircle: PathKmlModel[] = [];
+    // let renderAttdef;
+    // let renderInsert;
+    // let renderAttrib;
     let indexBlock = lstBlock.findIndex(
       (block) => block.properties.blockName === blockName
     );
-    // insertPoint, basePoint, currentPoint, scaleFactor, rotationAngel
     if (indexBlock !== -1) {
       let { lstPath, lstPolygon, lstArc, lstCircle, lstText } =
         lstBlock[indexBlock];
@@ -564,33 +559,35 @@ export const renderBlockFromDxf = (
       };
       for (let obj in lstBlock[indexBlock]) {
         if (obj === "lstPath") {
-          renderPath = renderPathFromDxf(lstPath, lstLayer, blockInfo);
+          renderPath = convertPathFromDxf(lstPath, lstLayer, blockInfo);
         } else if (obj === "lstPolygon") {
-          renderPolygon = renderPolygonFromDxf(lstPolygon, lstLayer, blockInfo);
-        } else if (obj === "lstText") {
-          renderText = convertTextFromDxf(
-            lstText,
-            lstTextStyle,
+          renderPolygon = convertPolygonFromDxf(
+            lstPolygon,
             lstLayer,
             blockInfo
           );
+        } else if (obj === "lstText") {
+          // renderText = renderTextFromDxf(
+          //   lstText,
+          //   lstTextStyle,
+          //   lstLayer,
+          //   blockInfo
+          // );
         } else if (obj === "lstArc") {
-          renderArc = renderArcFromDxf(lstArc, lstLayer, blockInfo);
+          renderArc = convertArcFromDxf(lstArc, lstLayer, blockInfo);
         } else if (obj === "lstCircle") {
-          renderCircle = renderCircleFromDxf(lstCircle, lstLayer, blockInfo);
+          renderCircle = convertCircleFromDxf(lstCircle, lstLayer, blockInfo);
         }
         // else if (obj === 'lstAttdef') {
 
         // }else if (obj === 'lstAttrib') {
 
         // }
-        renderBlock += `${lstText.length !== 0 ? renderText : ``}    
-        ${lstPath.length !== 0 ? renderPath : ``}
-        ${lstArc.length !== 0 ? renderArc : ``}
-        ${lstCircle.length !== 0 ? renderCircle : ``}
-        ${lstPolygon.length !== 0 ? renderPolygon : ``}`;
+        renderBlock.path = renderPath.concat(renderArc, renderCircle);
+        renderBlock.polygon = renderPolygon;
+        // renderBlock.placemark=renderPolygon
       }
     }
+    return renderBlock;
   });
-  return renderBlock;
 };

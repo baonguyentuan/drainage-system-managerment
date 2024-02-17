@@ -559,7 +559,7 @@ export const renderPolygonFromDxf = (
   }, ``);
   return renderPath;
 };
-
+//read block form dxf
 export const renderBlockFromDxf = (
   insertBlock: InsertBlockCad[],
   lstBlock: BlockCad[],

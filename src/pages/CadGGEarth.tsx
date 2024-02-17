@@ -1,5 +1,5 @@
 import { Button, Col, Row, Select, SelectProps, Upload } from "antd";
-import  { useState } from "react";
+import { useState } from "react";
 import {
   lstArc,
   lstAttDef,
@@ -16,7 +16,17 @@ import {
 } from "../untils/operate/readFile/readDxf";
 import { FileInfoModel } from "../models/fileModel";
 import { writeKmlFile } from "../untils/operate/writeFile/writeKml";
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, Polyline, TileLayer } from "react-leaflet";
+import { KmlObjectModel, PathKmlModel } from "../models/ggearthModel";
+import {
+  convertArcFromDxf,
+  convertBlockFromDxf,
+  convertCircleFromDxf,
+  convertPathFromDxf,
+  convertPolygonFromDxf,
+  lstStyle,
+} from "../untils/operate/convertObject/dxf2kml";
+import { colorRGB } from "../untils/operate/color";
 
 type Props = {};
 const weightOptions: SelectProps["options"] = [];
@@ -39,9 +49,23 @@ const CadGGEarth = (props: Props) => {
     extention: "",
   });
   const [weightObj, setWeightObj] = useState<number>(0);
+  const [kmlOject, setKmlObject] = useState<KmlObjectModel>({
+    layer: [],
+    style: {
+      lstPathStyle: [],
+      lstPolygonStyle: [],
+      lstPlacemarkStyle: [],
+    },
+    textStyle: [],
+    block: [],
+    placemark: [],
+    path: [],
+    polygon: [],
+  });
+  const [kmlPath, setKmlPath] = useState<PathKmlModel[]>([]);
   return (
     <div>
-      <Row gutter={16}>
+      <Row>
         <Col span={8}>
           <h1 className="font-bold text-xl my-6">Chuyển đổi DXF - KML</h1>
           <Upload
@@ -98,6 +122,39 @@ const CadGGEarth = (props: Props) => {
           <div className="flex justify-around my-4">
             <Button
               disabled={fileInfo.name !== "" ? false : true}
+              onClick={async () => {
+                let KmlPath = await convertPathFromDxf(lstPath, lstLayer, null);
+                let KmlArc = await convertArcFromDxf(lstArc, lstLayer, null);
+                let KmlCircle = await convertCircleFromDxf(
+                  lstCircle,
+                  lstLayer,
+                  null
+                );
+                let KmlPolygon = await convertPolygonFromDxf(
+                  lstPolygon,
+                  lstLayer,
+                  null
+                );
+                let KmlBlock = await convertBlockFromDxf(
+                  lstInsert,
+                  lstBlock,
+                  lstTextStyle,
+                  lstLayer
+                );
+                await setKmlObject({
+                  layer: lstLayer,
+                  style: lstStyle,
+                  textStyle: lstTextStyle,
+                  block: KmlBlock,
+                  placemark: [],
+                  path: kmlPath.concat(KmlArc, KmlCircle),
+                  polygon: KmlPolygon,
+                });
+              }}
+            >
+              Chuyển đổi
+            </Button>
+            <Button
               onClick={() => {
                 writeKmlFile(
                   fileInfo.name,
@@ -118,9 +175,8 @@ const CadGGEarth = (props: Props) => {
                 );
               }}
             >
-              Chuyển đổi
+              Tải file
             </Button>
-            <Button>Tải file</Button>
           </div>
         </Col>
         <Col span={16}>
@@ -136,6 +192,27 @@ const CadGGEarth = (props: Props) => {
               maxZoom={20}
               subdomains={["mt1", "mt2", "mt3"]}
             />
+            {kmlPath.map((pathObj, index) => {
+              let styleIndex = lstStyle.lstPathStyle.findIndex(
+                (st) => st.namePathStyle === pathObj.nameStyle
+              );
+              if (styleIndex !== -1) {
+                return (
+                  <Polyline
+                    key={`${pathObj.id}-${index}`}
+                    pathOptions={{
+                      color: `rgb(${colorRGB[
+                        lstStyle.lstPathStyle[styleIndex].color
+                      ].join(",")})`,
+                      weight: 2,
+                    }}
+                    positions={pathObj.vertex.map((vt, index) => {
+                      return [vt.pY, vt.pX];
+                    })}
+                  />
+                );
+              }
+            })}
           </MapContainer>
         </Col>
       </Row>
