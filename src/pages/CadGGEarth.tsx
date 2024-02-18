@@ -1,5 +1,14 @@
-import { Button, Col, Row, Select, SelectProps, Upload } from "antd";
-import { useState } from "react";
+import {
+  Button,
+  Col,
+  ColorPicker,
+  Row,
+  Select,
+  SelectProps,
+  Slider,
+  Upload,
+} from "antd";
+import { useEffect, useState } from "react";
 import {
   lstArc,
   lstAttDef,
@@ -17,7 +26,7 @@ import {
 import { FileInfoModel } from "../models/fileModel";
 import { writeKmlFile } from "../untils/operate/writeFile/writeKml";
 import { MapContainer, Polyline, TileLayer } from "react-leaflet";
-import { KmlObjectModel, PathKmlModel } from "../models/ggearthModel";
+import { KmlObjectModel } from "../models/ggearthModel";
 import {
   convertArcFromDxf,
   convertBlockFromDxf,
@@ -27,8 +36,8 @@ import {
   lstStyle,
 } from "../untils/operate/convertObject/dxf2kml";
 import { colorRGB } from "../untils/operate/color";
-
 type Props = {};
+const formatter = (value: any) => `${value}`;
 const weightOptions: SelectProps["options"] = [];
 for (let i = 0; i <= 10; i++) {
   if (i === 0) {
@@ -62,121 +71,170 @@ const CadGGEarth = (props: Props) => {
     path: [],
     polygon: [],
   });
-  const [kmlPath, setKmlPath] = useState<PathKmlModel[]>([]);
+  const getSize = () => {
+    let newPositionTop = document.getElementById("layerEdit")?.offsetTop;
+    if (newPositionTop) {
+      return window.innerHeight - newPositionTop - 16;
+    }
+    return 300;
+  };
+  const [layHeight, setLayerHeight] = useState<number>(getSize());
+  window.addEventListener("resize", () => {
+    setLayerHeight(getSize());
+  });
+  useEffect(() => {
+    setLayerHeight(getSize());
+  }, []);
   return (
     <div>
       <Row>
         <Col span={8}>
-          <h1 className="font-bold text-xl my-6">Chuyển đổi DXF - KML</h1>
-          <Upload
-            accept=".dxf, .kml"
-            multiple={false}
-            maxCount={1}
-            showUploadList={true}
-            beforeUpload={async (file) => {
-              let extFile = file.name.split(".");
-              if (extFile.length >= 2) {
+          <div className="m-4">
+            <h1 className="font-bold text-xl mb-6">Chuyển đổi DXF - KML</h1>
+            <Upload
+              accept=".dxf, .kml"
+              multiple={false}
+              maxCount={1}
+              showUploadList={true}
+              beforeUpload={async (file) => {
+                let extFile = file.name.split(".");
+                if (extFile.length >= 2) {
+                  setFileInfo({
+                    name: extFile[0],
+                    extention: extFile[1],
+                  });
+                }
+                await readDxfFile(file);
+                // Prevent upload
+                return false;
+              }}
+              onRemove={() => {
                 setFileInfo({
-                  name: extFile[0],
-                  extention: extFile[1],
-                });
-              }
-              await readDxfFile(file);
-              // Prevent upload
-              return false;
-            }}
-            onRemove={() => {
-              setFileInfo({
-                name: "",
-                extention: "",
-              });
-            }}
-          >
-            <Button>Chọn file</Button>
-          </Upload>
-          {fileInfo.name !== "" ? (
-            <div>
-              <p>
-                Loại file:{" "}
-                <span className="font-semibold">
-                  {`${fileInfo.extention.toLocaleUpperCase()} ==>> ${
-                    fileInfo.extention === "dxf" || fileInfo.extention === "DXF"
-                      ? "KML"
-                      : "DXF"
-                  }`}
-                </span>
-              </p>
-              <label>Đặt toàn bộ chiều rộng của đối tượng đường: </label>
-              <Select
-                value={weightObj}
-                style={{ width: 120 }}
-                onChange={(value) => {
-                  setWeightObj(value);
-                }}
-                options={weightOptions}
-              />
-            </div>
-          ) : (
-            ""
-          )}
-          <div className="flex justify-around my-4">
-            <Button
-              disabled={fileInfo.name !== "" ? false : true}
-              onClick={async () => {
-                let KmlPath = await convertPathFromDxf(lstPath, lstLayer, null);
-                let KmlArc = await convertArcFromDxf(lstArc, lstLayer, null);
-                let KmlCircle = await convertCircleFromDxf(
-                  lstCircle,
-                  lstLayer,
-                  null
-                );
-                let KmlPolygon = await convertPolygonFromDxf(
-                  lstPolygon,
-                  lstLayer,
-                  null
-                );
-                let KmlBlock = await convertBlockFromDxf(
-                  lstInsert,
-                  lstBlock,
-                  lstTextStyle,
-                  lstLayer
-                );
-                await setKmlObject({
-                  layer: lstLayer,
-                  style: lstStyle,
-                  textStyle: lstTextStyle,
-                  block: KmlBlock,
-                  placemark: [],
-                  path: kmlPath.concat(KmlArc, KmlCircle),
-                  polygon: KmlPolygon,
+                  name: "",
+                  extention: "",
                 });
               }}
             >
-              Chuyển đổi
-            </Button>
-            <Button
-              onClick={() => {
-                writeKmlFile(
-                  fileInfo.name,
-                  {
-                    lstText,
-                    lstTextStyle,
-                    lstLayer,
+              <Button>Chọn file</Button>
+            </Upload>
+            {fileInfo.name !== "" ? (
+              <div>
+                <p>
+                  Loại file:{" "}
+                  <span className="font-semibold">
+                    {`${fileInfo.extention.toLocaleUpperCase()} ==>> ${
+                      fileInfo.extention === "dxf" ||
+                      fileInfo.extention === "DXF"
+                        ? "KML"
+                        : "DXF"
+                    }`}
+                  </span>
+                </p>
+                <label>Đặt toàn bộ chiều dày của đối tượng đường: </label>
+                <Select
+                  value={weightObj}
+                  style={{ width: 120 }}
+                  onChange={(value) => {
+                    setWeightObj(value);
+                  }}
+                  options={weightOptions}
+                />
+              </div>
+            ) : (
+              ""
+            )}
+            <div className="flex justify-around my-4">
+              <Button
+                disabled={fileInfo.name !== "" ? false : true}
+                onClick={async () => {
+                  let KmlPath = await convertPathFromDxf(
                     lstPath,
-                    lstPolygon,
-                    lstArc,
+                    lstLayer,
+                    null
+                  );
+                  let KmlArc = await convertArcFromDxf(lstArc, lstLayer, null);
+                  let KmlCircle = await convertCircleFromDxf(
                     lstCircle,
+                    lstLayer,
+                    null
+                  );
+                  let KmlPolygon = await convertPolygonFromDxf(
+                    lstPolygon,
+                    lstLayer,
+                    null
+                  );
+                  let KmlBlock = await convertBlockFromDxf(
                     lstInsert,
                     lstBlock,
-                    lstAttDef,
-                    lstAttRib,
-                  },
-                  weightObj
-                );
-              }}
-            >
-              Tải file
-            </Button>
+                    lstTextStyle,
+                    lstLayer
+                  );
+                  await setKmlObject({
+                    layer: lstLayer,
+                    style: lstStyle,
+                    textStyle: lstTextStyle,
+                    block: KmlBlock,
+                    placemark: [],
+                    path: KmlPath.concat(KmlArc, KmlCircle),
+                    polygon: KmlPolygon,
+                  });
+                }}
+              >
+                Chuyển đổi
+              </Button>
+              <Button
+                onClick={() => {
+                  writeKmlFile(
+                    fileInfo.name,
+                    {
+                      lstText,
+                      lstTextStyle,
+                      lstLayer,
+                      lstPath,
+                      lstPolygon,
+                      lstArc,
+                      lstCircle,
+                      lstInsert,
+                      lstBlock,
+                      lstAttDef,
+                      lstAttRib,
+                    },
+                    weightObj
+                  );
+                }}
+              >
+                Tải file
+              </Button>
+            </div>
+            <div>
+              <div className="flex justify-between items-center font-semibold">
+                <p className="w-1/2 text-left">Tên lớp</p>
+                <p className="w-1/4 text-left">Độ dày</p>
+                <p className="w-1/4 text-left">Màu</p>
+              </div>
+              <div
+                id="layerEdit"
+                className="overflow-y-scroll"
+                style={{ height: layHeight }}
+              >
+                {kmlOject.layer.map((lay, index) => {
+                  return (
+                    <div
+                      key={lay.layerName}
+                      className="flex justify-between items-center hover:bg-orange-100"
+                    >
+                      <p className="w-1/2 text-left">{lay.layerName}</p>
+                      <p className="w-1/4 text-left">
+                        <Slider max={10} min={0} tooltip={{ formatter }} />
+                      </p>
+                      <p className="w-1/4 text-left">
+                        <ColorPicker defaultValue="#1677ff" format="rgb" />
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </Col>
         <Col span={16}>
@@ -192,26 +250,24 @@ const CadGGEarth = (props: Props) => {
               maxZoom={20}
               subdomains={["mt1", "mt2", "mt3"]}
             />
-            {kmlPath.map((pathObj, index) => {
+            {kmlOject.path.map((pathObj, index) => {
               let styleIndex = lstStyle.lstPathStyle.findIndex(
                 (st) => st.namePathStyle === pathObj.nameStyle
               );
-              if (styleIndex !== -1) {
-                return (
-                  <Polyline
-                    key={`${pathObj.id}-${index}`}
-                    pathOptions={{
-                      color: `rgb(${colorRGB[
-                        lstStyle.lstPathStyle[styleIndex].color
-                      ].join(",")})`,
-                      weight: 2,
-                    }}
-                    positions={pathObj.vertex.map((vt, index) => {
-                      return [vt.pY, vt.pX];
-                    })}
-                  />
-                );
-              }
+              return (
+                <Polyline
+                  key={`${pathObj.id}-${index}`}
+                  pathOptions={{
+                    color: `rgb(${colorRGB[
+                      lstStyle.lstPathStyle[styleIndex].color
+                    ].join(",")})`,
+                    weight: 10,
+                  }}
+                  positions={pathObj.vertex.map((vt, index) => {
+                    return [vt.pY, vt.pX];
+                  })}
+                />
+              );
             })}
           </MapContainer>
         </Col>
