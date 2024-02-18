@@ -6,7 +6,6 @@ import {
   vietTextArr,
   vniTextArr,
 } from "../font";
-import { TEXT_SIZE_HEIGHT, TEXT_SIZE_WIDTH } from "../../config/configCad";
 import {
   convertDegToRad,
   convertVn2000ToWgs84,
@@ -15,6 +14,7 @@ import {
 } from "../vn2000andWgs84/vn2000ToWgs84";
 import { LayerCad, TextStyleCad } from "../sections/tablesSection";
 import {
+  DxfObjectModel,
   InsertBlockObjectModel,
   PointModel,
   ScaleFactorModel,
@@ -35,6 +35,17 @@ import {
   PlacemarkKmlModel,
   PolygonKmlModel,
 } from "../../../models/ggearthModel";
+import {
+  lstArc,
+  lstBlock,
+  lstCircle,
+  lstInsert,
+  lstLayer,
+  lstPath,
+  lstPolygon,
+  lstText,
+  lstTextStyle,
+} from "../readFile/readDxf";
 export let lstStyle: StyleObjectModel = {
   lstPathStyle: [],
   lstPolygonStyle: [],
@@ -123,138 +134,96 @@ const movePointArcordingToBlockProperties = (
   }
   return [insertPoint.pX + newpX, insertPoint.pY + newpY, insertPoint.pZ];
 };
-//read text form dxf to kml
-// export const convertTextFromDxf = (
-//   dxfObjectText: TextCad[],
-//   lstTextStyle: TextStyleCad[],
-//   lstLayer: LayerCad[],
-//   block: null | InsertBlockObjectModel
-// ) => {
-//   let renderText:PlacemarkKmlModel[] = dxfObjectText.reduce((accumulator, currentText) => {
-//     let refactorText: string = currentText.textValue;
-//     let findText1 = refactorText.lastIndexOf(";");
-//     if (findText1 !== -1) {
-//       refactorText = refactorText.slice(findText1 + 1);
-//       let findText2 = refactorText.lastIndexOf("}");
-//       if (findText2 === refactorText.length - 1) {
-//         refactorText = refactorText.slice(0, findText2 - 1);
-//       }
-//     }
-//     let lengthText = currentText.textValue.split("").length;
-//     let fontIndex = lstTextStyle.findIndex(
-//       (style) => style.styleName === currentText.textStyle
-//     );
-//     let primaryFont;
-//     if (fontIndex !== -1) {
-//       primaryFont = lstTextStyle[fontIndex].primaryFontName;
-//     } else {
-//       primaryFont = currentText.textStyle;
-//     }
-//     let textHeight;
-//     if (currentText.textHeight !== -1) {
-//       textHeight = currentText.textHeight;
-//     } else {
-//       textHeight = lstTextStyle[fontIndex].textHeight;
-//     }
-//     let widthFactor;
-//     if (currentText.widthFactor !== -1) {
-//       widthFactor = currentText.widthFactor;
-//     } else {
-//       widthFactor = lstTextStyle[fontIndex].widthFactor;
-//     }
-//     let radRotation = convertDegToRad(currentText.textRotation);
-//     if (block !== null) {
-//       let { insertPoint, basePoint, scaleFactor, rotationAngle } = block;
-//       let currentPoint = {
-//         pX: currentText.firstAlignmentPoint.pX,
-//         pY: currentText.firstAlignmentPoint.pY,
-//         pZ: currentText.firstAlignmentPoint.pZ,
-//       };
-//       let [pX, pY, pZ] = movePointArcordingToBlockProperties(
-//         insertPoint,
-//         basePoint,
-//         currentPoint,
-//         scaleFactor,
-//         rotationAngle
-//       );
-//       currentText.firstAlignmentPoint.pX = pX;
-//       currentText.firstAlignmentPoint.pY = pY;
-//       currentText.firstAlignmentPoint.pZ = pZ;
-//     }
-//     let scaleWidth = TEXT_SIZE_WIDTH * textHeight * widthFactor * lengthText;
-//     let scaleHeight = TEXT_SIZE_HEIGHT * textHeight * widthFactor;
-//     let pX0 =
-//       currentText.firstAlignmentPoint.pX +
-//       (scaleWidth / 2) * cos(radRotation) -
-//       scaleHeight * sin(radRotation);
-//     let pY0 =
-//       currentText.firstAlignmentPoint.pY +
-//       (scaleWidth / 2) * sin(radRotation) -
-//       scaleHeight * cos(radRotation);
-//     let pX1 = pX0 - scaleWidth * 7 * cos(radRotation);
-//     let pY1 = pY0 - scaleWidth * 7 * sin(radRotation);
-//     let pX2 = pX0 + scaleWidth * 7 * cos(radRotation);
-//     let pY2 = pY0 + scaleWidth * 7 * sin(radRotation);
-//     let ordinateFirst = convertVn2000ToWgs84([
-//       pY1,
-//       pX1,
-//       currentText.firstAlignmentPoint.pZ,
-//     ]);
-//     let ordinateSecond = convertVn2000ToWgs84([
-//       pY2,
-//       pX2,
-//       currentText.firstAlignmentPoint.pZ,
-//     ]);
-//     let fontGroup = configFont(primaryFont);
-//     let currentValue;
-//     if (fontGroup === "vni") {
-//       currentValue = convertFont(
-//         vniTextArr,
-//         vietTextArr,
-//         currentText.textValue
-//       );
-//     } else if (fontGroup === "tcvn3") {
-//       currentValue = convertFont(tcvn3TextArr, vietTextArr, refactorText);
-//     } else {
-//       currentValue = refactorText;
-//     }
-//     let colorValue;
-//     if (currentText.textColor !== -1) {
-//       colorValue = convertColorRgb2HexKml(currentText.textColor);
-//     } else {
-//       let currentLayer = lstLayer.find(
-//         (layer) => layer.layerName === currentText.layerName
-//       );
-//       if (currentLayer !== undefined) {
-//         colorValue = convertColorRgb2HexKml(currentLayer.color);
-//       }
-//     }
-//     return (
-//       accumulator.concat({
-//         id: 'string',
-//         nameStyle: 'string',
-//         pB: currentText.firstAlignmentPoint.pX,
-//         pL: currentText.firstAlignmentPoint.pY,
-//         pH: currentText.firstAlignmentPoint.pZ,
-//         textValue:currentValue,
-//         layerName:currentText.layerName
-//       })
-//     //   `<Placemark>
-//     //         <name>${currentValue}</name>
-//     //         <styleUrl>#linestyle0</styleUrl>
-//     //         <description>${currentText.layerName}</description>
-//     //         <LineString>
-//     //           <coordinates>
-//     //             ${ordinateFirst[1]},${ordinateFirst[0]},${ordinateFirst[2]}
-//     //             ${ordinateSecond[1]},${ordinateSecond[0]},${ordinateSecond[2]}
-//     //           </coordinates>
-//     //         </LineString>
-//     //       </Placemark>
-//     //       `
-//     );
-//   }, []);
-//   return renderText;
-// };
+// read text form dxf to kml
+export const convertTextFromDxf = (
+  dxfObjectText: TextCad[],
+  lstTextStyle: TextStyleCad[],
+  lstLayer: LayerCad[],
+  block: null | InsertBlockObjectModel
+) => {
+  let renderText: PlacemarkKmlModel[] = dxfObjectText.map(
+    (currentText, index) => {
+      let refactorText: string = currentText.textValue;
+      let findText1 = refactorText.lastIndexOf(";");
+      if (findText1 !== -1) {
+        refactorText = refactorText.slice(findText1 + 1);
+        let findText2 = refactorText.lastIndexOf("}");
+        if (findText2 === refactorText.length - 1) {
+          refactorText = refactorText.slice(0, findText2 - 1);
+        }
+      }
+      let fontIndex = lstTextStyle.findIndex(
+        (style) => style.styleName === currentText.textStyle
+      );
+      let primaryFont;
+      if (fontIndex !== -1) {
+        primaryFont = lstTextStyle[fontIndex].primaryFontName;
+      } else {
+        primaryFont = currentText.textStyle;
+      }
+      if (block !== null) {
+        let { insertPoint, basePoint, scaleFactor, rotationAngle } = block;
+        let currentPoint = {
+          pX: currentText.firstAlignmentPoint.pX,
+          pY: currentText.firstAlignmentPoint.pY,
+          pZ: currentText.firstAlignmentPoint.pZ,
+        };
+        let [pX, pY, pZ] = movePointArcordingToBlockProperties(
+          insertPoint,
+          basePoint,
+          currentPoint,
+          scaleFactor,
+          rotationAngle
+        );
+        currentText.firstAlignmentPoint.pX = pX;
+        currentText.firstAlignmentPoint.pY = pY;
+        currentText.firstAlignmentPoint.pZ = pZ;
+      }
+      let ordinateFirst = convertVn2000ToWgs84([
+        currentText.firstAlignmentPoint.pX,
+        currentText.firstAlignmentPoint.pY,
+        currentText.firstAlignmentPoint.pZ,
+      ]);
+      let fontGroup = configFont(primaryFont);
+      let currentValue;
+      if (fontGroup === "vni") {
+        currentValue = convertFont(
+          vniTextArr,
+          vietTextArr,
+          currentText.textValue
+        );
+      } else if (fontGroup === "tcvn3") {
+        currentValue = convertFont(tcvn3TextArr, vietTextArr, refactorText);
+      } else {
+        currentValue = refactorText;
+      }
+      let colorValue;
+      if (currentText.textColor !== -1) {
+        colorValue = convertColorRgb2HexKml(currentText.textColor);
+      } else {
+        let currentLayer = lstLayer.find(
+          (layer) => layer.layerName === currentText.layerName
+        );
+        if (currentLayer !== undefined) {
+          colorValue = convertColorRgb2HexKml(currentLayer.color);
+        }
+      }
+      return {
+        id: "string",
+        nameStyle: "string",
+        point: {
+          pX: ordinateFirst[1],
+          pY: ordinateFirst[0],
+          pZ: ordinateFirst[2],
+        },
+        textValue: currentValue,
+        layerName: currentText.layerName,
+        textRotation: currentText.textRotation,
+      };
+    }
+  );
+  return renderText;
+};
 //read path form dxf
 export const convertPathFromDxf = (
   dxfObjectPath: PathCad[],
@@ -567,12 +536,12 @@ export const convertBlockFromDxf = (
             blockInfo
           );
         } else if (obj === "lstText") {
-          // renderText = renderTextFromDxf(
-          //   lstText,
-          //   lstTextStyle,
-          //   lstLayer,
-          //   blockInfo
-          // );
+          renderText = convertTextFromDxf(
+            lstText,
+            lstTextStyle,
+            lstLayer,
+            blockInfo
+          );
         } else if (obj === "lstArc") {
           renderArc = convertArcFromDxf(lstArc, lstLayer, blockInfo);
         } else if (obj === "lstCircle") {
@@ -590,4 +559,26 @@ export const convertBlockFromDxf = (
     }
     return renderBlock;
   });
+};
+export const convertObjDxf2Kml = async (dxfObject: DxfObjectModel) => {
+  let kmlText = convertTextFromDxf(lstText, lstTextStyle, lstLayer, null);
+  let kmlPath = convertPathFromDxf(lstPath, lstLayer, null);
+  let kmlArc = convertArcFromDxf(lstArc, lstLayer, null);
+  let kmlCircle = convertCircleFromDxf(lstCircle, lstLayer, null);
+  let kmlPolygon = convertPolygonFromDxf(lstPolygon, lstLayer, null);
+  let kmlBlock = convertBlockFromDxf(
+    lstInsert,
+    lstBlock,
+    lstTextStyle,
+    lstLayer
+  );
+  return {
+    layer: lstLayer,
+    style: lstStyle,
+    textStyle: lstTextStyle,
+    block: kmlBlock,
+    placemark: kmlText,
+    path: kmlPath.concat(kmlArc, kmlCircle),
+    polygon: kmlPolygon,
+  };
 };

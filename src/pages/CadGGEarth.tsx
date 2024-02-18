@@ -25,14 +25,10 @@ import {
 } from "../untils/operate/readFile/readDxf";
 import { FileInfoModel } from "../models/fileModel";
 import { writeKmlFile } from "../untils/operate/writeFile/writeKml";
-import { MapContainer, Polyline, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Polygon, Polyline, TileLayer, Tooltip } from "react-leaflet";
 import { KmlObjectModel } from "../models/ggearthModel";
 import {
-  convertArcFromDxf,
-  convertBlockFromDxf,
-  convertCircleFromDxf,
-  convertPathFromDxf,
-  convertPolygonFromDxf,
+  convertObjDxf2Kml,
   lstStyle,
 } from "../untils/operate/convertObject/dxf2kml";
 import { colorRGB } from "../untils/operate/color";
@@ -84,7 +80,7 @@ const CadGGEarth = (props: Props) => {
   });
   useEffect(() => {
     setLayerHeight(getSize());
-  }, []);
+  }, [fileInfo]);
   return (
     <div>
       <Row>
@@ -147,37 +143,20 @@ const CadGGEarth = (props: Props) => {
               <Button
                 disabled={fileInfo.name !== "" ? false : true}
                 onClick={async () => {
-                  let KmlPath = await convertPathFromDxf(
-                    lstPath,
+                  let kmlObject = await convertObjDxf2Kml({
                     lstLayer,
-                    null
-                  );
-                  let KmlArc = await convertArcFromDxf(lstArc, lstLayer, null);
-                  let KmlCircle = await convertCircleFromDxf(
+                    lstArc,
                     lstCircle,
-                    lstLayer,
-                    null
-                  );
-                  let KmlPolygon = await convertPolygonFromDxf(
+                    lstPath,
+                    lstText,
+                    lstTextStyle,
                     lstPolygon,
-                    lstLayer,
-                    null
-                  );
-                  let KmlBlock = await convertBlockFromDxf(
                     lstInsert,
                     lstBlock,
-                    lstTextStyle,
-                    lstLayer
-                  );
-                  await setKmlObject({
-                    layer: lstLayer,
-                    style: lstStyle,
-                    textStyle: lstTextStyle,
-                    block: KmlBlock,
-                    placemark: [],
-                    path: KmlPath.concat(KmlArc, KmlCircle),
-                    polygon: KmlPolygon,
+                    lstAttDef,
+                    lstAttRib,
                   });
+                  await setKmlObject(kmlObject);
                 }}
               >
                 Chuyển đổi
@@ -261,12 +240,40 @@ const CadGGEarth = (props: Props) => {
                     color: `rgb(${colorRGB[
                       lstStyle.lstPathStyle[styleIndex].color
                     ].join(",")})`,
-                    weight: 10,
+                    weight: 2,
                   }}
                   positions={pathObj.vertex.map((vt, index) => {
                     return [vt.pY, vt.pX];
                   })}
                 />
+              );
+            })}
+            {kmlOject.polygon.map((polygonObj, index) => {
+              let styleIndex = lstStyle.lstPolygonStyle.findIndex(
+                (st) => st.namePolygonStyle === polygonObj.nameStyle
+              );
+              return (
+                <Polygon
+                  key={`${polygonObj.id}-${index}`}
+                  pathOptions={{
+                    color: `rgb(${colorRGB[
+                      lstStyle.lstPolygonStyle[styleIndex].color
+                    ].join(",")})`,
+                  }}
+                  positions={polygonObj.vertex.map((vt, index) => {
+                    return [vt.pY, vt.pX];
+                  })}
+                />
+              );
+            })}
+            {kmlOject.placemark.map((markerObj, index) => {
+              return (
+                <Marker
+                  key={`${markerObj.id}-${index}`}
+                  position={[markerObj.point.pY,markerObj.point.pX]}
+                >
+                  <Tooltip direction="center" permanent>{markerObj.textValue}</Tooltip>
+                </Marker>
               );
             })}
           </MapContainer>

@@ -33,12 +33,6 @@ const Home = (props: Props) => {
       </div>
       <div className=" home__item__box">
         <img className="imgThumb" src={bookImg} alt="book" />
-        <NavLink to={configRouter.private.editor} className="home__link">
-          Chỉnh sửa KML{" "}
-        </NavLink>
-      </div>
-      <div className=" home__item__box">
-        <img className="imgThumb" src={bookImg} alt="book" />
         <NavLink to={configRouter.private.text_tool} className="home__link">
           Công cụ text
         </NavLink>

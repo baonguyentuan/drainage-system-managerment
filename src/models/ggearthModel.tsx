@@ -3,15 +3,13 @@ import {
   TextStyleCad,
 } from "../untils/operate/sections/tablesSection";
 import { PointModel, StyleObjectModel } from "./cadModel";
-
 export interface PlacemarkKmlModel {
   id: string;
   nameStyle: string;
-  pB: number;
-  pL: number;
-  pH: number;
+  point: PointModel;
   textValue: string;
   layerName: string;
+  textRotation:number
 }
 export interface PathKmlModel {
   id: string;
