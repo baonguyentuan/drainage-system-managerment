@@ -180,8 +180,8 @@ export const convertTextFromDxf = (
         currentText.firstAlignmentPoint.pZ = pZ;
       }
       let ordinateFirst = convertVn2000ToWgs84([
-        currentText.firstAlignmentPoint.pX,
         currentText.firstAlignmentPoint.pY,
+        currentText.firstAlignmentPoint.pX,
         currentText.firstAlignmentPoint.pZ,
       ]);
       let fontGroup = configFont(primaryFont);
@@ -507,7 +507,7 @@ export const convertBlockFromDxf = (
       insert;
     let renderPath: PathKmlModel[] = [];
     let renderPolygon: PolygonKmlModel[] = [];
-    let renderText = [];
+    let renderText:PlacemarkKmlModel[] = [];
     let renderArc: PathKmlModel[] = [];
     let renderCircle: PathKmlModel[] = [];
     // let renderAttdef;
@@ -561,11 +561,11 @@ export const convertBlockFromDxf = (
   });
 };
 export const convertObjDxf2Kml = async (dxfObject: DxfObjectModel) => {
-  let kmlText = convertTextFromDxf(lstText, lstTextStyle, lstLayer, null);
-  let kmlPath = convertPathFromDxf(lstPath, lstLayer, null);
-  let kmlArc = convertArcFromDxf(lstArc, lstLayer, null);
-  let kmlCircle = convertCircleFromDxf(lstCircle, lstLayer, null);
-  let kmlPolygon = convertPolygonFromDxf(lstPolygon, lstLayer, null);
+  let kmlText = convertTextFromDxf(dxfObject.lstText, dxfObject.lstTextStyle, dxfObject.lstLayer, null);
+  let kmlPath = convertPathFromDxf(dxfObject.lstPath, dxfObject.lstLayer, null);
+  let kmlArc = convertArcFromDxf(dxfObject.lstArc, dxfObject.lstLayer, null);
+  let kmlCircle = convertCircleFromDxf(dxfObject.lstCircle, dxfObject.lstLayer, null);
+  let kmlPolygon = convertPolygonFromDxf(dxfObject.lstPolygon, dxfObject.lstLayer, null);
   let kmlBlock = convertBlockFromDxf(
     lstInsert,
     lstBlock,

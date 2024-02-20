@@ -25,11 +25,18 @@ import {
 } from "../untils/operate/readFile/readDxf";
 import { FileInfoModel } from "../models/fileModel";
 import { writeKmlFile } from "../untils/operate/writeFile/writeKml";
-import { MapContainer, Marker, Polygon, Polyline, TileLayer, Tooltip } from "react-leaflet";
-import { KmlObjectModel } from "../models/ggearthModel";
+import {
+  MapContainer,
+  Marker,
+  Polygon,
+  Polyline,
+  TileLayer,
+} from "react-leaflet";
+import { BlockKmlModel, KmlObjectModel } from "../models/ggearthModel";
+import { divIcon } from "leaflet";
 import {
   convertObjDxf2Kml,
-  lstStyle,
+  // lstStyle,
 } from "../untils/operate/convertObject/dxf2kml";
 import { colorRGB } from "../untils/operate/color";
 type Props = {};
@@ -78,6 +85,50 @@ const CadGGEarth = (props: Props) => {
   window.addEventListener("resize", () => {
     setLayerHeight(getSize());
   });
+  const renderBlock = (kmlBlock: BlockKmlModel[]) => {
+    return kmlBlock.map((bl, index) => {
+      let blockPath = bl.path.map((bp, indexBl) => {
+        let styleIndex = kmlOject.style.lstPathStyle.findIndex(
+          (st) => st.namePathStyle === bp.nameStyle
+        );
+        console.log(styleIndex);
+        
+        return (
+          <Polyline
+            key={`${bp.id}-${index}`}
+            pathOptions={{
+              color: `rgb(${colorRGB[
+                kmlOject.style.lstPathStyle[styleIndex].color
+              ].join(",")})`,
+              weight: 2,
+            }}
+            positions={bp.vertex.map((vt, index) => {
+              return [vt.pY, vt.pX];
+            })}
+          />
+        );
+      });
+      let blockPolygon = bl.polygon.map((bp, indexBl) => {
+        let styleIndex = kmlOject.style.lstPathStyle.findIndex(
+          (st) => st.namePathStyle === bp.nameStyle
+        );
+        return (
+          <Polygon
+            key={`${bp.id}-${index}`}
+            pathOptions={{
+              color: `rgb(${colorRGB[
+                kmlOject.style.lstPolygonStyle[styleIndex].color
+              ].join(",")})`,
+            }}
+            positions={bp.vertex.map((vt, index) => {
+              return [vt.pY, vt.pX];
+            })}
+          />
+        );
+      });
+      return blockPath.concat(blockPolygon);
+    });
+  };
   useEffect(() => {
     setLayerHeight(getSize());
   }, [fileInfo]);
@@ -203,12 +254,12 @@ const CadGGEarth = (props: Props) => {
                       className="flex justify-between items-center hover:bg-orange-100"
                     >
                       <p className="w-1/2 text-left">{lay.layerName}</p>
-                      <p className="w-1/4 text-left">
+                      <div className="w-1/4 text-left">
                         <Slider max={10} min={0} tooltip={{ formatter }} />
-                      </p>
-                      <p className="w-1/4 text-left">
+                      </div>
+                      <div className="w-1/4 text-left">
                         <ColorPicker defaultValue="#1677ff" format="rgb" />
-                      </p>
+                      </div>
                     </div>
                   );
                 })}
@@ -230,7 +281,7 @@ const CadGGEarth = (props: Props) => {
               subdomains={["mt1", "mt2", "mt3"]}
             />
             {kmlOject.path.map((pathObj, index) => {
-              let styleIndex = lstStyle.lstPathStyle.findIndex(
+              let styleIndex = kmlOject.style.lstPathStyle.findIndex(
                 (st) => st.namePathStyle === pathObj.nameStyle
               );
               return (
@@ -238,7 +289,7 @@ const CadGGEarth = (props: Props) => {
                   key={`${pathObj.id}-${index}`}
                   pathOptions={{
                     color: `rgb(${colorRGB[
-                      lstStyle.lstPathStyle[styleIndex].color
+                      kmlOject.style.lstPathStyle[styleIndex].color
                     ].join(",")})`,
                     weight: 2,
                   }}
@@ -249,7 +300,7 @@ const CadGGEarth = (props: Props) => {
               );
             })}
             {kmlOject.polygon.map((polygonObj, index) => {
-              let styleIndex = lstStyle.lstPolygonStyle.findIndex(
+              let styleIndex = kmlOject.style.lstPolygonStyle.findIndex(
                 (st) => st.namePolygonStyle === polygonObj.nameStyle
               );
               return (
@@ -257,7 +308,7 @@ const CadGGEarth = (props: Props) => {
                   key={`${polygonObj.id}-${index}`}
                   pathOptions={{
                     color: `rgb(${colorRGB[
-                      lstStyle.lstPolygonStyle[styleIndex].color
+                      kmlOject.style.lstPolygonStyle[styleIndex].color
                     ].join(",")})`,
                   }}
                   positions={polygonObj.vertex.map((vt, index) => {
@@ -270,12 +321,15 @@ const CadGGEarth = (props: Props) => {
               return (
                 <Marker
                   key={`${markerObj.id}-${index}`}
-                  position={[markerObj.point.pY,markerObj.point.pX]}
-                >
-                  <Tooltip direction="center" permanent>{markerObj.textValue}</Tooltip>
-                </Marker>
+                  position={[markerObj.point.pY, markerObj.point.pX]}
+                  icon={divIcon({
+                    html: `<p>${markerObj.textValue}</p>`,
+                    iconSize: [markerObj.textValue.length * 5, 20],
+                  })}
+                ></Marker>
               );
             })}
+            {renderBlock(kmlOject.block)}
           </MapContainer>
         </Col>
       </Row>
