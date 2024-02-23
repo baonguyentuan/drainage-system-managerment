@@ -13,6 +13,7 @@ import BookCaculation from "./components/Book/BookCaculation";
 import BookLayout from "./layouts/BookLayout";
 import CadGGEarth from "./pages/CadGGEarth";
 import MapCreate from "./pages/MapCreate";
+import ElevationPlacemark from "./components/Book/ElevationPlacemark";
 
 function App() {
   return (
@@ -40,6 +41,10 @@ function App() {
               />
               <Route path={configRouter.private.book} element={<Book />} />
             </Route>
+            <Route
+              path={configRouter.private.book_placemark}
+              element={<ElevationPlacemark />}
+            />
             <Route
               path={configRouter.private.map_create}
               element={<MapCreate />}

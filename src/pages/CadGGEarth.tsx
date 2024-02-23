@@ -30,7 +30,11 @@ import {
   Marker,
   Polygon,
   Polyline,
+  Popup,
   TileLayer,
+  useMap,
+  useMapEvent,
+  useMapEvents,
 } from "react-leaflet";
 import { BlockKmlModel, KmlObjectModel } from "../models/ggearthModel";
 import { divIcon } from "leaflet";
@@ -74,6 +78,7 @@ const CadGGEarth = (props: Props) => {
     path: [],
     polygon: [],
   });
+  const [position, setPosition] = useState(null);
   const getSize = () => {
     let newPositionTop = document.getElementById("layerEdit")?.offsetTop;
     if (newPositionTop) {
@@ -88,18 +93,11 @@ const CadGGEarth = (props: Props) => {
   const renderBlock = (kmlBlock: BlockKmlModel[]) => {
     return kmlBlock.map((bl, index) => {
       let blockPath = bl.path.map((bp, indexBl) => {
-        let styleIndex = kmlOject.style.lstPathStyle.findIndex(
-          (st) => st.namePathStyle === bp.nameStyle
-        );
-        console.log(styleIndex);
-        
         return (
           <Polyline
             key={`${bp.id}-${index}`}
             pathOptions={{
-              color: `rgb(${colorRGB[
-                kmlOject.style.lstPathStyle[styleIndex].color
-              ].join(",")})`,
+              color: `rgb(255,255,255)`,
               weight: 2,
             }}
             positions={bp.vertex.map((vt, index) => {
@@ -109,16 +107,11 @@ const CadGGEarth = (props: Props) => {
         );
       });
       let blockPolygon = bl.polygon.map((bp, indexBl) => {
-        let styleIndex = kmlOject.style.lstPathStyle.findIndex(
-          (st) => st.namePathStyle === bp.nameStyle
-        );
         return (
           <Polygon
             key={`${bp.id}-${index}`}
             pathOptions={{
-              color: `rgb(${colorRGB[
-                kmlOject.style.lstPolygonStyle[styleIndex].color
-              ].join(",")})`,
+              color: `rgb(255,255,255)`,
             }}
             positions={bp.vertex.map((vt, index) => {
               return [vt.pY, vt.pX];
@@ -128,6 +121,62 @@ const CadGGEarth = (props: Props) => {
       });
       return blockPath.concat(blockPolygon);
     });
+  };
+  const findMax = (cur: number, com: number) => {
+    if (com === 0 || cur > com) {
+      return cur;
+    }
+    return com;
+  };
+  const findMin = (cur: number, com: number) => {
+    if (com === 0 || cur < com) {
+      return cur;
+    }
+    return com;
+  };
+  function LocationMarker() {
+    const map = useMapEvents({
+      click() {
+        map.locate();
+      },
+      locationfound(e) {
+        const pos = fly2Obj(kmlOject);
+        map.flyTo([pos[1], pos[0]], 15);
+      },
+    });
+    return null;
+  }
+  const fly2Obj = (kml: KmlObjectModel) => {
+    let topLeftPostion: number[] = [0, 0];
+    let bottomRightPostion: number[] = [0, 0];
+    kml.path.forEach((p) => {
+      p.vertex.forEach((pv) => {
+        topLeftPostion[0] = findMax(pv.pX, topLeftPostion[0]);
+        topLeftPostion[1] = findMin(pv.pY, topLeftPostion[1]);
+        bottomRightPostion[0] = findMin(pv.pX, bottomRightPostion[0]);
+        bottomRightPostion[1] = findMax(pv.pY, bottomRightPostion[1]);
+      });
+    });
+    // kml.polygon.forEach((p) => {
+    //   p.vertex.forEach((pv) => {
+    //     console.log("polygon", pv);
+
+    //     topLeftPostion[0] = findMax(pv.pX, topLeftPostion[0]);
+    //     topLeftPostion[1] = findMin(pv.pY, topLeftPostion[1]);
+    //     bottomRightPostion[0] = findMin(pv.pX, bottomRightPostion[0]);
+    //     bottomRightPostion[1] = findMax(pv.pY, bottomRightPostion[1]);
+    //   });
+    // });
+    kml.placemark.forEach((p) => {
+      topLeftPostion[0] = findMax(p.point.pX, topLeftPostion[0]);
+      topLeftPostion[1] = findMin(p.point.pY, topLeftPostion[1]);
+      bottomRightPostion[0] = findMin(p.point.pX, bottomRightPostion[0]);
+      bottomRightPostion[1] = findMax(p.point.pY, bottomRightPostion[1]);
+    });
+    return [
+      (topLeftPostion[0] + bottomRightPostion[0]) / 2,
+      (topLeftPostion[1] + bottomRightPostion[1]) / 2,
+    ];
   };
   useEffect(() => {
     setLayerHeight(getSize());
@@ -208,9 +257,10 @@ const CadGGEarth = (props: Props) => {
                     lstAttRib,
                   });
                   await setKmlObject(kmlObject);
+                  fly2Obj(kmlObject);
                 }}
               >
-                Chuyển đổi
+                Xem trước
               </Button>
               <Button
                 onClick={() => {
@@ -317,7 +367,7 @@ const CadGGEarth = (props: Props) => {
                 />
               );
             })}
-            {kmlOject.placemark.map((markerObj, index) => {
+            {/* {kmlOject.placemark.map((markerObj, index) => {
               return (
                 <Marker
                   key={`${markerObj.id}-${index}`}
@@ -328,8 +378,9 @@ const CadGGEarth = (props: Props) => {
                   })}
                 ></Marker>
               );
-            })}
+            })} */}
             {renderBlock(kmlOject.block)}
+            <LocationMarker />
           </MapContainer>
         </Col>
       </Row>
