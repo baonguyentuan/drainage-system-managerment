@@ -28,8 +28,6 @@ const defaultOrientationValue: OrientationStatsModel = {
   centerNumber: 0,
   downNumber: 0,
   note: "",
-  position: [0, 0],
-  imgUrl: [],
 };
 const defaultStationValue: StationItemModel = {
   idStation: -1,
@@ -276,8 +274,6 @@ function Book({}: Props) {
                   centerNumber: formik.values.centerNumber,
                   downNumber: formik.values.downNumber,
                   note: formik.values.note,
-                  position: [0, 0],
-                  imgUrl: [],
                 };
                 let stationUpdate: StationItemModel = { ...currentStation };
                 if (currentStation.stationStat.length === 0) {

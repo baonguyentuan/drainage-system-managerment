@@ -51,8 +51,6 @@ const BookManager = (props: Props) => {
                         centerNumber: Number(arr[2]),
                         downNumber: Number(arr[3]),
                         note: arr[4],
-                        position: [0, 0],
-                        imgUrl: [],
                       },
                     ],
                   });
@@ -64,8 +62,6 @@ const BookManager = (props: Props) => {
                       centerNumber: Number(arr[1]),
                       downNumber: Number(arr[2]),
                       note: arr[3],
-                      position: [0, 0],
-                      imgUrl: [],
                     });
                   }
                 }

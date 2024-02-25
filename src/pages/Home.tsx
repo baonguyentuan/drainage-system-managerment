@@ -21,8 +21,8 @@ const Home = (props: Props) => {
       </div>
       <div className=" home__item__box">
         <img className="imgThumb" src={bookImg} alt="book" />
-        <NavLink to={configRouter.private.map_create} className="home__link">
-          Tạo bản đồ
+        <NavLink to={configRouter.private.map_point} className="home__link">
+          Nhập ảnh vào điểm
         </NavLink>
       </div>
       <div className=" home__item__box">

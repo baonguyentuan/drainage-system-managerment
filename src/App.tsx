@@ -1,5 +1,3 @@
-import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import configRouter from "./untils/config/configRouter";
@@ -12,7 +10,7 @@ import TextTool from "./pages/TextTool";
 import BookCaculation from "./components/Book/BookCaculation";
 import BookLayout from "./layouts/BookLayout";
 import CadGGEarth from "./pages/CadGGEarth";
-import MapCreate from "./pages/MapCreate";
+import MapPoint from "./pages/MapPoint";
 import ElevationPlacemark from "./components/Book/ElevationPlacemark";
 
 function App() {
@@ -42,12 +40,12 @@ function App() {
               <Route path={configRouter.private.book} element={<Book />} />
             </Route>
             <Route
-              path={configRouter.private.book_placemark}
+              path={`${configRouter.private.book}/${configRouter.private.book_placemark}/:id`}
               element={<ElevationPlacemark />}
             />
             <Route
-              path={configRouter.private.map_create}
-              element={<MapCreate />}
+              path={configRouter.private.map_point}
+              element={<MapPoint />}
             />
           </Routes>
         </BrowserRouter>

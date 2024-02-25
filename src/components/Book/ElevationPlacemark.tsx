@@ -1,16 +1,11 @@
-import { Button, Tabs, TabsProps, Upload } from "antd";
+import { Button, Tabs, TabsProps, Upload, UploadFile } from "antd";
 import React, { useMemo, useState } from "react";
-import {
-  MapContainer,
-  Marker,
-  TileLayer,
-  useMapEvents,
-} from "react-leaflet";
+import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 
 type Props = {};
 
 const ElevationPlacemark = (props: Props) => {
-  const [imgUpload,setImgUpload]=useState<any>()
+  const [imgUpload, setImgUpload] = useState<UploadFile[]>([]);
   function LocationMarker() {
     const [position, setPosition] = useState([21.019098, 105.841385]);
     const map = useMapEvents({
@@ -69,16 +64,18 @@ const ElevationPlacemark = (props: Props) => {
             accept=".img, .jpg, .png, .jpeg, .jpg"
             listType="picture-card"
             multiple
-            beforeUpload={async (file) => {
-              setImgUpload(file)
-              // console.log(file);
-              
+            showUploadList={{showPreviewIcon:false}}
+            onChange={(file)=>{
+              setImgUpload(file.fileList)
+            }}
+            beforeUpload={async () => {
               // Prevent upload
               return false;
             }}
           >
             <Button>Chọn file</Button>
           </Upload>
+          <Button>Tải lên</Button>
         </div>
       ),
     },
@@ -86,7 +83,6 @@ const ElevationPlacemark = (props: Props) => {
   return (
     <div className="w-screen h-screen">
       <h1>Point name</h1>
-      <Button>Tải lên</Button>
       <Tabs defaultActiveKey="pickMap" items={items} />
     </div>
   );

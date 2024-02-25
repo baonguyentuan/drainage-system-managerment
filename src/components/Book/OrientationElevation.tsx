@@ -86,7 +86,9 @@ const OrientationElevation = (props: Props) => {
               </Button>
               <Button
                 onClick={() => {
-                  navigate(configRouter.private.book_placemark);
+                  navigate(
+                    `${configRouter.private.book_placemark}/${orientation.idOrientation}`
+                  );
                 }}
               >
                 <VerticalAlignTopOutlined className="-translate-y-1" />

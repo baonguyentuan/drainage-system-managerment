@@ -40,3 +40,11 @@ export interface KmlObjectModel {
   placemark: PlacemarkKmlModel[];
   block: BlockKmlModel[];
 }
+export interface PlacemarkModel{
+  id:string,
+  name:string
+  orX:number,
+  orY:number,
+  orZ:number
+  imgSrc:string[]
+}

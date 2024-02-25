@@ -12,8 +12,6 @@ export interface OrientationStatsModel {
   centerNumber: number;
   downNumber: number;
   note: string;
-  position: number[];
-  imgUrl: string[];
 }
 export interface StationCalculationModel {
   idStation: number;
