@@ -1,19 +1,26 @@
 import {
   Button,
-  Checkbox,
   Col,
   Input,
   Radio,
   Row,
+  Select,
   Upload,
   UploadFile,
 } from "antd";
-import React, { useState } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
+import React, { useMemo, useState } from "react";
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  useMapEvents,
+} from "react-leaflet";
 import { PlacemarkModel } from "../models/ggearthModel";
 import { openNotificationWithIcon } from "../untils/operate/notify";
-import { VerticalRightOutlined } from "@ant-design/icons";
+import { PictureOutlined } from "@ant-design/icons";
 import { convertVn2000ToWgs84 } from "../untils/operate/vn2000andWgs84/vn2000ToWgs84";
+import pinPoint from "../assets/img/icon-1.png";
 const { TextArea } = Input;
 type ImgSelected = {
   namePoint: string;
@@ -32,6 +39,72 @@ const MapPoint = (props: Props) => {
     lstImg: [],
   });
   let [directoryPath, setDirectoryPath] = useState<string>("");
+  let pointname: string = "";
+  let getLastestPosition: number[];
+  if (lstPoint.length === 0) {
+    getLastestPosition = [21.019098, 105.841385];
+  } else {
+    getLastestPosition = [
+      lstPoint[lstPoint.length - 1].orX,
+      lstPoint[lstPoint.length - 1].orY,
+    ];
+  }
+  function LocationMarker() {
+    const [position, setPosition] = useState(getLastestPosition);
+    const map = useMapEvents({
+      click() {
+        // map.locate();
+        map.flyTo([position[0], position[1]], map.getZoom());
+      },
+      // locationfound(e: any) {
+      //   setPosition([e.latlng.lat, e.latlng.lng]);
+      //   map.flyTo(e.latlng, map.getZoom());
+      // },
+    });
+    const eventHandlers = useMemo(
+      () => ({
+        dragend(e: any) {
+          setPosition([e.target._latlng.lat, e.target._latlng.lng]);
+        },
+      }),
+      []
+    );
+    return position === null ? null : (
+      <Marker
+        position={[position[0], position[1]]}
+        draggable
+        eventHandlers={eventHandlers}
+      >
+        <Popup>
+          <Input
+            // value={pointname}
+            onChange={(e) => {
+              pointname = e.target.value;
+            }}
+          />
+          <Button
+            onClick={() => {
+              let pointCreate: PlacemarkModel;
+              if (pointname !== "") {
+                pointCreate = {
+                  id: String(`${Date.now()}-0`),
+                  name: pointname,
+                  orX: position[0],
+                  orY: position[1],
+                  orZ: 0,
+                  icon: "",
+                  imgSrc: [],
+                };
+                setLstPoint(lstPoint.concat(pointCreate));
+              }
+            }}
+          >
+            Thêm
+          </Button>
+        </Popup>
+      </Marker>
+    );
+  }
   return (
     <div>
       <Row>
@@ -47,6 +120,7 @@ const MapPoint = (props: Props) => {
               </Button>
               <Button
                 onClick={() => {
+                  setTypeOrdinate("wgs84");
                   setIsInsertImg(false);
                 }}
               >
@@ -60,17 +134,38 @@ const MapPoint = (props: Props) => {
                 setDirectoryPath(e.target.value);
               }}
             />
-            <Radio.Group
-              className="py-2"
-              defaultValue={typeOrdinate}
-              options={[
-                { label: "VN2000 - 3 độ", value: "vn2000-3deg" },
-                { label: "WGS84", value: "wgs84" },
-              ]}
-              onChange={(e) => {
-                setTypeOrdinate(e.target.value);
-              }}
-            />
+            <div className="flex justify-around items-center">
+              <Radio.Group
+                className="py-2"
+                defaultValue={typeOrdinate}
+                options={[
+                  { label: "VN2000 - 3 độ", value: "vn2000-3deg" },
+                  { label: "WGS84", value: "wgs84" },
+                ]}
+                onChange={(e) => {
+                  setTypeOrdinate(e.target.value);
+                }}
+              />
+              <div>
+                <img
+                  className="inline-block"
+                  width={25}
+                  height={25}
+                  src={pinPoint}
+                />
+                <Select
+                  defaultValue="pin"
+                  style={{ width: 120 }}
+                  // onChange={handleChange}
+                  options={[
+                    { value: "pin", label: "Điểm ghim" },
+                    { value: "coOrdinate", label: "Mốc tọa độ" },
+                    { value: "altitude", label: "Mốc độ cao" },
+                    { value: "feature", label: "Điểm đặc trưng" },
+                  ]}
+                />
+              </div>
+            </div>
             <div className={`${isInputLst ? "block" : "hidden"}`}>
               <TextArea
                 placeholder="Tọa độ điểm"
@@ -95,6 +190,7 @@ const MapPoint = (props: Props) => {
                           orX: Number(newArr[1]),
                           orY: Number(newArr[2]),
                           orZ: Number(newArr[3]),
+                          icon: "",
                           imgSrc: [],
                         };
                       } else if (newArr.length === 3) {
@@ -104,6 +200,7 @@ const MapPoint = (props: Props) => {
                           orX: Number(newArr[1]),
                           orY: Number(newArr[2]),
                           orZ: 0,
+                          icon: "",
                           imgSrc: [],
                         };
                       } else {
@@ -114,6 +211,7 @@ const MapPoint = (props: Props) => {
                           orX: 0,
                           orY: 0,
                           orZ: 0,
+                          icon: "",
                           imgSrc: [],
                         };
                       }
@@ -163,7 +261,7 @@ const MapPoint = (props: Props) => {
                             });
                           }}
                         >
-                          <VerticalRightOutlined />
+                          <PictureOutlined />
                         </Button>
                       </Col>
                     </Row>
@@ -189,8 +287,6 @@ const MapPoint = (props: Props) => {
                         newListImg.push(img.name);
                       }
                     });
-                    console.log(newListImg);
-
                     return {
                       id: point.id,
                       imgSrc: newListImg,
@@ -198,34 +294,40 @@ const MapPoint = (props: Props) => {
                       orX: newCoOr[0],
                       orY: newCoOr[1],
                       orZ: newCoOr[2],
+                      icon: "",
                     };
                   });
-                } else {
-                  newLstPoint = [...lstPoint];
+                  setLstPoint(newLstPoint);
                 }
+              }}
+            >
+              Ghép ảnh theo tên điểm
+            </Button>
+            <Button
+              onClick={() => {
                 if (directoryPath !== "") {
                   let kmlContent: string = `<?xml version="1.0" encoding="UTF-8"?>
-                  <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
-                  <Document>`;
-                  newLstPoint.forEach((p) => {
+                                <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+                                <Document>`;
+                  lstPoint.forEach((p) => {
                     let renderImgSrc: string = ``;
                     p.imgSrc.forEach((i) => {
-                      renderImgSrc += `<img style="max-width:500px;" src="file:///${directoryPath}\${i}">
-                      <br/>
-                      `;
+                      renderImgSrc += `<img style="max-width:500px;" src="file:///${directoryPath}\\${i}">
+                                    <br/>
+                                    `;
                     });
                     kmlContent += `<Placemark>
-                    <name>${p.name}</name>
-                    <description><![CDATA[${renderImgSrc}]]></description>
-                    <styleUrl>#m_ylw-pushpin</styleUrl>
-                    <Point>
-                      <gx:drawOrder>1</gx:drawOrder>
-                      <coordinates>${p.orY},${p.orX},${p.orZ}</coordinates>
-                    </Point>
-                  </Placemark>`;
+                                  <name>${p.name}</name>
+                                  <description><![CDATA[${renderImgSrc}]]></description>
+                                  <styleUrl>#m_ylw-pushpin</styleUrl>
+                                  <Point>
+                                    <gx:drawOrder>1</gx:drawOrder>
+                                    <coordinates>${p.orY},${p.orX},${p.orZ}</coordinates>
+                                  </Point>
+                                </Placemark>`;
                   });
                   kmlContent += `</Document>
-                  </kml>`;
+                                </kml>`;
                   let getTitle = directoryPath.split("\\");
                   const link = document.createElement("a");
                   const file = new Blob([kmlContent], { type: "text/plain" });
@@ -242,7 +344,7 @@ const MapPoint = (props: Props) => {
                 }
               }}
             >
-              Ghép theo tên
+              Xuất ra file
             </Button>
           </div>
         </Col>
@@ -298,12 +400,6 @@ const MapPoint = (props: Props) => {
                 let findIndex = lstImgSelected.lstImg.findIndex(
                   (imgSelected) => imgSelected === img.name
                 );
-                if (findIndex !== -1) {
-                  console.log(findIndex);
-                  bgcolor = "green-100";
-                } else {
-                  bgcolor = "white";
-                }
                 let checkExistImg: boolean = false;
                 lstPoint.forEach((i) => {
                   i.imgSrc.forEach((s) => {
@@ -312,12 +408,17 @@ const MapPoint = (props: Props) => {
                     }
                   });
                 });
+                if (findIndex !== -1) {
+                  bgcolor = "green-100";
+                } else {
+                  bgcolor = "white";
+                }
                 return (
                   <Col
                     span={6}
                     key={index}
                     className={`flex justify-between flex-col items-center p-2 cursor-pointer bg-${bgcolor} ${
-                      checkExistImg ? "opacity-20" : "opacity-100"
+                      checkExistImg ? "hidden" : "block"
                     }`}
                     onClick={() => {
                       let newlst = { ...lstImgSelected };
@@ -358,6 +459,7 @@ const MapPoint = (props: Props) => {
                 maxZoom={20}
                 subdomains={["mt1", "mt2", "mt3"]}
               />
+              <LocationMarker />
             </MapContainer>
           </div>
         </Col>

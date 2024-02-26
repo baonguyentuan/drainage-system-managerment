@@ -9,7 +9,7 @@ export interface PlacemarkKmlModel {
   point: PointModel;
   textValue: string;
   layerName: string;
-  textRotation:number
+  textRotation: number;
 }
 export interface PathKmlModel {
   id: string;
@@ -40,11 +40,12 @@ export interface KmlObjectModel {
   placemark: PlacemarkKmlModel[];
   block: BlockKmlModel[];
 }
-export interface PlacemarkModel{
-  id:string,
-  name:string
-  orX:number,
-  orY:number,
-  orZ:number
-  imgSrc:string[]
+export interface PlacemarkModel {
+  id: string;
+  name: string;
+  orX: number;
+  orY: number;
+  orZ: number;
+  icon: string;
+  imgSrc: string[];
 }
