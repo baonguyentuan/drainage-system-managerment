@@ -20,7 +20,11 @@ import { PlacemarkModel } from "../models/ggearthModel";
 import { openNotificationWithIcon } from "../untils/operate/notify";
 import { PictureOutlined } from "@ant-design/icons";
 import { convertVn2000ToWgs84 } from "../untils/operate/vn2000andWgs84/vn2000ToWgs84";
-import pinPoint from "../assets/img/icon-1.png";
+import pointPin from "../assets/img/msn_ylw-pushpin.png";
+import pointOrdinate from "../assets/img/msn_placemark_square.png";
+import pointAltitude from "../assets/img/msn_placemark_circle.png";
+import pointFeature from "../assets/img/msn_arrow.png";
+
 const { TextArea } = Input;
 type ImgSelected = {
   namePoint: string;
@@ -30,7 +34,7 @@ type Props = {};
 const MapPoint = (props: Props) => {
   let [lstPoint, setLstPoint] = useState<PlacemarkModel[]>([]);
   let [lstImg, setLstImg] = useState<UploadFile[]>([]);
-  let [curInput, setCurInput] = useState<string>("");
+  let [iconTheme, setIconTheme] = useState<string>("msn_ylw-pushpin");
   let [typeOrdinate, setTypeOrdinate] = useState<string>("vn2000-3deg");
   let [isInputLst, setIsInputLst] = useState<boolean>(false);
   let [isInsertImg, setIsInsertImg] = useState<boolean>(false);
@@ -38,7 +42,8 @@ const MapPoint = (props: Props) => {
     namePoint: "",
     lstImg: [],
   });
-  let [directoryPath, setDirectoryPath] = useState<string>("");
+  let pointInput: string = "";
+  let directoryPath: string = "";
   let pointname: string = "";
   let getLastestPosition: number[];
   if (lstPoint.length === 0) {
@@ -53,13 +58,8 @@ const MapPoint = (props: Props) => {
     const [position, setPosition] = useState(getLastestPosition);
     const map = useMapEvents({
       click() {
-        // map.locate();
         map.flyTo([position[0], position[1]], map.getZoom());
       },
-      // locationfound(e: any) {
-      //   setPosition([e.latlng.lat, e.latlng.lng]);
-      //   map.flyTo(e.latlng, map.getZoom());
-      // },
     });
     const eventHandlers = useMemo(
       () => ({
@@ -77,12 +77,13 @@ const MapPoint = (props: Props) => {
       >
         <Popup>
           <Input
-            // value={pointname}
+            className="mb-2"
             onChange={(e) => {
               pointname = e.target.value;
             }}
           />
           <Button
+            className=" w-full "
             onClick={() => {
               let pointCreate: PlacemarkModel;
               if (pointname !== "") {
@@ -105,6 +106,16 @@ const MapPoint = (props: Props) => {
       </Marker>
     );
   }
+  const renderIconTheme = (iconValue: string) => {
+    if (iconValue === "msn_placemark_square") {
+      return pointOrdinate;
+    } else if (iconValue === "msn_placemark_circle") {
+      return pointAltitude;
+    } else if (iconValue === "msn_arrow") {
+      return pointFeature;
+    }
+    return pointPin;
+  };
   return (
     <div>
       <Row>
@@ -131,13 +142,13 @@ const MapPoint = (props: Props) => {
               placeholder="Đường dẫn thư mục ảnh"
               value={directoryPath}
               onChange={(e) => {
-                setDirectoryPath(e.target.value);
+                directoryPath = e.target.value;
               }}
             />
             <div className="flex justify-around items-center">
               <Radio.Group
                 className="py-2"
-                defaultValue={typeOrdinate}
+                value={typeOrdinate}
                 options={[
                   { label: "VN2000 - 3 độ", value: "vn2000-3deg" },
                   { label: "WGS84", value: "wgs84" },
@@ -148,20 +159,23 @@ const MapPoint = (props: Props) => {
               />
               <div>
                 <img
-                  className="inline-block"
+                  className="inline-block mr-2"
                   width={25}
                   height={25}
-                  src={pinPoint}
+                  src={renderIconTheme(iconTheme)}
+                  alt={iconTheme}
                 />
                 <Select
-                  defaultValue="pin"
+                  value={iconTheme}
                   style={{ width: 120 }}
-                  // onChange={handleChange}
+                  onChange={(value) => {
+                    setIconTheme(value);
+                  }}
                   options={[
-                    { value: "pin", label: "Điểm ghim" },
-                    { value: "coOrdinate", label: "Mốc tọa độ" },
-                    { value: "altitude", label: "Mốc độ cao" },
-                    { value: "feature", label: "Điểm đặc trưng" },
+                    { value: "msn_ylw-pushpin", label: "Điểm ghim" },
+                    { value: "msn_placemark_square", label: "Mốc tọa độ" },
+                    { value: "msn_placemark_circle", label: "Mốc độ cao" },
+                    { value: "msn_arrow", label: "Điểm đặc trưng" },
                   ]}
                 />
               </div>
@@ -171,14 +185,14 @@ const MapPoint = (props: Props) => {
                 placeholder="Tọa độ điểm"
                 rows={5}
                 onChange={(e) => {
-                  setCurInput(e.target.value);
+                  pointInput = e.target.value;
                 }}
               />
               <Button
                 className="my-2"
                 onClick={() => {
                   let flag: boolean = false;
-                  let arrInput: PlacemarkModel[] = curInput
+                  let arrInput: PlacemarkModel[] = pointInput
                     .trim()
                     .split("\n")
                     .map((line, index) => {
@@ -239,16 +253,25 @@ const MapPoint = (props: Props) => {
                     className={`border-b-2 py-1 hover:bg-green-100 `}
                   >
                     <Row gutter={16} className="items-center">
-                      <Col span={4}>
-                        <p>{point.name}</p>
+                      <Col span={3}>
+                        <img
+                          className="inline-block mr-2"
+                          width={25}
+                          height={25}
+                          src={renderIconTheme(iconTheme)}
+                          alt={iconTheme}
+                        />
                       </Col>
-                      <Col span={5}>
+                      <Col span={4}>
+                        <p className="font-bold">{point.name}</p>
+                      </Col>
+                      <Col span={4}>
                         <p>{point.orX}</p>
                       </Col>
-                      <Col span={5}>
+                      <Col span={4}>
                         <p>{point.orY}</p>
                       </Col>
-                      <Col span={7}>
+                      <Col span={6}>
                         <p>{point.imgSrc.join(" | ")}</p>
                       </Col>
                       <Col span={3}>
@@ -396,7 +419,6 @@ const MapPoint = (props: Props) => {
             <Row>
               {lstImg.map((img, index) => {
                 const fileBlob: Blob | undefined = img.originFileObj;
-                let bgcolor: string;
                 let findIndex = lstImgSelected.lstImg.findIndex(
                   (imgSelected) => imgSelected === img.name
                 );
@@ -408,25 +430,26 @@ const MapPoint = (props: Props) => {
                     }
                   });
                 });
-                if (findIndex !== -1) {
-                  bgcolor = "green-100";
-                } else {
-                  bgcolor = "white";
-                }
                 return (
                   <Col
                     span={6}
                     key={index}
-                    className={`flex justify-between flex-col items-center p-2 cursor-pointer bg-${bgcolor} ${
-                      checkExistImg ? "hidden" : "block"
-                    }`}
+                    className={`flex justify-between flex-col items-center p-2 cursor-pointer ${
+                      findIndex !== -1 ? "bg-green-100" : "bg-white"
+                    } ${checkExistImg ? "hidden" : "block"}`}
                     onClick={() => {
                       let newlst = { ...lstImgSelected };
+                      console.log(findIndex);
                       if (findIndex !== -1) {
-                        newlst.lstImg = newlst.lstImg.splice(findIndex, 1);
+                        console.log("before", newlst.lstImg);
+                        newlst.lstImg.splice(findIndex, 1);
+                        console.log("after", newlst.lstImg);
+
                         setLstImgSelected(newlst);
                       } else {
+                        console.log("before", newlst.lstImg);
                         newlst.lstImg = newlst.lstImg.concat(img.name);
+                        console.log("after", newlst.lstImg);
                         setLstImgSelected(newlst);
                       }
                     }}

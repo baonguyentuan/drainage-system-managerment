@@ -30,7 +30,11 @@ const ElevationPlacemark = (props: Props) => {
         position={[position[0], position[1]]}
         draggable
         eventHandlers={eventHandlers}
-      ></Marker>
+      >
+        <Button className=" w-full " onClick={() => {}}>
+          Thêm
+        </Button>
+      </Marker>
     );
   }
   const items: TabsProps["items"] = [
@@ -64,9 +68,9 @@ const ElevationPlacemark = (props: Props) => {
             accept=".img, .jpg, .png, .jpeg, .jpg"
             listType="picture-card"
             multiple
-            showUploadList={{showPreviewIcon:false}}
-            onChange={(file)=>{
-              setImgUpload(file.fileList)
+            showUploadList={{ showPreviewIcon: false }}
+            onChange={(file) => {
+              setImgUpload(file.fileList);
             }}
             beforeUpload={async () => {
               // Prevent upload
