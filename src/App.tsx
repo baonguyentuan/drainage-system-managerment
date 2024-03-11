@@ -13,6 +13,7 @@ import CadGGEarth from "./pages/CadGGEarth";
 import MapPoint from "./pages/MapPoint";
 import ElevationPlacemark from "./components/Book/ElevationPlacemark";
 import CaptureMap from "./pages/CaptureMap";
+import MeasurementBook from "./pages/MeasurementBook";
 
 function App() {
   return (
@@ -51,6 +52,10 @@ function App() {
             <Route
               path={configRouter.private.capture_map}
               element={<CaptureMap />}
+            />
+            <Route
+              path={configRouter.private.mesurement_book}
+              element={<MeasurementBook />}
             />
           </Routes>
         </BrowserRouter>

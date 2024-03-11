@@ -15,5 +15,6 @@ export default {
     cad_ggearth: "cad_ggearth",
     map_point: "map_point",
     capture_map: "capture_map",
+    mesurement_book: "mesurement_book",
   },
 };

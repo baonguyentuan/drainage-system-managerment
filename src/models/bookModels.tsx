@@ -41,3 +41,20 @@ export interface AdjustPathModel {
   elevation: number;
   distance: number;
 }
+
+export interface MeasurementStationModel {
+  id: number;
+  stationInfo: MeasurementStationInfoModel;
+  orientationLst: MeasurementOrientationModel[];
+}
+export interface MeasurementOrientationModel {
+  id: number;
+  note: string;
+  prismHeight: number;
+  isBase: boolean;
+}
+export interface MeasurementStationInfoModel {
+  start: string;
+  end: string;
+  machineHeight: number;
+}
