@@ -14,5 +14,6 @@ export default {
     book_calculate: "book_calculate",
     cad_ggearth: "cad_ggearth",
     map_point: "map_point",
+    capture_map: "capture_map",
   },
 };

@@ -12,6 +12,7 @@ import BookLayout from "./layouts/BookLayout";
 import CadGGEarth from "./pages/CadGGEarth";
 import MapPoint from "./pages/MapPoint";
 import ElevationPlacemark from "./components/Book/ElevationPlacemark";
+import CaptureMap from "./pages/CaptureMap";
 
 function App() {
   return (
@@ -46,6 +47,10 @@ function App() {
             <Route
               path={configRouter.private.map_point}
               element={<MapPoint />}
+            />
+            <Route
+              path={configRouter.private.capture_map}
+              element={<CaptureMap />}
             />
           </Routes>
         </BrowserRouter>
