@@ -1,101 +1,134 @@
-import { LatLngTuple } from "leaflet";
-import React, { useState } from "react";
+import { LatLngExpression, LatLngTuple } from "leaflet";
+import React, { useEffect, useRef, useState } from "react";
 import {
   MapContainer,
   Rectangle,
   TileLayer,
+  useMap,
   useMapEvents,
 } from "react-leaflet";
 import { saveAs } from "file-saver";
 import domtoimage from "dom-to-image";
+import { Button, Form, Modal, Radio, Select } from "antd";
 type Props = {};
 
 const CaptureMap = (props: Props) => {
-  let [bound, setBound] = useState<LatLngTuple[]>([
+  const [isModalOpen, setIsModalOpen] = useState(true);
+  let [mapType, setMapType] = useState<number>(1);
+  let [position, setPosition] = useState<LatLngTuple>([21.029098, 105.842385]);
+  let bound: LatLngTuple[] = [
     [21.019098, 105.841385],
     [21.029098, 105.851385],
-  ]);
-  function CaptureRectangle() {
-    const [position, setPosition] = useState({
-      _northEast: { lat: 21.02877092386811, lng: 105.85608243942262 },
-      _southWest: { lat: 21.00942204192809, lng: 105.82666397094728 },
-    });
-    let dx = position._northEast.lat - position._southWest.lat;
-    let dy = position._northEast.lng + position._southWest.lng;
-    const map = useMapEvents({
-      click() {
-        // let bondary = map.getBounds();
-        // console.log(bondary);
+  ];
+  let dx = bound[0][0] - bound[1][0];
+  let dy = bound[0][1] - bound[1][1];
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
 
-        setInterval(() => {
-          map.flyTo(
-            [
-              (position._northEast.lat + position._southWest.lat) / 2,
-              (position._northEast.lng + position._southWest.lng) / 2,
-            ],
-            16
-          );
-          setPosition({
-            _northEast: {
-              lat: position._northEast.lat,
-              lng: position._northEast.lng + dy,
-            },
-            _southWest: {
-              lat: position._southWest.lat,
-              lng: position._southWest.lng + dy,
-            },
-          });
-        }, 3000);
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  const handleMapView = async () => {
+    await setIsModalOpen(false);
+    await setPosition([position[0] + dx, position[1] + dy]);
+    const mapCanvas = document.getElementById("mapMain");
+    if (mapCanvas) {
+      const blob = await domtoimage.toBlob(mapCanvas, {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+      await saveAs(blob, "map.png");
+    }
+    if (position[0] < 21.1) {
+      let btnSnap = document.getElementById("btnSnapshot");
+      btnSnap?.click();
+    } else {
+      await setIsModalOpen(true);
+    }
+  };
 
-        // const mapCanvas = document.getElementById("mapMain");
-        // if (mapCanvas) {
-        //   const exportImage = async () => {
-        //     await map.flyTo(
-        //       [
-        //         (position._northEast.lat + position._southWest.lat) / 2,
-        //         (position._northEast.lng + position._southWest.lng) / 2,
-        //       ],
-        //       map.getZoom()
-        //     );
-        //     const blob = await domtoimage.toBlob(mapCanvas, {
-        //       width: window.innerWidth,
-        //       height: window.innerHeight,
-        //     });
-        //     await saveAs(blob, "map.png");
-        //     await setPosition({
-        //       _northEast: {
-        //         lat: position._northEast.lat + dx,
-        //         lng: position._northEast.lng,
-        //       },
-        //       _southWest: {
-        //         lat: position._southWest.lat + dx,
-        //         lng: position._southWest.lng,
-        //       },
-        //     });
-        //   };
-        //   exportImage();
-        // }
-      },
-    });
+  function CaptureRectangle({ pos }: { pos: LatLngTuple }) {
+    const map = useMap();
+    useEffect(() => {
+      map.setView(pos);
+    }, pos);
+    useEffect(() => {
+      let newBound = map.getBounds();
+      bound = [
+        [newBound.getNorthWest().lat, newBound.getNorthWest().lng],
+        [newBound.getSouthEast().lat, newBound.getSouthEast().lng],
+      ];
+      console.log(bound);
+    }, []);
     return null;
   }
   return (
     <div>
+      <Modal
+        title="Basic Modal"
+        open={isModalOpen}
+        onOk={() => {
+          setTimeout(() => {
+            handleMapView();
+          }, 3000);
+        }}
+        okType="danger"
+        okText={"Chụp"}
+      >
+        <Form>
+          <Form.Item>
+            <Radio.Group
+              options={[
+                { label: "Phố", value: 0 },
+                { label: "Vệ tinh", value: 1 },
+              ]}
+              value={mapType}
+              onChange={(e) => {
+                setMapType(e.target.value);
+              }}
+            />
+          </Form.Item>
+          <Form.Item label="Địa bàn">
+            <Select
+              className="w-full"
+              options={[
+                { value: 0, label: "XNNT" },
+                { value: 1, label: "XN1" },
+              ]}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
       <MapContainer
         id="mapMain"
-        className={"w-full h-screen"}
+        className={"w-full h-screen col-span-3"}
         zoomControl={false}
-        center={[21.019098, 105.841385]}
+        center={[position[0], position[1]]}
         zoom={16}
         scrollWheelZoom={true}
       >
         <TileLayer
-          url="http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}"
-          maxZoom={20}
+          url={
+            mapType === 1
+              ? "http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}"
+              : "http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+          }
+          // maxZoom={20}
           subdomains={["mt1", "mt2", "mt3"]}
         />
-        <CaptureRectangle />
+        <CaptureRectangle pos={position} />
       </MapContainer>
+      <button
+        className="opacity-0 fixed"
+        id="btnSnapshot"
+        onClick={() => {
+          setTimeout(() => {
+            handleMapView();
+          }, 3000);
+        }}
+      ></button>
     </div>
   );
 };
