@@ -3,7 +3,17 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { saveAs } from "file-saver";
 import domtoimage from "dom-to-image";
-import { Button, Col, Form, Modal, Radio, Row, Slider, Space } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Radio,
+  Row,
+  Slider,
+  Space,
+} from "antd";
 import { convertWgs84ToVn2000 } from "../untils/operate/vn2000andWgs84/wgs84toVn2000";
 import { DxfWriter, Units, point2d, point3d } from "@tarikjabiri/dxf";
 import { openNotificationWithIcon } from "../untils/operate/notify";
@@ -65,7 +75,6 @@ const CaptureMap = (props: Props) => {
     if (position[0] <= regionCapture[1][0] + dx * 0.1) {
       snapStatus = false;
       openNotificationWithIcon("success", "Hoàn thành", "");
-      alert("Hoàn thành");
     }
     if (snapStatus) {
       let btnSnap = document.getElementById("btnSnapshot");
@@ -109,14 +118,30 @@ const CaptureMap = (props: Props) => {
   return (
     <div>
       <Modal
-        title="Basic Modal"
+        title="Chụp ảnh bản đồ"
         open={isModalOpen}
-        onOk={async () => {
-          snapStatus = true;
-          handleMapView();
-        }}
-        okType="danger"
+        closeIcon={null}
+        cancelText={null}
         okText={"Chụp"}
+        footer={
+          <Button
+            danger
+            onClick={() => {
+              if (regionCapture.length === 2) {
+                snapStatus = true;
+                handleMapView();
+              } else {
+                openNotificationWithIcon(
+                  "error",
+                  "Bạn chưa chọn vùng chụp",
+                  "Bạn phải chọn 2 điểm Tây Bắc và Đông Nam vùng chụp"
+                );
+              }
+            }}
+          >
+            Chụp
+          </Button>
+        }
       >
         <Form>
           <Form.Item>
@@ -149,10 +174,18 @@ const CaptureMap = (props: Props) => {
               </Col>
             </Row>
           </Form.Item>
+          <Form.Item label="Tên công trình">
+            <Input
+              value={region}
+              onChange={(e) => {
+                setRegion(e.target.value.trim());
+              }}
+            />
+          </Form.Item>
           <Form.Item>
             <Space>
               <Button
-                disabled={regionCapture.length === 2 ? false : true}
+                disabled={imgRegion.length === 2 ? false : true}
                 onClick={async () => {
                   console.log(imgRegion);
                   const dxf = new DxfWriter();
@@ -198,13 +231,38 @@ const CaptureMap = (props: Props) => {
               </Button>
             </Space>
             <div>
-              {regionCapture.map((corner, index) => {
-                return (
-                  <p key={index}>
-                    {corner[0]} | {corner[1]}
-                  </p>
-                );
-              })}
+              <div className="flex justify-center m-4">
+                <div
+                  className="inline-block bg-yellow-950 m-auto relative"
+                  style={{ width: 100, height: 100 }}
+                >
+                  <div
+                    className="absolute top-0 left-0 bg-yellow-400"
+                    style={{ width: 10, height: 10 }}
+                  />
+                  <div
+                    className="absolute bottom-0 right-0 bg-yellow-400"
+                    style={{ width: 10, height: 10 }}
+                  />
+                  {regionCapture.length === 2
+                    ? regionCapture.map((corner, index) => {
+                        return (
+                          <p
+                            key={index}
+                            className={
+                              index === 0
+                                ? "absolute top-0 right-full pr-2"
+                                : "absolute bottom-0 left-full pl-2"
+                            }
+                          >
+                            <p>{corner[0]}</p>
+                            <p>{corner[1]}</p>
+                          </p>
+                        );
+                      })
+                    : null}
+                </div>
+              </div>
             </div>
           </Form.Item>
         </Form>
