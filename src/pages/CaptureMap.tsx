@@ -1,28 +1,12 @@
-import { LatLng, LatLngTuple } from "leaflet";
+import { LatLngTuple } from "leaflet";
 import React, { useEffect, useState } from "react";
-import {
-  MapContainer,
-  Marker,
-  Rectangle,
-  TileLayer,
-  useMap,
-} from "react-leaflet";
+import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { saveAs } from "file-saver";
 import domtoimage from "dom-to-image";
-import {
-  Button,
-  Col,
-  Form,
-  Modal,
-  Radio,
-  Row,
-  Select,
-  Slider,
-  Space,
-} from "antd";
+import { Button, Col, Form, Modal, Radio, Row, Slider, Space } from "antd";
 import { convertWgs84ToVn2000 } from "../untils/operate/vn2000andWgs84/wgs84toVn2000";
 import { DxfWriter, Units, point2d, point3d } from "@tarikjabiri/dxf";
-import { CheckCircleOutlined } from "@ant-design/icons";
+import { openNotificationWithIcon } from "../untils/operate/notify";
 type Props = {};
 interface ImgRegionItem {
   name: string;
@@ -33,7 +17,7 @@ const CaptureMap = (props: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(true);
   let [mapType, setMapType] = useState<number>(1);
   let [position, setPosition] = useState<LatLngTuple>([21.029098, 105.842385]);
-  let [region, setRegion] = useState<string>("XNTK");
+  let [region, setRegion] = useState<string>("XNKSTK");
   let [zoomMap, setZoomMap] = useState<number>(16);
   let [regionCapture, setRegionCapture] = useState<LatLngTuple[]>([]);
   let [imgRegion, setImgRegion] = useState<ImgRegionItem[]>([]);
@@ -80,6 +64,7 @@ const CaptureMap = (props: Props) => {
     }
     if (position[0] <= regionCapture[1][0] + dx * 0.1) {
       snapStatus = false;
+      openNotificationWithIcon("success", "Hoàn thành", "");
       alert("Hoàn thành");
     }
     if (snapStatus) {
