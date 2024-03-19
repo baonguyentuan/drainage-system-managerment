@@ -39,42 +39,30 @@ const CaptureMap = (props: Props) => {
   let dx = Math.abs(bound[0][0] - bound[1][0]);
   let dy = Math.abs(bound[0][1] - bound[1][1]);
   const handleMapView = async () => {
+    const mapCanvas = document.getElementById("mapMain");
     if (position[1] <= regionCapture[1][1] - dy * 0.1) {
-      setPosition([position[0], position[1] + dy * 0.95]);
-      const mapCanvas = document.getElementById("mapMain");
-      if (mapCanvas) {
-        const blob = await domtoimage.toBlob(mapCanvas, {
-          width: mapCanvas.clientWidth,
-          height: mapCanvas.clientHeight,
-        });
-        await saveAs(blob, `${region}-${imgRegion.length + 1}.png`);
-        let newLst = imgRegion;
-        newLst.push({
-          name: `${region}-${imgRegion.length + 1}`,
-          pointCenter: position,
-        });
-        await setImgRegion(newLst);
-      }
+      await setPosition([position[0], position[1] + dy * 0.95]);
     } else {
-      setPosition([position[0] - dx * 0.95, regionCapture[0][1]]);
-      const mapCanvas = document.getElementById("mapMain");
-      if (mapCanvas) {
-        const blob = await domtoimage.toBlob(mapCanvas, {
-          width: mapCanvas.clientWidth,
-          height: mapCanvas.clientHeight,
-        });
-        await saveAs(blob, `${region}-${imgRegion.length + 1}.png`);
-        let newLst = imgRegion;
-        newLst.push({
-          name: `${region}-${imgRegion.length + 1}`,
-          pointCenter: position,
-        });
-        await setImgRegion(newLst);
-      }
+      await setPosition([position[0] - dx * 0.95, regionCapture[0][1]]);
     }
+
     if (position[0] <= regionCapture[1][0] + dx * 0.1) {
       snapStatus = false;
       openNotificationWithIcon("success", "Hoàn thành", "");
+    } else {
+      if (mapCanvas) {
+        const blob = await domtoimage.toBlob(mapCanvas, {
+          width: mapCanvas.clientWidth,
+          height: mapCanvas.clientHeight,
+        });
+        await saveAs(blob, `${region}-${imgRegion.length + 1}.png`);
+        let newLst = imgRegion;
+        newLst.push({
+          name: `${region}-${imgRegion.length + 1}`,
+          pointCenter: position,
+        });
+        await setImgRegion(newLst);
+      }
     }
     if (snapStatus) {
       let btnSnap = document.getElementById("btnSnapshot");
@@ -83,8 +71,6 @@ const CaptureMap = (props: Props) => {
       await setIsModalOpen(true);
     }
   };
-  console.log(sizeMap);
-
   function CaptureView({ pos, zoom }: { pos: LatLngTuple; zoom: number }) {
     const map = useMap();
     map.addEventListener("click", async (e) => {
@@ -108,7 +94,6 @@ const CaptureMap = (props: Props) => {
         await setIsModalOpen(true);
       }
     });
-
     useEffect(() => {
       map.setZoom(zoom);
       map.setView(pos);
@@ -125,7 +110,8 @@ const CaptureMap = (props: Props) => {
         okText={"Chụp"}
         footer={
           <Button
-            danger
+            className="bg-purple-600 text-white hover:bg-purple-400 hover:text-black"
+            size="large"
             onClick={() => {
               if (regionCapture.length === 2) {
                 snapStatus = true;
@@ -185,7 +171,7 @@ const CaptureMap = (props: Props) => {
           <Form.Item>
             <Space>
               <Button
-                disabled={imgRegion.length === 2 ? false : true}
+                disabled={imgRegion.length > 0 ? false : true}
                 onClick={async () => {
                   console.log(imgRegion);
                   const dxf = new DxfWriter();
