@@ -1,4 +1,15 @@
-import { Button, Col, Form, Input, InputNumber, Row, Space } from "antd";
+import {
+  Button,
+  Col,
+  Drawer,
+  Form,
+  Input,
+  InputNumber,
+  Radio,
+  RadioChangeEvent,
+  Row,
+  Space,
+} from "antd";
 import {
   DndContext,
   MouseSensor,
@@ -6,10 +17,11 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import TextArea from "antd/es/input/TextArea";
+import { BarsOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { useFormik } from "formik";
-import React, { useEffect, useState } from "react";
+import { saveAs } from "file-saver";
+import React, { useState } from "react";
 import {
   StationItemModel,
   OrientationStatsModel,
@@ -18,8 +30,10 @@ import { RootState } from "../../redux/configStore";
 import { setLstBookItem, setStructureName } from "../../redux/bookSlice";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import OrientationElevation from "./OrientationElevation";
-import OrientationCurrent from "./OrientationCurrent";
-import { setPageTitle } from "../../redux/drawerSlice";
+import { closeDrawer, showDrawer } from "../../redux/drawerSlice";
+import { openNotificationWithIcon } from "../../untils/operate/notify";
+import { formatText } from "../../untils/operate/opetate";
+import BookCaculation from "./BookCaculation";
 type Props = {};
 
 const defaultOrientationValue: OrientationStatsModel = {
@@ -33,14 +47,12 @@ const defaultStationValue: StationItemModel = {
   idStation: -1,
   stationStat: [],
 };
-
-function Book({}: Props) {
+function BookElevation({}: Props) {
+  const [childrenDrawer, setChildrenDrawer] = useState(false);
   const { structureName, lstBookItem } = useSelector(
     (state: RootState) => state.bookSlice
   );
-  const { pageTitle } = useSelector((state: RootState) => state.drawerSlice);
-  let [currentStation, setCurrentStation] =
-    useState<StationItemModel>(defaultStationValue);
+  const { isOpen } = useSelector((state: RootState) => state.drawerSlice);
   let dispatch = useDispatch();
   const formik = useFormik({
     initialValues: defaultOrientationValue,
@@ -56,26 +68,12 @@ function Book({}: Props) {
     },
   });
   const sensors = useSensors(mouseSensor, touchSensor);
+  const bookTag = document.getElementById("bookStation");
+  const bookTagSize = window.innerHeight - 292 - 60;
   let accuracy =
     (formik.values.upNumber + formik.values.downNumber) / 2 -
     formik.values.centerNumber;
   let distance = (formik.values.upNumber - formik.values.downNumber) / 10;
-  const sortCurrentStation = async (event: any) => {
-    let activeIndex = currentStation.stationStat.findIndex(
-      (ori) => ori.idOrientation === event.active.id
-    );
-    let overIndex = currentStation.stationStat.findIndex(
-      (ori) => ori.idOrientation === event.over.id
-    );
-    await setCurrentStation({
-      ...currentStation,
-      stationStat: arrayMove(
-        currentStation.stationStat,
-        activeIndex,
-        overIndex
-      ),
-    });
-  };
   const sortStationBook = async (event: any) => {
     let activeId: number = event.active.id;
     let index: number = -1;
@@ -103,17 +101,6 @@ function Book({}: Props) {
       await dispatch(setLstBookItem({ lstBookItem: [...newBook] }));
     }
   };
-  const renderCurrentStation = (station: StationItemModel) => {
-    return station.stationStat.map((ori, index) => {
-      return (
-        <OrientationCurrent
-          orientation={ori}
-          station={station}
-          setStation={setCurrentStation}
-        />
-      );
-    });
-  };
   const renderStation = (station: StationItemModel[]) => {
     return station.map((stationItem, indexStation) => {
       return (
@@ -135,20 +122,105 @@ function Book({}: Props) {
       );
     });
   };
-  useEffect(() => {
-    if (pageTitle !== "Sổ đo thủy chuẩn")
-      dispatch(setPageTitle({ pageTitle: "Sổ đo thủy chuẩn" }));
-  }, [lstBookItem]);
+  const showChildrenDrawer = () => {
+    setChildrenDrawer(true);
+  };
+
+  const onChildrenDrawerClose = () => {
+    setChildrenDrawer(false);
+  };
   return (
-    <div>
-      <Form labelAlign="left">
-        <Col span={24}>
-          <Form.Item
-            label="Tên công trình"
-            labelCol={{ span: 4 }}
-            wrapperCol={{ span: 20 }}
+    <div className="p-4">
+      <div>
+        <Drawer
+          size="large"
+          title="Cài đặt và tính toán"
+          placement="left"
+          onClose={() => {
+            dispatch(closeDrawer());
+          }}
+          open={isOpen}
+          key="left"
+        >
+          <div>
+            <Drawer
+              title="Tính toán sổ đo"
+              size="large"
+              onClose={onChildrenDrawerClose}
+              open={childrenDrawer}
+            >
+              <BookCaculation />
+            </Drawer>
+            <Button
+              size="large"
+              className="w-full  my-2"
+              onClick={showChildrenDrawer}
+            >
+              Tính toán
+            </Button>
+            <Button
+              size="large"
+              className="w-full  my-2"
+              onClick={async () => {
+                let renderText = ``;
+                lstBookItem.forEach((sta, staIndex) => {
+                  sta.stationStat.forEach(
+                    (ori: OrientationStatsModel, oriIndex: number) => {
+                      if (oriIndex === 0) {
+                        renderText += `${formatText(
+                          String(staIndex + 1),
+                          5
+                        )}\t${formatText(
+                          String(ori.upNumber),
+                          5
+                        )}\t${formatText(
+                          String(ori.centerNumber),
+                          5
+                        )}\t${formatText(String(ori.downNumber), 5)}\t${
+                          ori.note
+                        }\n`;
+                      } else {
+                        renderText += `${formatText(
+                          String(" "),
+                          5
+                        )}\t${formatText(
+                          String(ori.upNumber),
+                          5
+                        )}\t${formatText(
+                          String(ori.centerNumber),
+                          5
+                        )}\t${formatText(String(ori.downNumber), 5)}\t${
+                          ori.note
+                        }\n`;
+                      }
+                    }
+                  );
+                });
+                const fileText = new Blob([renderText], { type: "text/plain" });
+                await saveAs(fileText, `${structureName}.txt`);
+              }}
+            >
+              Lưu sổ đo
+            </Button>
+          </div>
+        </Drawer>
+        <div className="flex">
+          <Button
+            size="large"
+            onClick={() => {
+              dispatch(showDrawer({ drawerStatus: "menuBook" }));
+            }}
           >
+            <BarsOutlined />
+          </Button>
+          <h1 className="flex-1 text-center text-xl font-bold mb-4">
+            Số đo thủy chuẩn
+          </h1>
+        </div>
+        <Form labelAlign="left">
+          <Form.Item>
             <Input
+              addonBefore="Tên công trình: "
               name="structureName"
               value={structureName}
               onChange={(event) => {
@@ -158,168 +230,186 @@ function Book({}: Props) {
               }}
             />
           </Form.Item>
-        </Col>
-        <Row gutter={8}>
-          <Col span={8}>
-            <Form.Item
-              label="Trên"
-              labelCol={{ span: 4 }}
-              wrapperCol={{ span: 20 }}
-            >
-              <InputNumber
-                name="upNumber"
-                value={formik.values.upNumber.toString()}
-                onChange={(value) => {
-                  if (value !== null) {
-                    formik.setFieldValue("upNumber", value);
-                  } else {
-                    formik.setFieldValue("upNumber", 0);
-                  }
-                }}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              label="Giữa"
-              labelCol={{ span: 4 }}
-              wrapperCol={{ span: 20 }}
-            >
-              <InputNumber
-                name="centerNumber"
-                value={formik.values.centerNumber}
-                onChange={(value) => {
-                  if (value !== null) {
-                    formik.setFieldValue("centerNumber", value);
-                  } else {
-                    formik.setFieldValue("centerNumber", 0);
-                  }
-                }}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              label="Dưới"
-              labelCol={{ span: 4 }}
-              wrapperCol={{ span: 20 }}
-            >
-              <InputNumber
-                name="downNumber"
-                value={formik.values.downNumber}
-                onChange={(value) => {
-                  if (value !== null) {
-                    formik.setFieldValue("downNumber", value);
-                  } else {
-                    formik.setFieldValue("downNumber", 0);
-                  }
-                }}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Form.Item
-          label="Ghi chú"
-          labelCol={{ span: 3 }}
-          wrapperCol={{ span: 21 }}
-        >
-          <TextArea
-            name="note"
-            value={formik.values.note}
-            rows={2}
-            onChange={(event) => {
-              formik.setFieldValue("note", event.target.value);
-            }}
-          />
-        </Form.Item>
-      </Form>
-      <div>
-        <div className="grid grid-cols-2 mb-4">
-          <p className={Math.abs(accuracy) > 1.5 ? "text-red-400" : ""}>
-            <span>Sai số: </span>
-            <span>{accuracy}</span>
-          </p>
-          <p>
-            <span>Khoảng cách: </span>
-            <span>{distance}m</span>
-          </p>
-          <p className="col-span-2">
-            <span>Khoảng cách cộng dồn: </span>
-            <span>
-              {lstBookItem.reduce((acc, station) => {
-                return (
-                  acc +
-                  (station.stationStat[0].upNumber -
-                    station.stationStat[0].downNumber) /
-                    10 -
-                  (station.stationStat[station.stationStat.length - 1]
-                    .upNumber -
-                    station.stationStat[station.stationStat.length - 1]
-                      .downNumber) /
-                    10
-                );
-              }, 0)}
-            </span>
-          </p>
-        </div>
-        <Space>
-          <Button
-            disabled={formik.values.centerNumber !== 0 ? false : true}
-            onClick={async () => {
-              if (formik.values.centerNumber !== 0) {
-                let orientationCurrent: OrientationStatsModel;
-                orientationCurrent = {
-                  idOrientation: Date.now(),
-                  upNumber: formik.values.upNumber,
-                  centerNumber: formik.values.centerNumber,
-                  downNumber: formik.values.downNumber,
-                  note: formik.values.note,
-                };
-                let stationUpdate: StationItemModel = { ...currentStation };
-                if (currentStation.stationStat.length === 0) {
-                  stationUpdate.idStation = Date.now();
-                }
-                stationUpdate.stationStat.push(orientationCurrent);
-                await formik.resetForm();
-                await setCurrentStation(stationUpdate);
-              }
-            }}
-          >
-            Thêm điểm mia
-          </Button>
-          <Button
-            disabled={currentStation.stationStat.length > 1 ? false : true}
-            onClick={async () => {
-              let lstUpdate = [...lstBookItem];
-              lstUpdate.push(currentStation);
-              await dispatch(setLstBookItem({ lstBookItem: lstUpdate }));
-              await formik.resetForm();
-              await setCurrentStation({
-                idStation: -1,
-                stationStat: [],
-              });
-            }}
-          >
-            Kết thúc trạm
-          </Button>
-        </Space>
-      </div>
-      <DndContext onDragEnd={sortCurrentStation} sensors={sensors}>
-        <SortableContext
-          items={currentStation.stationStat.map(
-            (orient) => orient.idOrientation
-          )}
-        >
-          <div className="bg-slate-200 my-2">
-            {renderCurrentStation(currentStation)}
+
+          <Row gutter={8}>
+            <Col span={8}>
+              <Form.Item>
+                <InputNumber
+                  className="w-full"
+                  addonBefore="Trên: "
+                  name="upNumber"
+                  value={formik.values.upNumber.toString()}
+                  onChange={(value) => {
+                    if (value !== null) {
+                      formik.setFieldValue("upNumber", value);
+                    } else {
+                      formik.setFieldValue("upNumber", 0);
+                    }
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item>
+                <InputNumber
+                  className="w-full"
+                  addonBefore="Giữa"
+                  name="centerNumber"
+                  value={formik.values.centerNumber}
+                  onChange={(value) => {
+                    if (value !== null) {
+                      formik.setFieldValue("centerNumber", value);
+                    } else {
+                      formik.setFieldValue("centerNumber", 0);
+                    }
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item>
+                <InputNumber
+                  className="w-full"
+                  addonBefore="Dưới"
+                  name="downNumber"
+                  value={formik.values.downNumber}
+                  onChange={(value) => {
+                    if (value !== null) {
+                      formik.setFieldValue("downNumber", value);
+                    } else {
+                      formik.setFieldValue("downNumber", 0);
+                    }
+                  }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item>
+            <Input
+              addonBefore="Ghi chú: "
+              name="note"
+              value={formik.values.note}
+              onChange={(event) => {
+                formik.setFieldValue("note", event.target.value);
+              }}
+            />
+          </Form.Item>
+        </Form>
+        <div>
+          <div className="grid grid-cols-3 mb-4">
+            <p className={Math.abs(accuracy) > 1.5 ? "text-red-400" : ""}>
+              <span>Sai số: </span>
+              <span>{accuracy}</span>
+            </p>
+            <p>
+              <span>KC: </span>
+              <span>{distance}m</span>
+            </p>
+            <p>
+              <span>KCCD: </span>
+              <span>
+                {lstBookItem
+                  .reduce((acc, station) => {
+                    return (
+                      acc +
+                      (station.stationStat[0].upNumber -
+                        station.stationStat[0].downNumber) /
+                        10 -
+                      (station.stationStat[station.stationStat.length - 1]
+                        .upNumber -
+                        station.stationStat[station.stationStat.length - 1]
+                          .downNumber) /
+                        10
+                    );
+                  }, 0)
+                  .toFixed(1)}
+                m
+              </span>
+            </p>
           </div>
-        </SortableContext>
-      </DndContext>
+          <Space>
+            <Button
+              size="large"
+              disabled={formik.values.centerNumber !== 0 ? false : true}
+              onClick={async () => {
+                if (formik.values.centerNumber !== 0) {
+                  let orientationCurrent: OrientationStatsModel = {
+                    idOrientation: Date.now(),
+                    upNumber: formik.values.upNumber,
+                    centerNumber: formik.values.centerNumber,
+                    downNumber: formik.values.downNumber,
+                    note: formik.values.note,
+                  };
+                  let stationUpdate: StationItemModel[] = JSON.parse(
+                    JSON.stringify(lstBookItem)
+                  );
+                  stationUpdate[stationUpdate.length - 1].stationStat.push(
+                    orientationCurrent
+                  );
+                  await dispatch(
+                    setLstBookItem({ lstBookItem: stationUpdate })
+                  );
+                  await formik.resetForm();
+                }
+              }}
+            >
+              Thêm mia sau
+            </Button>
+            <Button
+              size="large"
+              disabled={
+                lstBookItem[lstBookItem.length - 1]?.stationStat.length > 1
+                  ? false
+                  : true
+              }
+              onClick={async () => {
+                if (
+                  formik.values.centerNumber !== 0 &&
+                  formik.values.note !== ""
+                ) {
+                  let lstUpdate = [...lstBookItem];
+                  lstUpdate.push({
+                    idStation: Date.now(),
+                    stationStat: [
+                      {
+                        idOrientation: Date.now(),
+                        upNumber: formik.values.upNumber,
+                        centerNumber: formik.values.centerNumber,
+                        downNumber: formik.values.downNumber,
+                        note: formik.values.note,
+                      },
+                    ],
+                  });
+                  await dispatch(setLstBookItem({ lstBookItem: lstUpdate }));
+                  await formik.resetForm();
+                  bookTag?.scrollTo(0, bookTag.scrollHeight);
+                } else {
+                  openNotificationWithIcon(
+                    "error",
+                    "Bạn chưa nhập đủ ",
+                    "Bạn phải nhập dây giữa hoặc ghi chú"
+                  );
+                }
+              }}
+            >
+              Thêm mia trước
+            </Button>
+          </Space>
+        </div>
+      </div>
+
       <DndContext onDragEnd={sortStationBook} sensors={sensors}>
-        <div className="my-2">{renderStation(lstBookItem)}</div>
+        <div
+          id="bookStation"
+          // ref={bookRef}
+          style={{ height: bookTagSize }}
+          className="my-2 overflow-y-scroll scroll-smooth"
+        >
+          {renderStation(lstBookItem)}
+        </div>
       </DndContext>
     </div>
   );
 }
 
-export default Book;
+export default BookElevation;

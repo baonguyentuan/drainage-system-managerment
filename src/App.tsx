@@ -14,6 +14,9 @@ import MapPoint from "./pages/MapPoint";
 import ElevationPlacemark from "./components/Book/ElevationPlacemark";
 import CaptureMap from "./pages/CaptureMap";
 import MeasurementBook from "./pages/MeasurementBook";
+import Login from "./pages/Login";
+import AdminLayout from "./layouts/AdminLayout";
+import BookManager from "./components/Book/BookManager";
 
 function App() {
   return (
@@ -21,6 +24,7 @@ function App() {
       <Provider store={store}>
         <BrowserRouter>
           <Routes>
+            <Route path={configRouter.public.login} element={<Login />} />
             <Route path="" element={<HomeLayout />}>
               <Route index element={<Home />} />
               <Route path={configRouter.public.home} element={<Home />} />
@@ -33,14 +37,22 @@ function App() {
                 element={<CadGGEarth />}
               />
             </Route>
-            <Route path={configRouter.private.book} element={<BookLayout />}>
+            <Route
+              path={configRouter.private.book}
+              element={<BookManager />}
+            ></Route>
+            <Route path={configRouter.private.book_detail} element={<Book />} />
+            {/* <Route
+              path={configRouter.private.book_detail}
+              element={<BookLayout />}
+            >
               <Route index element={<Book />} />
               <Route
                 path={configRouter.private.book_calculate}
                 element={<BookCaculation />}
               />
-              <Route path={configRouter.private.book} element={<Book />} />
-            </Route>
+              <Route path={"/:id"} element={<Book />} />
+            </Route> */}
             <Route
               path={`${configRouter.private.book}/${configRouter.private.book_placemark}/:id`}
               element={<ElevationPlacemark />}
@@ -57,6 +69,10 @@ function App() {
               path={configRouter.private.mesurement_book}
               element={<MeasurementBook />}
             />
+            <Route
+              path={configRouter.admin.base}
+              element={<AdminLayout />}
+            ></Route>
           </Routes>
         </BrowserRouter>
       </Provider>

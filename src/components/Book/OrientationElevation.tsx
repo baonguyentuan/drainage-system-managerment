@@ -69,53 +69,50 @@ const OrientationElevation = (props: Props) => {
       <p>{orientation.upNumber}</p>
       <p>{orientation.centerNumber}</p>
       <p>{orientation.downNumber}</p>
-      <p className=" text-left col-span-2">{orientation.note}</p>
-      <div>
-        <Popover
-          placement="topRight"
-          title={"Hành động"}
-          content={
-            <Space>
-              <Button
-                onClick={async () => {
-                  await setEditId(orientation.idOrientation);
-                  await setEditValue(orientation.note);
-                }}
-              >
-                <EditOutlined className="-translate-y-1" />
+      <p>{(orientation.upNumber - orientation.downNumber) / 10}</p>
+      <Popover
+        className="col-span-2"
+        placement="topRight"
+        title={"Hành động"}
+        content={
+          <Space>
+            <Button
+              onClick={async () => {
+                await setEditId(orientation.idOrientation);
+                await setEditValue(orientation.note);
+              }}
+            >
+              <EditOutlined className="-translate-y-1" />
+            </Button>
+            <Button
+              onClick={() => {
+                navigate(
+                  `${configRouter.private.book_placemark}/${orientation.idOrientation}`
+                );
+              }}
+            >
+              <VerticalAlignTopOutlined className="-translate-y-1" />
+            </Button>
+            <Popconfirm
+              title="Delete the task"
+              description="Are you sure to delete this task?"
+              onConfirm={() => {
+                deleteOrientation(props.index[0], props.index[1]);
+              }}
+              okType="danger"
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger>
+                <DeleteOutlined className="-translate-y-1" />
               </Button>
-              <Button
-                onClick={() => {
-                  navigate(
-                    `${configRouter.private.book_placemark}/${orientation.idOrientation}`
-                  );
-                }}
-              >
-                <VerticalAlignTopOutlined className="-translate-y-1" />
-              </Button>
-              <Popconfirm
-                title="Delete the task"
-                description="Are you sure to delete this task?"
-                onConfirm={() => {
-                  deleteOrientation(props.index[0], props.index[1]);
-                }}
-                okType="danger"
-                okText="Yes"
-                cancelText="No"
-              >
-                <Button danger>
-                  <DeleteOutlined className="-translate-y-1" />
-                </Button>
-              </Popconfirm>
-            </Space>
-          }
-          trigger="click"
-        >
-          <Button type="link" className="-translate-y-1">
-            <MoreOutlined />
-          </Button>
-        </Popover>
-      </div>
+            </Popconfirm>
+          </Space>
+        }
+        trigger="click"
+      >
+        <p className=" text-left ">{orientation.note}</p>
+      </Popover>
       {orientation.idOrientation === editId ? (
         <Space.Compact className="col-span-5 my-2">
           <Input

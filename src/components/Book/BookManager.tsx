@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/configStore";
 import { setLstBookItem, setStructureName } from "../../redux/bookSlice";
 import { closeDrawer } from "../../redux/drawerSlice";
+import { openNotificationWithIcon } from "../../untils/operate/notify";
 
 const { Search } = Input;
 type Props = {};
@@ -26,7 +27,7 @@ const BookManager = (props: Props) => {
   let navigate = useNavigate();
 
   return (
-    <div className="max-w-3xl m-auto my-4">
+    <div className="max-w-3xl m-auto p-4">
       <div className="grid grid-cols-2 gap-4 mb-4">
         <Upload
           accept=".txt, .csv"
@@ -70,38 +71,48 @@ const BookManager = (props: Props) => {
             };
             reader.readAsText(file);
             await dispatch(closeDrawer());
+            await navigate(`1`, { relative: "route" });
             // Prevent upload
             return false;
           }}
         >
-          <Button>Mở sổ đo có sẵn</Button>
+          <Button size="large">Mở sổ đo có sẵn</Button>
         </Upload>
         <Button
+          size="large"
           onClick={async () => {
             await dispatch(setStructureName({ structureName: "" }));
             await dispatch(setLstBookItem({ lstBookItem: [] }));
             await dispatch(closeDrawer());
+            await navigate(`${configRouter.private.book}/1`);
           }}
         >
           Tạo sổ đo mới
         </Button>
         <Button
           className="col-span-2"
-          onClick={() => {
+          size="large"
+          onClick={async () => {
             let curBook = [];
             const store = localStorage.getItem("book");
-            if (store) {
+            if (store !== "undefined" && store) {
               curBook = JSON.parse(store);
+              await dispatch(setLstBookItem({ lstBookItem: curBook }));
+              await dispatch(closeDrawer());
+              await navigate(`${configRouter.private.book}/1`);
             } else {
-              curBook = [];
+              openNotificationWithIcon(
+                "error",
+                "Không có sổ đo trong bộ nhớ",
+                ""
+              );
             }
-            dispatch(setLstBookItem({ lstBookItem: curBook }));
-            dispatch(closeDrawer());
           }}
         >
           Lấy sổ đo từ bộ nhớ
         </Button>
         <Button
+          size="large"
           className="col-span-2"
           onClick={() => {
             let renderText = ``;
@@ -142,17 +153,8 @@ const BookManager = (props: Props) => {
         >
           Xuất sổ đo sang định dạng TXT
         </Button>
-        <Button
-          className="col-span-2"
-          onClick={() => {
-            navigate(configRouter.private.book_calculate);
-            dispatch(closeDrawer());
-          }}
-        >
-          Tính toán sổ đo
-        </Button>
       </div>
-      <Search className="mb-2" placeholder="Nhập tên sổ đo" />
+      <Search size="large" className="mb-2" placeholder="Nhập tên sổ đo" />
       <p className="text-left">Sổ đo gần đây</p>
     </div>
   );
