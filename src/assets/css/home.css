@@ -8,6 +8,6 @@
     border-color: #7673F9;
 }
 .home__link{
-    @apply  p-3 rounded-lg hover:scale-110 duration-300 cursor-pointer text-2xl font-semibold text-center text-white;
+    @apply inline-block p-3 w-full rounded-lg hover:scale-110 duration-300 cursor-pointer text-2xl font-semibold text-center text-white;
     background-color: #7673F9;
 }

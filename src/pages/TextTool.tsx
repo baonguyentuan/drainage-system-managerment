@@ -1,6 +1,7 @@
 import { Tabs } from 'antd';
 import React from 'react'
 import ImportCad from '../components/TextTool/ImportCad';
+import ConvertFont from '../components/TextTool/ConvertFont';
 
 type Props = {}
 
@@ -13,8 +14,13 @@ const TextTool = (props: Props) => {
                 items={[
                     {
                         key:"importCad",
-                        label:"Nhập text và CAD",
+                        label:"Nhập text vào CAD",
                         children:<ImportCad/>
+                    },
+                    {
+                        key:"covertFont",
+                        label:"Chuyển đổi font",
+                        children:<ConvertFont/>
                     }
                 ]}
             />
