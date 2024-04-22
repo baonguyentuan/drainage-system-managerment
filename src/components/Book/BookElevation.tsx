@@ -5,8 +5,6 @@ import {
   Form,
   Input,
   InputNumber,
-  Radio,
-  RadioChangeEvent,
   Row,
   Space,
 } from "antd";
@@ -204,7 +202,7 @@ function BookElevation({}: Props) {
             </Button>
           </div>
         </Drawer>
-        <div className="flex">
+        <div className="flex items-center mb-4">
           <Button
             size="large"
             onClick={() => {
@@ -213,7 +211,7 @@ function BookElevation({}: Props) {
           >
             <BarsOutlined />
           </Button>
-          <h1 className="flex-1 text-center text-xl font-bold mb-4">
+          <h1 className="flex-1 text-center text-xl font-bold ">
             Số đo thủy chuẩn
           </h1>
         </div>
@@ -236,7 +234,7 @@ function BookElevation({}: Props) {
               <Form.Item>
                 <InputNumber
                   className="w-full"
-                  addonBefore="Trên: "
+                  addonBefore="T: "
                   name="upNumber"
                   value={formik.values.upNumber.toString()}
                   onChange={(value) => {
@@ -253,7 +251,7 @@ function BookElevation({}: Props) {
               <Form.Item>
                 <InputNumber
                   className="w-full"
-                  addonBefore="Giữa"
+                  addonBefore="G:"
                   name="centerNumber"
                   value={formik.values.centerNumber}
                   onChange={(value) => {
@@ -270,7 +268,7 @@ function BookElevation({}: Props) {
               <Form.Item>
                 <InputNumber
                   className="w-full"
-                  addonBefore="Dưới"
+                  addonBefore="D:"
                   name="downNumber"
                   value={formik.values.downNumber}
                   onChange={(value) => {
@@ -330,7 +328,12 @@ function BookElevation({}: Props) {
           <Space>
             <Button
               size="large"
-              disabled={formik.values.centerNumber !== 0 ? false : true}
+              disabled={
+                formik.values.centerNumber !== 0 &&
+                formik.values.note.trim() !== ""
+                  ? false
+                  : true
+              }
               onClick={async () => {
                 if (formik.values.centerNumber !== 0) {
                   let orientationCurrent: OrientationStatsModel = {
@@ -358,7 +361,8 @@ function BookElevation({}: Props) {
             <Button
               size="large"
               disabled={
-                lstBookItem[lstBookItem.length - 1]?.stationStat.length > 1
+                formik.values.centerNumber !== 0 &&
+                formik.values.note.trim() !== ""
                   ? false
                   : true
               }

@@ -5,7 +5,6 @@ import {
   VerticalAlignTopOutlined,
   EditOutlined,
   DeleteOutlined,
-  MoreOutlined,
   CheckOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -111,7 +110,7 @@ const OrientationElevation = (props: Props) => {
         }
         trigger="click"
       >
-        <p className=" text-left ">{orientation.note}</p>
+        <p className=" text-left py-1">{orientation.note}</p>
       </Popover>
       {orientation.idOrientation === editId ? (
         <Space.Compact className="col-span-5 my-2">
