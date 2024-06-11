@@ -353,6 +353,7 @@ function BookElevation({}: Props) {
                     setLstBookItem({ lstBookItem: stationUpdate })
                   );
                   await formik.resetForm();
+                  bookTag?.scrollTo(0, bookTag.scrollHeight);
                 }
               }}
             >

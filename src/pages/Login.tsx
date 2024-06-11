@@ -1,7 +1,6 @@
 import { Button, Form, Input } from "antd";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { NavLink } from "react-router-dom";
 
 type Props = {};
 type InputsLogin = {
@@ -20,7 +19,7 @@ const Login = (props: Props) => {
 
   // const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
   return (
-    <div className="w-screen h-screen flex justify-center items-center bg-gradient-to-r from-indigo-200 from-10% via-sky-200 via-30% to-emerald-200 to-90%">
+    <div className="w-screen h-screen flex justify-center items-center bg-slate-300">
       <Form
         className="w-full max-w-xl border-2 border-black rounded-2xl p-4 bg-slate-100"
         onSubmitCapture={() => {
