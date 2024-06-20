@@ -9,7 +9,7 @@ import UserManagerment from "../pages/UserManagerment";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/configStore";
 import RoleManagerment from "../pages/RoleManagerment";
-import { setMenuBarStatus } from "../redux/adminSlice";
+import { setMenuBarStatus } from "../redux/admin.slice";
 import EndpointManagerment from "../pages/EndpointManagerment";
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -60,7 +60,6 @@ const AdminLayout = (props: Props) => {
           items={items}
           onClick={async (value) => {
             await dispatch(setMenuBarStatus({ status: value.key }));
-            console.log(value);
           }}
         />
       </div>

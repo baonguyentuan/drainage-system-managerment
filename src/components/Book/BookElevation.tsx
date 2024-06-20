@@ -28,7 +28,7 @@ import { RootState } from "../../redux/configStore";
 import { setLstBookItem, setStructureName } from "../../redux/bookSlice";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import OrientationElevation from "./OrientationElevation";
-import { closeDrawer, showDrawer } from "../../redux/drawerSlice";
+import { closeDrawer, showDrawer } from "../../redux/drawer.slice";
 import { openNotificationWithIcon } from "../../untils/operate/notify";
 import { formatText } from "../../untils/operate/opetate";
 import BookCaculation from "./BookCaculation";

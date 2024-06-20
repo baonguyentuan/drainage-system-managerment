@@ -1,6 +1,10 @@
 import { Button, Col, Input, Row, Space, Table, TableProps, Tag } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllRole } from "../redux/role.slice";
+import { RootState } from "../redux/configStore";
+import CreateRole from "../components/Role/CreateRole";
 
 type Props = {};
 interface DataType {
@@ -77,6 +81,13 @@ const data: DataType[] = [
   },
 ];
 const RoleManagerment = (props: Props) => {
+  const { roleLst } = useSelector((state: RootState) => state.roleSlice);
+  console.log(roleLst);
+
+  const dispatch: any = useDispatch();
+  useEffect(() => {
+    dispatch(getAllRole());
+  }, []);
   return (
     <div className="m-4">
       <h1 className="mb-4">Quản lý Role</h1>
@@ -93,6 +104,7 @@ const RoleManagerment = (props: Props) => {
           />
         </Col>
       </Row>
+      <CreateRole />
       <Table columns={columns} dataSource={data} />
     </div>
   );

@@ -1,6 +1,8 @@
 import { Button, Form, Input } from "antd";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { login } from "../redux/admin.slice";
 
 type Props = {};
 type InputsLogin = {
@@ -15,8 +17,8 @@ const Login = (props: Props) => {
     setValue,
     formState: { errors },
   } = useForm<InputsLogin>();
-  console.log(watch("email"));
-
+  // console.log(watch("email"));
+  const dispatch: any = useDispatch();
   // const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
   return (
     <div className="w-screen h-screen flex justify-center items-center bg-slate-300">
@@ -56,8 +58,12 @@ const Login = (props: Props) => {
             className="bg-gradient-to-r from-green-300 to-blue-300 hover:from-pink-300 hover:to-yellow-300 text-2xl font-semibold w-1/2"
             style={{ color: "black", height: "auto" }}
             onClick={handleSubmit(() => {
-              console.log(watch("email"));
-
+              dispatch(
+                login({
+                  mail: watch("email"),
+                  password: watch("password"),
+                })
+              );
               // console.log("err", errors.email);
             })}
           >

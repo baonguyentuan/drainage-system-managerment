@@ -14,7 +14,7 @@ import {
   setLstBookCalculate,
   setLstBookItem,
 } from "../../redux/bookSlice";
-import { setPageTitle } from "../../redux/drawerSlice";
+import { setPageTitle } from "../../redux/drawer.slice";
 import { openNotificationWithIcon } from "../../untils/operate/notify";
 const { TextArea } = Input;
 type Props = {};

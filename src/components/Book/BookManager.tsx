@@ -10,7 +10,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/configStore";
 import { setLstBookItem, setStructureName } from "../../redux/bookSlice";
-import { closeDrawer } from "../../redux/drawerSlice";
+import { closeDrawer } from "../../redux/drawer.slice";
 import { openNotificationWithIcon } from "../../untils/operate/notify";
 
 const { Search } = Input;

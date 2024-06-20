@@ -6,7 +6,7 @@ import {
 } from "../models/bookModels";
 import { BarsOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { closeDrawer, setPageTitle, showDrawer } from "../redux/drawerSlice";
+import { closeDrawer, setPageTitle, showDrawer } from "../redux/drawer.slice";
 import { RootState } from "../redux/configStore";
 type Props = {};
 let count: number = 0;
