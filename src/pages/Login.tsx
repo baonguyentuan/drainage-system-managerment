@@ -2,7 +2,7 @@ import { Button, Form, Input } from "antd";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { login } from "../redux/admin.slice";
+import { login } from "../redux/auth.slice";
 
 type Props = {};
 type InputsLogin = {
@@ -17,9 +17,7 @@ const Login = (props: Props) => {
     setValue,
     formState: { errors },
   } = useForm<InputsLogin>();
-  // console.log(watch("email"));
   const dispatch: any = useDispatch();
-  // const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
   return (
     <div className="w-screen h-screen flex justify-center items-center bg-slate-300">
       <Form
@@ -64,7 +62,6 @@ const Login = (props: Props) => {
                   password: watch("password"),
                 })
               );
-              // console.log("err", errors.email);
             })}
           >
             Đăng nhập

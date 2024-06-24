@@ -5,7 +5,7 @@ export const API_URL = {
   auth: {
     refreshToken: "auth/refreshToken",
     login: "auth/login",
-    logout: "auth/login",
+    logout: "auth/logout",
   },
   user: {
     createUser: "user",
@@ -21,11 +21,15 @@ export const API_URL = {
     createRole: "role",
     getAllRole: "role",
     getRoleById: "role/:id",
+    deleteRole: "role/:id",
+    updateRole: "role/:id",
   },
   endpoint: {
-    createEnpoint: "endpoint/create",
+    createEnpoint: "endpoint",
     getAllEnpoint: "endpoint",
     getEndpointById: "endpoint/:id",
+    deleteEndpoint: "endpoint/:id",
+    updateEndpoint: "endpoint/:id",
   },
   bookElevation: {
     createBook: "book/elevation/create",
@@ -39,4 +43,11 @@ export const publicRequest = axios.create({
 });
 export const privateRequest = axios.create({
   baseURL: BASE_DOMAIN,
+  headers: {
+    Authorization: `Bearer ${
+      localStorage.getItem("accessToken")
+        ? localStorage.getItem("accessToken")
+        : ""
+    }`,
+  },
 });

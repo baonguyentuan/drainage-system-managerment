@@ -13,7 +13,7 @@ const roleSlice = createSlice({
   reducers: {},
   extraReducers(builder) {
     builder.addCase(getAllRole.fulfilled, (state, action) => {
-      state.roleLst = action.payload.data;
+      state.roleLst = action.payload.data.data;
     });
     builder.addCase(getRoleDetail.fulfilled, (state, action) => {
       state.roleLst = action.payload.data;
@@ -42,7 +42,7 @@ export const createRole = createAsyncThunk(
   "role/create",
   async (roleDto: ROLE_DTO, thunkApi) => {
     const response = await roleRepository.createRole(roleDto);
-    if (response.status === 200) {
+    if (response.status === 200 || response.status === 201) {
       thunkApi.dispatch(getAllRole());
     } else {
       console.log(response);
@@ -54,7 +54,7 @@ export const deleteRole = createAsyncThunk(
   "role/delete",
   async (roleId: string, thunkApi) => {
     const response = await roleRepository.deleteRole(roleId);
-    if (response.status === 200) {
+    if (response.status === 200 || response.status === 201) {
       thunkApi.dispatch(getAllRole());
     }
     // return response.data;

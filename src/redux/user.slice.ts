@@ -16,9 +16,9 @@ const userSlice = createSlice({
     builder.addCase(getAllUser.fulfilled, (state, action) => {
       state.userLst = action.payload?.data;
     });
-    // builder.addCase(getRoleDetail.fulfilled, (state, action) => {
-    //   state.roleLst = action.payload.data;
-    // });
+    builder.addCase(getUserDetail.fulfilled, (state, action) => {
+      state.userDetail = action.payload.data;
+    });
     builder.addCase(createUser.fulfilled, (state, action) => {
       openNotificationWithIcon("success", "Tạo người dùng thành công", "");
     });
@@ -53,7 +53,7 @@ export const createUser = createAsyncThunk(
   async (userDto: USER_DTO, thunkApi) => {
     // try {
     const response = await userRepository.createUser(userDto);
-    if (response.status === 200) {
+    if (response.status === 200 || response.status === 201) {
       thunkApi.dispatch(getAllUser());
     } else {
       console.log(response);
@@ -79,3 +79,12 @@ export const deleteUser = createAsyncThunk(
     // return response.data;
   }
 );
+export const getUserDetail = createAsyncThunk("user/getDetail", async () => {
+  // try {
+  const response = await userRepository.getUserDetail();
+  console.log(response);
+  return response.data;
+  // } catch (error) {
+  //   console.log(error);
+  // }
+});

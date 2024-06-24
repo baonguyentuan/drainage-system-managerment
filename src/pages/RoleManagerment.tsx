@@ -1,111 +1,65 @@
-import { Button, Col, Input, Row, Space, Table, TableProps, Tag } from "antd";
+import { Button, Col, Input, Row, Space, Table, TableProps } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllRole } from "../redux/role.slice";
 import { RootState } from "../redux/configStore";
 import CreateRole from "../components/Role/CreateRole";
+import { ROLE_DETAIL } from "../models/role.model";
 
 type Props = {};
-interface DataType {
-  _id: string;
-  name: string;
-  mail: number;
-  phoneNumber: string;
-  role: string;
-}
-const columns: TableProps<DataType>["columns"] = [
-  {
-    title: "Tên",
-    dataIndex: "name",
-    key: "name",
-    render: (text) => <a>{text}</a>,
-  },
-  {
-    title: "Mail",
-    dataIndex: "mail",
-    key: "mail",
-  },
-  {
-    title: "Điện thoại",
-    dataIndex: "address",
-    key: "address",
-  },
-  {
-    title: "Loại",
-    key: "role",
-    dataIndex: "role",
-    render: (text) => (
-      <Tag color={"blue"} key={text}>
-        {text.toUpperCase()}
-      </Tag>
-    ),
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: () => (
-      <Space size="middle">
-        <Button>
-          <EditOutlined />
-        </Button>
-        <Button>
-          <DeleteOutlined />
-        </Button>
-      </Space>
-    ),
-  },
-];
 
-const data: DataType[] = [
-  {
-    _id: "1",
-    name: "John Brown",
-    mail: 32,
-    phoneNumber: "New York No. 1 Lake Park",
-    role: "nice",
-  },
-  {
-    _id: "2",
-    name: "Jim Green",
-    mail: 42,
-    phoneNumber: "London No. 1 Lake Park",
-    role: "loser",
-  },
-  {
-    _id: "3",
-    name: "Joe Black",
-    mail: 32,
-    phoneNumber: "Sydney No. 1 Lake Park",
-    role: "cool",
-  },
-];
 const RoleManagerment = (props: Props) => {
   const { roleLst } = useSelector((state: RootState) => state.roleSlice);
   console.log(roleLst);
 
   const dispatch: any = useDispatch();
+  const columns: TableProps<ROLE_DETAIL>["columns"] = [
+    {
+      title: "Tên",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+    },
+    {
+      title: "Chức năng",
+      key: "endpointIds",
+      dataIndex: "endpointIds",
+      render: (item) => <p>{item.length}</p>,
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: () => (
+        <Space size="middle">
+          <Button>
+            <EditOutlined />
+          </Button>
+          <Button danger>
+            <DeleteOutlined />
+          </Button>
+        </Space>
+      ),
+    },
+  ];
   useEffect(() => {
     dispatch(getAllRole());
   }, []);
   return (
     <div className="m-4">
       <h1 className="mb-4">Quản lý Role</h1>
-      <Row>
-        <Col span={12}>
-          <Button>Tạo Role</Button>
-        </Col>
-        <Col span={12}>
-          <Input
-            placeholder="Tìm kiếm"
-            size="large"
-            allowClear
-            className="mb-4"
-          />
-        </Col>
-      </Row>
+      <Input
+        placeholder="Tìm kiếm"
+        size="large"
+        allowClear
+        className="mb-4 w-full"
+      />
       <CreateRole />
-      <Table columns={columns} dataSource={data} />
+      <Table columns={columns} dataSource={roleLst} rowKey={"_id"} />
     </div>
   );
 };

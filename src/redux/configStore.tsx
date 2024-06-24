@@ -6,6 +6,7 @@ import adminSlice from "./admin.slice";
 import roleSlice from "./role.slice";
 import userSlice from "./user.slice";
 import authSlice from "./auth.slice";
+import endpointSlice from "./endpoint.slice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     roleSlice,
     userSlice,
     authSlice,
+    endpointSlice,
   },
 });
 export type RootState = ReturnType<typeof store.getState>;

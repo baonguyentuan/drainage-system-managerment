@@ -30,7 +30,6 @@ const UserManagerment = (props: Props) => {
       title: "Tên",
       dataIndex: "name",
       key: "name",
-      render: (text) => <a>{text}</a>,
     },
     {
       title: "Mail",
@@ -66,6 +65,12 @@ const UserManagerment = (props: Props) => {
       ),
     },
     {
+      title: "Password",
+      key: "password",
+      dataIndex: "password",
+      render: (item) => <Button danger>Đặt lại</Button>,
+    },
+    {
       title: "Action",
       key: "action",
       render: (item) => (
@@ -74,6 +79,7 @@ const UserManagerment = (props: Props) => {
             <EditOutlined />
           </Button>
           <Button
+            danger
             onClick={() => {
               dispatch(deleteUser(item._id));
             }}

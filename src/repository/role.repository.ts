@@ -1,21 +1,20 @@
 import { ROLE_DTO } from "../models/role.model";
-import { API_URL, publicRequest } from "../untils/config/repository.config";
+import { API_URL, privateRequest } from "../untils/config/repository.config";
 
 export default {
   getAll() {
-    return publicRequest.get(API_URL.role.getAllRole);
+    return privateRequest.get(API_URL.role.getAllRole);
   },
   getRoleById(roleId: string) {
-    return publicRequest.get(API_URL.role.getRoleById, {
-      params: roleId,
-    });
+    return privateRequest.get(`${API_URL.role.getRoleById}/${roleId}`);
   },
   createRole(roleDto: ROLE_DTO) {
-    return publicRequest.post(API_URL.role.createRole, roleDto);
+    return privateRequest.post(API_URL.role.createRole, roleDto);
+  },
+  updateRole(roleId: string, roleDto: ROLE_DTO) {
+    return privateRequest.put(`${API_URL.role.updateRole}/${roleId}`, roleDto);
   },
   deleteRole(roleId: string) {
-    return publicRequest.delete(API_URL.role.getRoleById, {
-      params: roleId,
-    });
+    return privateRequest.delete(`${API_URL.role.getRoleById}/${roleId}`);
   },
 };
