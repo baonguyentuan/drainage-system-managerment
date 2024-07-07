@@ -46,7 +46,7 @@ const EndpointManagerment = (props: Props) => {
           <Button>
             <EditOutlined />
           </Button>
-          <Button>
+          <Button danger>
             <DeleteOutlined />
           </Button>
         </Space>
@@ -82,7 +82,16 @@ const EndpointManagerment = (props: Props) => {
               />
             </Col>
           </Row>
-          <Table columns={columns} dataSource={endpointLst} />
+          <Table
+            size="middle"
+            bordered
+            columns={columns}
+            dataSource={endpointLst}
+            rowKey={"_id"}
+          />
+          <p className="text-left -mt-11">
+            Tổng: <b>{endpointLst.length}</b>
+          </p>
         </div>
       )}
     </div>

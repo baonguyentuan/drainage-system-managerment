@@ -2,7 +2,7 @@ import { Button, Col, Input, Row } from "antd";
 import React, { useState } from "react";
 import { ROLE_DTO } from "../../models/role.model";
 import { useDispatch } from "react-redux";
-import { createRole } from "../../redux/role.slice";
+import { createRoleApi } from "../../redux/role.slice";
 type Props = {};
 const CreateRole = (props: Props) => {
   const [roleDto, setRoleDto] = useState<ROLE_DTO>({
@@ -42,7 +42,7 @@ const CreateRole = (props: Props) => {
             className="w-full"
             danger
             onClick={async () => {
-              await dispatch(createRole(roleDto));
+              await dispatch(createRoleApi(roleDto));
             }}
           >
             Tạo

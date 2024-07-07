@@ -11,6 +11,7 @@ export const API_URL = {
     createUser: "user",
     updateUser: "user",
     updateUserPassword: "user/update/password",
+    resetPassword: "user/reset/password",
     updateUserAdmin: "user/update/admin",
     getAllUser: "user",
     getUserById: "user/:id",
@@ -20,9 +21,9 @@ export const API_URL = {
   role: {
     createRole: "role",
     getAllRole: "role",
-    getRoleById: "role/:id",
-    deleteRole: "role/:id",
-    updateRole: "role/:id",
+    getRoleById: "role",
+    deleteRole: "role",
+    updateRole: "role",
   },
   endpoint: {
     createEnpoint: "endpoint",

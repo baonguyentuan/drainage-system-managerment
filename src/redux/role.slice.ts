@@ -1,6 +1,13 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+  PayloadAction,
+  createAsyncThunk,
+  createSlice,
+  isAnyOf,
+} from "@reduxjs/toolkit";
 import roleRepository from "../repository/role.repository";
 import { ROLE_DETAIL, ROLE_DTO } from "../models/role.model";
+import { openNotificationWithIcon } from "../untils/operate/notify";
+import { OrderOptionDetail } from "../models/order.model";
 
 const initialState = {
   roleLst: [] as ROLE_DETAIL[],
@@ -10,52 +17,109 @@ const initialState = {
 const roleSlice = createSlice({
   name: "roleSlice",
   initialState,
-  reducers: {},
+  reducers: {
+    editRole: (state, action: PayloadAction<{ roleDetail: ROLE_DETAIL }>) => {
+      state.currentRole = action.payload.roleDetail;
+    },
+    resetCurrentRole: (state) => {
+      state.currentRole = null;
+    },
+  },
   extraReducers(builder) {
-    builder.addCase(getAllRole.fulfilled, (state, action) => {
+    builder.addCase(getAllRoleByOrderApi.fulfilled, (state, action) => {
       state.roleLst = action.payload.data.data;
     });
-    builder.addCase(getRoleDetail.fulfilled, (state, action) => {
-      state.roleLst = action.payload.data;
+    builder.addCase(getRoleDetailApi.fulfilled, (state, action) => {
+      state.currentRole = action.payload.data.data;
     });
-    builder.addCase(createRole.fulfilled, (state, action) => {
-      console.log("success");
+    builder.addCase(createRoleApi.fulfilled, (state, action) => {
+      openNotificationWithIcon("success", "Tạo Role thành công", "");
+    });
+    builder.addCase(updateRoleApi.fulfilled, (state, action) => {
+      state.currentRole = null;
+      openNotificationWithIcon("success", "Cập nhật Role thành công", "");
+    });
+    builder.addMatcher(isAnyOf(updateRoleApi.rejected), (state, action) => {
+      openNotificationWithIcon("error", "Lỗi", "");
+
+      console.log(action);
     });
   },
 });
 
-export const {} = roleSlice.actions;
+export const { editRole, resetCurrentRole } = roleSlice.actions;
 
 export default roleSlice.reducer;
-export const getAllRole = createAsyncThunk("role/getAll", async () => {
-  const response = await roleRepository.getAll();
-  return response.data;
-});
-export const getRoleDetail = createAsyncThunk(
+export const getAllRoleByOrderApi = createAsyncThunk(
+  "role/get",
+  async (orderOption: OrderOptionDetail) => {
+    const response = await roleRepository.getAllRoleByOrder(orderOption);
+    console.log(response);
+
+    return response.data;
+  }
+);
+export const getRoleDetailApi = createAsyncThunk(
   "role/getDetail",
   async (roleId: string) => {
     const response = await roleRepository.getRoleById(roleId);
     return response.data;
   }
 );
-export const createRole = createAsyncThunk(
+export const createRoleApi = createAsyncThunk(
   "role/create",
   async (roleDto: ROLE_DTO, thunkApi) => {
     const response = await roleRepository.createRole(roleDto);
     if (response.status === 200 || response.status === 201) {
-      thunkApi.dispatch(getAllRole());
+      thunkApi.dispatch(
+        getAllRoleByOrderApi({
+          value: "",
+          sort: 1,
+          page: 1,
+        })
+      );
     } else {
       console.log(response);
     }
     // return response.data;
   }
 );
-export const deleteRole = createAsyncThunk(
+export const deleteRoleApi = createAsyncThunk(
   "role/delete",
   async (roleId: string, thunkApi) => {
     const response = await roleRepository.deleteRole(roleId);
     if (response.status === 200 || response.status === 201) {
-      thunkApi.dispatch(getAllRole());
+      thunkApi.dispatch(
+        getAllRoleByOrderApi({
+          value: "",
+          sort: 1,
+          page: 1,
+        })
+      );
+    }
+    // return response.data;
+  }
+);
+export const updateRoleApi = createAsyncThunk(
+  "role/update",
+  async (roleDetail: ROLE_DETAIL, thunkApi) => {
+    const response = await roleRepository.updateRole(roleDetail._id, {
+      name: roleDetail.name,
+      description: roleDetail.description,
+      endpointIds: roleDetail.endpointIds,
+    });
+    console.log(response);
+
+    if (response.status === 200 || response.status === 201) {
+      thunkApi.dispatch(
+        getAllRoleByOrderApi({
+          value: "",
+          sort: 1,
+          page: 1,
+        })
+      );
+    } else {
+      console.log(response);
     }
     // return response.data;
   }
