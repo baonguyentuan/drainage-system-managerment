@@ -2,7 +2,9 @@ import {
   Button,
   Col,
   Input,
+  Radio,
   Row,
+  Select,
   Space,
   Switch,
   Table,
@@ -14,15 +16,25 @@ import React, { useEffect, useState } from "react";
 import CreateUser from "../components/User/CreateUser";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/configStore";
-import { deleteUser, getAllUser } from "../redux/user.slice";
+import {
+  deleteUser,
+  getAllUserByOrderApi,
+  getUserByIdApi,
+  setUserOption,
+} from "../redux/user.slice";
 import { USER_DETAIL } from "../models/user.model";
+import { getAllRoleByOrderApi } from "../redux/role.slice";
+import UpdateUser from "../components/User/UpdateUser";
 
 type Props = {};
 
 const UserManagerment = (props: Props) => {
-  const { userLst } = useSelector((state: RootState) => state.userSlice);
-  console.log(userLst);
+  const { userLst, userOption, currentUserAdmin } = useSelector(
+    (state: RootState) => state.userSlice
+  );
+  console.log(currentUserAdmin);
 
+  const { roleLst } = useSelector((state: RootState) => state.roleSlice);
   const [isCreateStatus, setIsCreateStatus] = useState<boolean>(false);
   const dispatch: any = useDispatch();
   const columns: TableProps<USER_DETAIL>["columns"] = [
@@ -46,8 +58,8 @@ const UserManagerment = (props: Props) => {
       key: "role",
       dataIndex: "role",
       render: (text) => (
-        <Tag color={"blue"} key={text}>
-          {text.toUpperCase()}
+        <Tag color={"blue"} key={text._id}>
+          {text.name.toUpperCase()}
         </Tag>
       ),
     },
@@ -57,7 +69,6 @@ const UserManagerment = (props: Props) => {
       dataIndex: "isActive",
       render: (item) => (
         <div className="flex items-center">
-          <Switch checked={item} />
           <span className={`ml-2 ${item ? "text-green-500" : "text-red-500"}`}>
             {item ? "Active" : "Block"}
           </span>
@@ -65,17 +76,15 @@ const UserManagerment = (props: Props) => {
       ),
     },
     {
-      title: "Password",
-      key: "password",
-      dataIndex: "password",
-      render: (item) => <Button danger>Đặt lại</Button>,
-    },
-    {
       title: "Action",
       key: "action",
       render: (item) => (
         <Space size="middle">
-          <Button>
+          <Button
+            onClick={() => {
+              dispatch(getUserByIdApi(item._id));
+            }}
+          >
             <EditOutlined />
           </Button>
           <Button
@@ -90,9 +99,18 @@ const UserManagerment = (props: Props) => {
       ),
     },
   ];
+  const roleSelector = roleLst.map((role) => {
+    return { label: role.name, value: role._id };
+  });
+  roleSelector.push({
+    label: "Tất cả",
+    value: "all",
+  });
+
   useEffect(() => {
-    dispatch(getAllUser());
-  }, []);
+    dispatch(getAllUserByOrderApi(userOption));
+    dispatch(getAllRoleByOrderApi({ value: "", sort: 1, page: 1 }));
+  }, [userOption]);
   return (
     <div className="m-4">
       <h1 className="mb-4 font-bold text-2xl">Quản lý nhân sự</h1>
@@ -113,10 +131,59 @@ const UserManagerment = (props: Props) => {
                 size="large"
                 allowClear
                 className="mb-4"
+                onChange={(event) => {
+                  dispatch(
+                    setUserOption({
+                      option: {
+                        ...userOption,
+                        searchValue: event.target.value,
+                      },
+                    })
+                  );
+                }}
               />
+            </Col>
+            <Col>
+              <span>Bộ lọc: </span>
+              <span>Loại: </span>
+              <Select
+                className="mb-4"
+                style={{ width: 120 }}
+                options={roleSelector}
+                value={userOption.role}
+                onChange={(value) => {
+                  dispatch(
+                    setUserOption({
+                      option: {
+                        ...userOption,
+                        role: value,
+                      },
+                    })
+                  );
+                }}
+              />
+              <span className="ml-2">Trạng thái: </span>
+              <Radio.Group
+                value={userOption.status}
+                onChange={(event) => {
+                  dispatch(
+                    setUserOption({
+                      option: {
+                        ...userOption,
+                        status: event.target.value,
+                      },
+                    })
+                  );
+                }}
+              >
+                <Radio value={0}>Tất cả</Radio>
+                <Radio value={1}>Active</Radio>
+                <Radio value={-1}>Block</Radio>
+              </Radio.Group>
             </Col>
           </Row>
           <Table columns={columns} dataSource={userLst} rowKey={"_id"} />
+          {currentUserAdmin !== null ? <UpdateUser /> : ""}
         </div>
       )}
     </div>

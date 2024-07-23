@@ -2,7 +2,7 @@ import { Button, Col, Form, Input, Row } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/configStore";
-import { getAllEndpoint } from "../../redux/endpoint.slice";
+import { getAllEndpointByOrderApi } from "../../redux/endpoint.slice";
 import {
   editRole,
   resetCurrentRole,
@@ -75,7 +75,13 @@ const UpdateRole = (props: Props) => {
     );
   };
   useEffect(() => {
-    dispatch(getAllEndpoint());
+    dispatch(
+      getAllEndpointByOrderApi({
+        page: 1,
+        sort: 1,
+        value: "",
+      })
+    );
   }, []);
   return (
     <div>
@@ -118,7 +124,6 @@ const UpdateRole = (props: Props) => {
           </Col>
           {renderGroupEndpoint("auth")}
           {renderGroupEndpoint("user")}
-
           {renderGroupEndpoint("role")}
           {renderGroupEndpoint("endpoint")}
 

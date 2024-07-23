@@ -25,3 +25,8 @@ export interface USER_SHOW {
   mail: string;
   role: string;
 }
+export interface USER_ADMIN_SHOW {
+  name: string;
+  isActive: boolean;
+  role: string;
+}

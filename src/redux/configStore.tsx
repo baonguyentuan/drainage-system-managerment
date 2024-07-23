@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import bookSlice from "./bookSlice";
 import drawerSlice from "./drawer.slice";
-import measurementBookSlice from "./measurementBookSlice";
+import measurementBookSlice from "./measurement.slice";
 import adminSlice from "./admin.slice";
 import roleSlice from "./role.slice";
 import userSlice from "./user.slice";

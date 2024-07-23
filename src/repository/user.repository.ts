@@ -1,3 +1,4 @@
+import { UserOrderOptionDetail } from "../models/order.model";
 import { USER_DTO } from "../models/user.model";
 import {
   API_URL,
@@ -6,13 +7,11 @@ import {
 } from "../untils/config/repository.config";
 
 export default {
-  getAll() {
-    return privateRequest.get(API_URL.user.getAllUser);
+  getAllByOrder(orderOption: UserOrderOptionDetail) {
+    return privateRequest.get(API_URL.user.getAllUser, { params: orderOption });
   },
   getUserById(userId: string) {
-    return privateRequest.get(API_URL.user.getUserById, {
-      params: userId,
-    });
+    return privateRequest.get(`${API_URL.user.getUserById}/${userId}`);
   },
   getUserDetail() {
     return privateRequest.get(API_URL.user.getUserDetail);

@@ -2,7 +2,7 @@ import { Button, Form, Input, Select, Table, Upload } from "antd";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { ENDPOINT_DTO } from "../../models/endpoint.model";
-import { createEndpoint } from "../../redux/endpoint.slice";
+import { createEndpointApi } from "../../redux/endpoint.slice";
 import { UploadOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
 type Props = {
@@ -37,7 +37,9 @@ const CreateEndpoint = (props: Props) => {
     group: "auth",
     description: "",
   });
-  const [endpointLst, setEndpointLst] = useState<ENDPOINT_DTO[]>([]);
+  const [endpointCreateLst, setEndpointCreateLst] = useState<ENDPOINT_DTO[]>(
+    []
+  );
   const dispatch: any = useDispatch();
   return (
     <div className="max-w-xl mx-auto mt-4">
@@ -46,10 +48,10 @@ const CreateEndpoint = (props: Props) => {
         accept=".txt"
         multiple={false}
         onRemove={() => {
-          setEndpointLst([]);
+          setEndpointCreateLst([]);
         }}
         beforeUpload={(file) => {
-          setEndpointLst([]);
+          setEndpointCreateLst([]);
           const reader = new FileReader();
           reader.onload = (e) => {
             let lst: ENDPOINT_DTO[] = [];
@@ -70,7 +72,7 @@ const CreateEndpoint = (props: Props) => {
                   }
                 });
             }
-            setEndpointLst(lst);
+            setEndpointCreateLst(lst);
           };
           reader.readAsText(file);
           return false;
@@ -80,11 +82,11 @@ const CreateEndpoint = (props: Props) => {
           Tạo theo tệp danh sách
         </Button>
       </Upload>
-      {endpointLst.length > 0 ? (
+      {endpointCreateLst.length > 0 ? (
         <Table
           className="mt-4"
           columns={columns}
-          dataSource={endpointLst}
+          dataSource={endpointCreateLst}
           rowKey={"description"}
         />
       ) : (
@@ -102,7 +104,7 @@ const CreateEndpoint = (props: Props) => {
             }}
           />
           <Select
-            defaultValue="GET"
+            value={endpointDetail.method}
             className="w-full text-left mb-2"
             onChange={(value) => {
               setEndpointDetail({ ...endpointDetail, method: value });
@@ -117,7 +119,7 @@ const CreateEndpoint = (props: Props) => {
           />
           <Select
             className="w-full text-left mb-2"
-            defaultValue="auth"
+            value={endpointDetail.group}
             onChange={(value) => {
               setEndpointDetail({ ...endpointDetail, group: value });
             }}
@@ -155,12 +157,12 @@ const CreateEndpoint = (props: Props) => {
         className=" w-1/3 mx-2  bg-blue-300 hover:bg-blue-400 text-black"
         size="large"
         onClick={() => {
-          if (endpointLst.length > 0) {
-            endpointLst.forEach((ep) => {
-              dispatch(createEndpoint(ep));
+          if (endpointCreateLst.length > 0) {
+            endpointCreateLst.forEach((ep) => {
+              dispatch(createEndpointApi(ep));
             });
           } else {
-            dispatch(createEndpoint(endpointDetail));
+            dispatch(createEndpointApi(endpointDetail));
           }
           props.setOpen(false);
         }}

@@ -23,7 +23,7 @@ const Home = (props: Props) => {
         <img className="imgThumb" src={bookImg} alt="book" />
         <div>
           <NavLink
-            to={configRouter.private.mesurement_book}
+            to={configRouter.private.measurement}
             className="home__link "
           >
             Sổ đo mặt bằng

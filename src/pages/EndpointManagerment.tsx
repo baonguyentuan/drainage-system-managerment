@@ -1,20 +1,36 @@
-import { Button, Col, Input, Row, Space, Table, TableProps, Tag } from "antd";
+import {
+  Button,
+  Col,
+  Dropdown,
+  Input,
+  Row,
+  Select,
+  Space,
+  Table,
+  TableProps,
+} from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/configStore";
-import { getAllEndpoint } from "../redux/endpoint.slice";
+import {
+  deleteEndpointApi,
+  getAllEndpointByOrderApi,
+  getEndpointDetailApi,
+  setEndpoitOption,
+} from "../redux/endpoint.slice";
 import CreateEndpoint from "../components/Endpoint/CreateEndpoint";
 import { ENDPOINT_DETAIL } from "../models/endpoint.model";
+import UpdateEndpoint from "../components/Endpoint/UpdateEndpoint";
 
 type Props = {};
 
 const EndpointManagerment = (props: Props) => {
-  const { endpointLst } = useSelector(
+  const { endpointLst, endPointOption, currentEndpoint } = useSelector(
     (state: RootState) => state.endpointSlice
   );
   const [isCreateStatus, setIsCreateStatus] = useState<boolean>(false);
-  console.log(endpointLst);
+  console.log(currentEndpoint);
 
   const dispatch: any = useDispatch();
   const columns: TableProps<ENDPOINT_DETAIL>["columns"] = [
@@ -29,7 +45,27 @@ const EndpointManagerment = (props: Props) => {
       key: "method",
     },
     {
-      title: "Nhóm",
+      title: (
+        <div className="flex justify-between cursor-pointer items-center text-base">
+          <span>Nhóm</span>
+          <Select
+            value={endPointOption.value}
+            style={{ width: 120 }}
+            onChange={(value) => {
+              dispatch(
+                setEndpoitOption({ option: { ...endPointOption, value } })
+              );
+            }}
+            options={[
+              { label: "Tất cả", value: "all" },
+              { label: "auth", value: "auth" },
+              { label: "user", value: "user" },
+              { label: "role", value: "role" },
+              { label: "endpoint", value: "endpoint" },
+            ]}
+          />
+        </div>
+      ),
       dataIndex: "group",
       key: "group",
     },
@@ -41,12 +77,23 @@ const EndpointManagerment = (props: Props) => {
     {
       title: "Action",
       key: "action",
-      render: () => (
+      render: (item) => (
         <Space size="middle">
-          <Button>
+          <Button
+            onClick={() => {
+              console.log(item._id);
+
+              dispatch(getEndpointDetailApi(item._id));
+            }}
+          >
             <EditOutlined />
           </Button>
-          <Button danger>
+          <Button
+            danger
+            onClick={() => {
+              dispatch(deleteEndpointApi(item._id));
+            }}
+          >
             <DeleteOutlined />
           </Button>
         </Space>
@@ -54,8 +101,8 @@ const EndpointManagerment = (props: Props) => {
     },
   ];
   useEffect(() => {
-    dispatch(getAllEndpoint());
-  }, []);
+    dispatch(getAllEndpointByOrderApi(endPointOption));
+  }, [endPointOption]);
   return (
     <div className="m-4">
       <h1 className="mb-4">Quản lý Endpoint</h1>
@@ -63,35 +110,33 @@ const EndpointManagerment = (props: Props) => {
         <CreateEndpoint setOpen={setIsCreateStatus} />
       ) : (
         <div>
-          <Row>
-            <Col span={12}>
-              <Button
-                onClick={() => {
-                  setIsCreateStatus(true);
-                }}
-              >
-                Tạo Endpoint
-              </Button>
-            </Col>
-            <Col span={12}>
-              <Input
-                placeholder="Tìm kiếm"
-                size="large"
-                allowClear
-                className="mb-4"
+          <Button
+            className="mb-4"
+            onClick={() => {
+              setIsCreateStatus(true);
+            }}
+          >
+            Tạo Endpoint
+          </Button>
+          <Row gutter={16}>
+            <Col span={currentEndpoint !== null ? 18 : 24}>
+              <Table
+                size="middle"
+                bordered
+                columns={columns}
+                dataSource={endpointLst}
+                rowKey={"_id"}
               />
+              <p className="text-left -mt-11">
+                Tổng: <b>{endpointLst.length}</b>
+              </p>
             </Col>
+            {currentEndpoint !== null ? (
+              <Col span={currentEndpoint !== null ? 6 : 0}>
+                <UpdateEndpoint />
+              </Col>
+            ) : null}
           </Row>
-          <Table
-            size="middle"
-            bordered
-            columns={columns}
-            dataSource={endpointLst}
-            rowKey={"_id"}
-          />
-          <p className="text-left -mt-11">
-            Tổng: <b>{endpointLst.length}</b>
-          </p>
         </div>
       )}
     </div>

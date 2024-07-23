@@ -12,6 +12,11 @@ import { OrderOptionDetail } from "../models/order.model";
 const initialState = {
   roleLst: [] as ROLE_DETAIL[],
   currentRole: null as null | ROLE_DETAIL,
+  roleOption: {
+    page: 1,
+    sort: 1,
+    value: "",
+  } as OrderOptionDetail,
 };
 
 const roleSlice = createSlice({
@@ -23,6 +28,12 @@ const roleSlice = createSlice({
     },
     resetCurrentRole: (state) => {
       state.currentRole = null;
+    },
+    setRoleOption: (
+      state,
+      action: PayloadAction<{ option: OrderOptionDetail }>
+    ) => {
+      state.roleOption = action.payload.option;
     },
   },
   extraReducers(builder) {
@@ -39,23 +50,22 @@ const roleSlice = createSlice({
       state.currentRole = null;
       openNotificationWithIcon("success", "Cập nhật Role thành công", "");
     });
+    builder.addCase(deleteRoleApi.fulfilled, (state, action) => {
+      openNotificationWithIcon("success", "Xóa Role thành công", "");
+    });
     builder.addMatcher(isAnyOf(updateRoleApi.rejected), (state, action) => {
       openNotificationWithIcon("error", "Lỗi", "");
-
-      console.log(action);
     });
   },
 });
 
-export const { editRole, resetCurrentRole } = roleSlice.actions;
+export const { editRole, resetCurrentRole, setRoleOption } = roleSlice.actions;
 
 export default roleSlice.reducer;
 export const getAllRoleByOrderApi = createAsyncThunk(
   "role/get",
   async (orderOption: OrderOptionDetail) => {
     const response = await roleRepository.getAllRoleByOrder(orderOption);
-    console.log(response);
-
     return response.data;
   }
 );

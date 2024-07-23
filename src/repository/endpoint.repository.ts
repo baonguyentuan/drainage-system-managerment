@@ -1,9 +1,12 @@
 import { ENDPOINT_DTO } from "../models/endpoint.model";
+import { OrderOptionDetail } from "../models/order.model";
 import { API_URL, privateRequest } from "../untils/config/repository.config";
 
 export default {
-  getAll() {
-    return privateRequest.get(API_URL.endpoint.getAllEnpoint);
+  getAllEndpointByOrder(orderOption: OrderOptionDetail) {
+    return privateRequest.get(API_URL.endpoint.getAllEnpoint, {
+      params: orderOption,
+    });
   },
   getEndpointById(endpointId: string) {
     return privateRequest.get(
