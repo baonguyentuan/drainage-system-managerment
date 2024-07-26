@@ -54,7 +54,7 @@ export default {
   },
   deleteOrientation(measurementId: string, orientationId: string) {
     return privateRequest.delete(
-      `${API_URL.bookMeasurement.deleteBook}/${orientationId}`,
+      `${API_URL.bookMeasurement.deleteOrientation}/${orientationId}`,
       { params: { measurementId } }
     );
   },

@@ -6,18 +6,21 @@ import {
   Form,
   Input,
   InputNumber,
+  Popover,
   Radio,
   Row,
   Space,
 } from "antd";
 import { useEffect, useState } from "react";
 import { MeasurementStationInfoModel } from "../models/measurement.model";
-import { BarsOutlined } from "@ant-design/icons";
+import { BarsOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { closeDrawer, setPageTitle, showDrawer } from "../redux/drawer.slice";
 import { RootState } from "../redux/configStore";
 import {
   createMeasurementApi,
+  createOrientationApi,
+  deleteOrientationMeasurementApi,
   getAllMeasurementByOrderApi,
   getMeasurementDetailApi,
   setMeasurementBook,
@@ -27,14 +30,12 @@ import { useParams } from "react-router-dom";
 type Props = {};
 const MeasurementBookDetail = (props: Props) => {
   const param = useParams();
+  const meaId = param.id === undefined ? "" : param.id;
   const { isOpen } = useSelector((state: RootState) => state.drawerSlice);
-  const { measurmentBook, measurementLst } = useSelector(
+  const { measurmentBook, measurementLst, measurementOption } = useSelector(
     (state: RootState) => state.measurementBookSlice
   );
   const dispatch: any = useDispatch();
-  console.log(param);
-  console.log(measurmentBook);
-
   let [note, setNote] = useState<string>("");
   let [prismDefault, setPrismDefault] = useState<number>(130);
   let [prism, setPrism] = useState<number>(prismDefault);
@@ -48,9 +49,8 @@ const MeasurementBookDetail = (props: Props) => {
     return false;
   };
   useEffect(() => {
-    const measurementId = param.id === undefined ? "" : param.id;
-    dispatch(getMeasurementDetailApi(measurementId));
-  }, []);
+    dispatch(getMeasurementDetailApi(meaId));
+  }, [measurementOption]);
   return (
     <div className="h-screen w-screen p-4">
       {measurmentBook !== null ? (
@@ -106,19 +106,12 @@ const MeasurementBookDetail = (props: Props) => {
               >
                 <BarsOutlined />
               </Button>
-              <h1 className="flex-1 text-center text-xl font-bold mb-4">
-                Sổ đo mặt bằng : {measurmentBook.nameStructure}
+              <h1 className="flex-1 text-center text-lg font-bold mb-4">
+                Sổ đo MB : {measurmentBook.nameStructure}
               </h1>
             </div>
           </div>
           <Form>
-            <Form.Item>
-              {/* <Input
-                placeholder="Tên công trình"
-                value={measurmentBook?.nameStructure}
-                onChange={(e) => {}}
-              /> */}
-            </Form.Item>
             <Form.Item>
               <Input
                 placeholder="Ghi chú"
@@ -230,7 +223,17 @@ const MeasurementBookDetail = (props: Props) => {
                 >
                   Trạm máy
                 </Checkbox>
-                <Button disabled={checkDisableBtnAdd()} onClick={() => {}}>
+                <Button
+                  disabled={checkDisableBtnAdd()}
+                  onClick={() => {
+                    dispatch(
+                      createOrientationApi({
+                        measurementId: param.id ? param.id : "",
+                        orientDto: { note, prismHeight: prism, stationInfo },
+                      })
+                    );
+                  }}
+                >
                   Thêm điểm
                 </Button>
               </Space>
@@ -255,15 +258,35 @@ const MeasurementBookDetail = (props: Props) => {
                   ) : (
                     ""
                   )}
-
-                  <div
-                    key={orient._id}
-                    className="col-span-6 grid grid-cols-6 "
+                  <Popover
+                    content={
+                      <div>
+                        <Button>
+                          <EditOutlined />
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            dispatch(
+                              deleteOrientationMeasurementApi({
+                                measurementId: meaId,
+                                orientationId: orient._id,
+                              })
+                            );
+                          }}
+                        >
+                          <DeleteOutlined />
+                        </Button>
+                      </div>
+                    }
+                    title="Hành động"
+                    trigger="click"
                   >
-                    <p className="col-span-1">{orient._id}</p>
-                    <p className="col-span-4 text-left">{orient.note}</p>
-                    <p className="col-span-1">{orient.prismHeight}</p>
-                  </div>
+                    <div className="col-span-6 grid grid-cols-6 ">
+                      <p className="col-span-1">{index + 1}</p>
+                      <p className="col-span-4 text-left">{orient.note}</p>
+                      <p className="col-span-1">{orient.prismHeight}</p>
+                    </div>
+                  </Popover>
                 </div>
               );
             })}

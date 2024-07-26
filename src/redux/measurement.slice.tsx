@@ -7,6 +7,7 @@ import {
 import {
   MeasurementBookModel,
   MeasurementDtoModel,
+  MeasurementOrientationDtoModel,
 } from "../models/measurement.model";
 import { OrderOptionDetail } from "../models/order.model";
 import measurementRepository from "../repository/measurement.repository";
@@ -33,6 +34,12 @@ const measurementBookSlice = createSlice({
       state.measurmentBook = action.payload.book;
       localStorage.setItem("measurebook", JSON.stringify(state.measurmentBook));
     },
+    editMeasurementOption: (
+      state,
+      action: PayloadAction<{ option: OrderOptionDetail }>
+    ) => {
+      state.measurementOption = action.payload.option;
+    },
   },
   extraReducers(builder) {
     builder.addCase(getAllMeasurementByOrderApi.fulfilled, (state, action) => {
@@ -42,9 +49,13 @@ const measurementBookSlice = createSlice({
       openNotificationWithIcon("success", "Tạo sổ đo thành công", "");
     });
     builder.addCase(getMeasurementDetailApi.fulfilled, (state, action) => {
-      console.log(action);
-
-      state.measurmentBook = action.payload.data;
+      state.measurmentBook = action.payload.data[0];
+    });
+    builder.addCase(deleteMeasurementApi.fulfilled, () => {
+      openNotificationWithIcon("success", "Xóa sổ đo thành công", "");
+    });
+    builder.addCase(deleteOrientationMeasurementApi.fulfilled, () => {
+      openNotificationWithIcon("success", "Xóa thành công", "");
     });
     builder.addMatcher(
       isAnyOf(getAllMeasurementByOrderApi.rejected),
@@ -55,7 +66,8 @@ const measurementBookSlice = createSlice({
   },
 });
 
-export const { setMeasurementBook } = measurementBookSlice.actions;
+export const { setMeasurementBook, editMeasurementOption } =
+  measurementBookSlice.actions;
 
 export default measurementBookSlice.reducer;
 export const getAllMeasurementByOrderApi = createAsyncThunk(
@@ -75,10 +87,8 @@ export const createMeasurementApi = createAsyncThunk(
     );
     if (response.status === 200 || response.status === 201) {
       thunkApi.dispatch(
-        getAllMeasurementByOrderApi({
-          page: 1,
-          sort: 1,
-          value: "",
+        editMeasurementOption({
+          option: { page: 1, sort: 1, value: "" },
         })
       );
     }
@@ -93,5 +103,100 @@ export const getMeasurementDetailApi = createAsyncThunk(
     console.log(response);
 
     return response.data;
+  }
+);
+export const updateNameMeasurementApi = createAsyncThunk(
+  "measurement/name",
+  async (
+    measurement: {
+      measurementId: string;
+      name: string;
+    },
+    thunkApi
+  ) => {
+    const response = await measurementRepository.updateNameMeasurement(
+      measurement.measurementId,
+      measurement.name
+    );
+    if (response.status === 200 || response.status === 201) {
+      thunkApi.dispatch(
+        editMeasurementOption({ option: { page: 1, sort: 1, value: "" } })
+      );
+    }
+  }
+);
+export const createOrientationApi = createAsyncThunk(
+  "measurement/orientation/create",
+  async (
+    measurement: {
+      measurementId: string;
+      orientDto: MeasurementOrientationDtoModel;
+    },
+    thunkApi
+  ) => {
+    const response = await measurementRepository.createOrientation(
+      measurement.measurementId,
+      measurement.orientDto
+    );
+    if (response.status === 200 || response.status === 201) {
+      thunkApi.dispatch(getMeasurementDetailApi(measurement.measurementId));
+    }
+  }
+);
+export const deleteMeasurementApi = createAsyncThunk(
+  "measurement/delete",
+  async (measurementId: string, thunkApi) => {
+    const response = await measurementRepository.deleteMeasurement(
+      measurementId
+    );
+    if (response.status === 200 || response.status === 201) {
+      thunkApi.dispatch(
+        editMeasurementOption({ option: { page: 1, sort: 1, value: "" } })
+      );
+    }
+  }
+);
+export const deleteOrientationMeasurementApi = createAsyncThunk(
+  "measurement/orientation/delete",
+  async (
+    measurement: {
+      measurementId: string;
+      orientationId: string;
+    },
+    thunkApi
+  ) => {
+    const response = await measurementRepository.deleteOrientation(
+      measurement.measurementId,
+      measurement.orientationId
+    );
+    console.log(response);
+
+    if (response.status === 200 || response.status === 201) {
+      thunkApi.dispatch(
+        editMeasurementOption({ option: { page: 1, sort: 1, value: "" } })
+      );
+    }
+  }
+);
+export const swapOrientationMeasurementApi = createAsyncThunk(
+  "measurement/swap",
+  async (
+    measurement: {
+      measurementId: string;
+      orientationId1: string;
+      orientationId2: string;
+    },
+    thunkApi
+  ) => {
+    const response = await measurementRepository.swapOrientation(
+      measurement.measurementId,
+      measurement.orientationId1,
+      measurement.orientationId2
+    );
+    if (response.status === 200 || response.status === 201) {
+      thunkApi.dispatch(
+        editMeasurementOption({ option: { page: 1, sort: 1, value: "" } })
+      );
+    }
   }
 );
