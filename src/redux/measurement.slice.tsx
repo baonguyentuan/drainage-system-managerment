@@ -100,8 +100,6 @@ export const getMeasurementDetailApi = createAsyncThunk(
     const response = await measurementRepository.getMeasurementById(
       measurementId
     );
-    console.log(response);
-
     return response.data;
   }
 );
@@ -118,6 +116,8 @@ export const updateNameMeasurementApi = createAsyncThunk(
       measurement.measurementId,
       measurement.name
     );
+    console.log(response);
+
     if (response.status === 200 || response.status === 201) {
       thunkApi.dispatch(
         editMeasurementOption({ option: { page: 1, sort: 1, value: "" } })
@@ -193,6 +193,25 @@ export const swapOrientationMeasurementApi = createAsyncThunk(
       measurement.orientationId1,
       measurement.orientationId2
     );
+    if (response.status === 200 || response.status === 201) {
+      thunkApi.dispatch(
+        editMeasurementOption({ option: { page: 1, sort: 1, value: "" } })
+      );
+    }
+  }
+);
+export const updateOrientationMeasurementApi = createAsyncThunk(
+  "measurement/orientation/update",
+  async (
+    orient: { orientId: string; orientDto: MeasurementOrientationDtoModel },
+    thunkApi
+  ) => {
+    const response = await measurementRepository.updateOrientation(
+      orient.orientId,
+      orient.orientDto
+    );
+    console.log(response);
+
     if (response.status === 200 || response.status === 201) {
       thunkApi.dispatch(
         editMeasurementOption({ option: { page: 1, sort: 1, value: "" } })

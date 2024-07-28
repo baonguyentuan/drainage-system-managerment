@@ -25,7 +25,7 @@ export default {
   updateNameMeasurement(measurementId: string, name: string) {
     return privateRequest.patch(
       `${API_URL.bookMeasurement.updateNameBook}/${measurementId}`,
-      name
+      { name }
     );
   },
   swapOrientation(
@@ -49,6 +49,15 @@ export default {
   ) {
     return privateRequest.post(
       `${API_URL.bookMeasurement.createOrientation}/${measurementId}`,
+      orientationDto
+    );
+  },
+  updateOrientation(
+    orientationId: string,
+    orientationDto: MeasurementOrientationDtoModel
+  ) {
+    return privateRequest.post(
+      `${API_URL.bookMeasurement.updateOrientation}/${orientationId}`,
       orientationDto
     );
   },

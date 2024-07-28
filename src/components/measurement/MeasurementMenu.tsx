@@ -56,7 +56,7 @@ const MeasurementMenu = (props: Props) => {
           return (
             <p
               key={measure._id}
-              className="border-b-2 flex justify-between cursor-pointer"
+              className="border-b-2 flex justify-between cursor-pointer p-1 hover:bg-green-50"
               onClick={() => {
                 navigate(`/measurement/${measure._id}`);
               }}
