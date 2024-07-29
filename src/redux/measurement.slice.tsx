@@ -57,6 +57,15 @@ const measurementBookSlice = createSlice({
     builder.addCase(deleteOrientationMeasurementApi.fulfilled, () => {
       openNotificationWithIcon("success", "Xóa thành công", "");
     });
+    builder.addCase(updateNameMeasurementApi.fulfilled, () => {
+      openNotificationWithIcon("success", "Đổi tên thành công", "");
+    });
+    builder.addCase(swapOrientationMeasurementApi.fulfilled, () => {
+      openNotificationWithIcon("success", "Sắp xếp thành công", "");
+    });
+    builder.addCase(updateOrientationMeasurementApi.fulfilled, () => {
+      openNotificationWithIcon("success", "Cập nhật thành công", "");
+    });
     builder.addMatcher(
       isAnyOf(getAllMeasurementByOrderApi.rejected),
       (state, action) => {

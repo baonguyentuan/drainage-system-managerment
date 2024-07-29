@@ -22,6 +22,7 @@ import {
   createOrientationApi,
   deleteOrientationMeasurementApi,
   getMeasurementDetailApi,
+  swapOrientationMeasurementApi,
   updateNameMeasurementApi,
 } from "../redux/measurement.slice";
 import { useParams } from "react-router-dom";
@@ -114,6 +115,7 @@ const MeasurementBookDetail = (props: Props) => {
 
           <Form>
             <Input
+              className="mb-2"
               placeholder="Ghi chú"
               prefix={`${measurmentBook?.orientationLst?.length + 1} - `}
               value={note}
@@ -223,7 +225,17 @@ const MeasurementBookDetail = (props: Props) => {
             </div>
             <DndContext
               onDragEnd={(event) => {
-                console.log(event);
+                if (event.over?.id) {
+                  console.log(event);
+
+                  dispatch(
+                    swapOrientationMeasurementApi({
+                      measurementId: meaId,
+                      orientationId1: event.active.id.toString(),
+                      orientationId2: event.over.id.toString(),
+                    })
+                  );
+                }
               }}
               sensors={sensors}
             >
@@ -236,6 +248,7 @@ const MeasurementBookDetail = (props: Props) => {
                 {measurmentBook?.orientationLst.map((orient, index) => {
                   return (
                     <MeasureOrientation
+                      key={orient._id}
                       meaId={meaId}
                       orient={orient}
                       index={index}

@@ -56,7 +56,7 @@ export default {
     orientationId: string,
     orientationDto: MeasurementOrientationDtoModel
   ) {
-    return privateRequest.post(
+    return privateRequest.patch(
       `${API_URL.bookMeasurement.updateOrientation}/${orientationId}`,
       orientationDto
     );

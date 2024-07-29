@@ -3,7 +3,7 @@ import {
   MeasurementOrientationModel,
   MeasurementStationInfoModel,
 } from "../../models/measurement.model";
-import { Button, Input, InputNumber, Popover } from "antd";
+import { Button, Input, InputNumber, Popover, Space } from "antd";
 import { useDispatch } from "react-redux";
 import { EditOutlined, DeleteOutlined, CheckOutlined } from "@ant-design/icons";
 import {
@@ -21,13 +21,15 @@ type Props = {
 
 const MeasureOrientation = (props: Props) => {
   const dispatch: any = useDispatch();
+  console.log(typeof props.orient._id);
+
   const [currentId, setCurrentId] = useState<string>("");
   const [orientEdit, setOrientEdit] = useState<MeasurementOrientationModel>(
     props.orient
   );
 
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: props.meaId });
+    useSortable({ id: props.orient._id });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -44,9 +46,44 @@ const MeasureOrientation = (props: Props) => {
     } else {
       return (
         <div className="col-span-6 grid grid-cols-3 font-semibold gap-2 mb-2">
-          <Input value={orientEdit.stationInfo?.start} />
-          <Input value={orientEdit.stationInfo?.end} />
-          <Input value={orientEdit.stationInfo?.machineHeight} />
+          <Input
+            value={orientEdit.stationInfo?.start}
+            onChange={(event) => {
+              if (orientEdit.stationInfo !== null) {
+                let newStationInfo = { ...orientEdit.stationInfo };
+                newStationInfo.start = event.target.value;
+                setOrientEdit({ ...orientEdit, stationInfo: newStationInfo });
+              }
+            }}
+          />
+          <Input
+            value={orientEdit.stationInfo?.end}
+            onChange={(event) => {
+              if (orientEdit.stationInfo !== null) {
+                let newStationInfo = { ...orientEdit.stationInfo };
+                newStationInfo.end = event.target.value;
+                setOrientEdit({ ...orientEdit, stationInfo: newStationInfo });
+              }
+            }}
+          />
+          <InputNumber
+            value={orientEdit.stationInfo?.machineHeight}
+            onChange={(value) => {
+              if (typeof value === "number") {
+                if (orientEdit.stationInfo !== null) {
+                  let newStationInfo = { ...orientEdit.stationInfo };
+                  newStationInfo.machineHeight = value;
+                  setOrientEdit({ ...orientEdit, stationInfo: newStationInfo });
+                }
+              } else {
+                if (orientEdit.stationInfo !== null) {
+                  let newStationInfo = { ...orientEdit.stationInfo };
+                  newStationInfo.machineHeight = 0;
+                  setOrientEdit({ ...orientEdit, stationInfo: newStationInfo });
+                }
+              }
+            }}
+          />
         </div>
       );
     }
@@ -65,7 +102,7 @@ const MeasureOrientation = (props: Props) => {
         : ""}
       <Popover
         content={
-          <div>
+          <Space>
             <Button
               onClick={() => {
                 setCurrentId(props.orient._id);
@@ -85,7 +122,7 @@ const MeasureOrientation = (props: Props) => {
             >
               <DeleteOutlined />
             </Button>
-          </div>
+          </Space>
         }
         title="Hành động"
         trigger="click"
@@ -124,6 +161,7 @@ const MeasureOrientation = (props: Props) => {
                     },
                   })
                 );
+                setCurrentId("");
               }}
             >
               <CheckOutlined />
@@ -131,9 +169,11 @@ const MeasureOrientation = (props: Props) => {
           </div>
         ) : (
           <div className="col-span-6 grid grid-cols-6 ">
-            <p className="col-span-1">{props.index + 1}</p>
-            <p className="col-span-4 text-left">{props.orient.note}</p>
-            <p className="col-span-1">{props.orient.prismHeight}</p>
+            <p className="col-span-1 py-1">{props.index + 1}</p>
+            <p className="col-span-2 py-1 text-left">{props.orient._id}</p>
+
+            <p className="col-span-2 py-1 text-left">{props.orient.note}</p>
+            <p className="col-span-1 py-1">{props.orient.prismHeight}</p>
           </div>
         )}
       </Popover>
