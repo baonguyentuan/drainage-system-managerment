@@ -2,12 +2,9 @@ import {
   Button,
   Checkbox,
   Col,
-  Drawer,
   Form,
   Input,
   InputNumber,
-  Popover,
-  Radio,
   Row,
   Space,
 } from "antd";
@@ -15,12 +12,9 @@ import { useEffect, useState } from "react";
 import { MeasurementStationInfoModel } from "../models/measurement.model";
 import { CheckOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { closeDrawer, showDrawer } from "../redux/drawer.slice";
 import { RootState } from "../redux/configStore";
 import {
-  createMeasurementApi,
   createOrientationApi,
-  deleteOrientationMeasurementApi,
   getMeasurementDetailApi,
   swapOrientationMeasurementApi,
   updateNameMeasurementApi,
@@ -209,10 +203,18 @@ const MeasurementBookDetail = (props: Props) => {
                   );
                   if (response.meta.requestStatus === "fulfilled") {
                     setNote("");
+                    setStationInfo(null);
                   }
                 }}
               >
                 Thêm điểm
+              </Button>
+              <Button
+                disabled={
+                  measurmentBook.orientationLst.length > 10 ? false : true
+                }
+              >
+                Tải sổ đo
               </Button>
             </Space>
           </Form>
@@ -226,15 +228,15 @@ const MeasurementBookDetail = (props: Props) => {
             <DndContext
               onDragEnd={(event) => {
                 if (event.over?.id) {
-                  console.log(event);
-
-                  dispatch(
-                    swapOrientationMeasurementApi({
-                      measurementId: meaId,
-                      orientationId1: event.active.id.toString(),
-                      orientationId2: event.over.id.toString(),
-                    })
-                  );
+                  if (event.active.id !== event.over.id) {
+                    dispatch(
+                      swapOrientationMeasurementApi({
+                        measurementId: meaId,
+                        orientationId1: event.active.id.toString(),
+                        orientationId2: event.over.id.toString(),
+                      })
+                    );
+                  }
                 }
               }}
               sensors={sensors}

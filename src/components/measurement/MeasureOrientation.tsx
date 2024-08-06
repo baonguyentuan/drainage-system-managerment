@@ -21,17 +21,16 @@ type Props = {
 
 const MeasureOrientation = (props: Props) => {
   const dispatch: any = useDispatch();
-  console.log(typeof props.orient._id);
-
   const [currentId, setCurrentId] = useState<string>("");
   const [orientEdit, setOrientEdit] = useState<MeasurementOrientationModel>(
     props.orient
   );
-
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: props.orient._id });
+    useSortable({
+      id: props.orient._id,
+    });
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
     transition,
   };
   const renderStationInfo = (stationInfo: MeasurementStationInfoModel) => {
@@ -170,9 +169,7 @@ const MeasureOrientation = (props: Props) => {
         ) : (
           <div className="col-span-6 grid grid-cols-6 ">
             <p className="col-span-1 py-1">{props.index + 1}</p>
-            <p className="col-span-2 py-1 text-left">{props.orient._id}</p>
-
-            <p className="col-span-2 py-1 text-left">{props.orient.note}</p>
+            <p className="col-span-4 py-1 text-left">{props.orient.note}</p>
             <p className="col-span-1 py-1">{props.orient.prismHeight}</p>
           </div>
         )}

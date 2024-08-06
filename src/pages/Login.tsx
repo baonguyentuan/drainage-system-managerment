@@ -34,9 +34,6 @@ const Login = (props: Props) => {
             {...(register("email"), { required: true })}
             onChange={(e) => setValue("email", e.target.value.trim())}
           />
-          <p className="mb-4 text-left absolute left-0 -bottom-10 text-red-500">
-            {errors.email ? "Không được bỏ trống" : ""}
-          </p>
         </Form.Item>
         <Form.Item className="relative">
           <Input.Password
@@ -45,9 +42,6 @@ const Login = (props: Props) => {
             {...(register("password"), { required: true, minLength: 6 })}
             onChange={(e) => setValue("password", e.target.value.trim())}
           />
-          <p className="mb-4 text-left  absolute left-0 -bottom-10 text-red-500">
-            {errors.password ? "Không được bỏ trống" : ""}
-          </p>
         </Form.Item>
         <Form.Item>
           <p className="mb-4 text-right">Quên mật khẩu</p>

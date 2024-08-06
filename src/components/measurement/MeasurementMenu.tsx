@@ -43,7 +43,6 @@ const MeasurementMenu = (props: Props) => {
                   orientationLst: [],
                 })
               );
-              console.log(response);
             }}
           >
             Tạo sổ đo mới

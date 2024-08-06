@@ -32,7 +32,6 @@ const measurementBookSlice = createSlice({
       action: PayloadAction<{ book: MeasurementBookModel }>
     ) => {
       state.measurmentBook = action.payload.book;
-      localStorage.setItem("measurebook", JSON.stringify(state.measurmentBook));
     },
     editMeasurementOption: (
       state,
