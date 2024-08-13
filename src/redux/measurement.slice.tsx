@@ -47,6 +47,7 @@ const measurementBookSlice = createSlice({
     builder.addCase(createMeasurementApi.fulfilled, (state, action) => {
       openNotificationWithIcon("success", "Tạo sổ đo thành công", "");
     });
+
     builder.addCase(getMeasurementDetailApi.fulfilled, (state, action) => {
       state.measurmentBook = action.payload.data[0];
     });
@@ -138,7 +139,7 @@ export const createOrientationApi = createAsyncThunk(
   async (
     measurement: {
       measurementId: string;
-      orientDto: MeasurementOrientationDtoModel;
+      orientDto: MeasurementOrientationDtoModel[];
     },
     thunkApi
   ) => {

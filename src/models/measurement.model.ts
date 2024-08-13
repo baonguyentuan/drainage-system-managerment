@@ -1,10 +1,12 @@
 export interface MeasurementBookModel {
   _id: string;
   nameStructure: string;
+  startIndex: number;
   orientationLst: MeasurementOrientationModel[];
 }
 export interface MeasurementDtoModel {
   nameStructure: string;
+  startIndex: number;
   orientationLst: MeasurementOrientationModel[];
 }
 export interface MeasurementOrientationModel {

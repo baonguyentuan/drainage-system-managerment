@@ -5,7 +5,8 @@ import configRouter from "../untils/config/configRouter";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserDetail } from "../redux/user.slice";
 import { RootState } from "../redux/configStore";
-
+import { LogoutOutlined } from "@ant-design/icons";
+import { logout } from "../redux/auth.slice";
 type Props = {};
 
 const HomeLayout = (props: Props) => {
@@ -23,7 +24,18 @@ const HomeLayout = (props: Props) => {
     <div className="w-full">
       <div className=" bg-slate-200 px-4 py-2">
         {userDetail !== null ? (
-          <p>{userDetail.name}</p>
+          <div className="flex justify-between items-center">
+            <Button className="font-semibold text-lg" type="link">
+              {userDetail.name}
+            </Button>
+            <Button
+              onClick={() => {
+                dispatch(logout());
+              }}
+            >
+              <LogoutOutlined className="-translate-y-1" />
+            </Button>
+          </div>
         ) : (
           <Button
             className=" bg-red-300"

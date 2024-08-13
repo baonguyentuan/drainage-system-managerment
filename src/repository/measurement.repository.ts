@@ -45,7 +45,7 @@ export default {
   },
   createOrientation(
     measurementId: string,
-    orientationDto: MeasurementOrientationDtoModel
+    orientationDto: MeasurementOrientationDtoModel[]
   ) {
     return privateRequest.post(
       `${API_URL.bookMeasurement.createOrientation}/${measurementId}`,

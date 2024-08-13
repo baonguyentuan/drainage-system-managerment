@@ -50,7 +50,7 @@ const Login = (props: Props) => {
             className="bg-gradient-to-r from-green-300 to-blue-300 hover:from-pink-300 hover:to-yellow-300 text-2xl font-semibold w-1/2"
             style={{ color: "black", height: "auto" }}
             onClick={handleSubmit(() => {
-              dispatch(
+              const response = dispatch(
                 login({
                   mail: watch("email"),
                   password: watch("password"),

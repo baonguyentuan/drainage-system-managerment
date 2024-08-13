@@ -36,7 +36,10 @@ const MeasureOrientation = (props: Props) => {
   const renderStationInfo = (stationInfo: MeasurementStationInfoModel) => {
     if (currentId === "") {
       return (
-        <div className="col-span-6 grid grid-cols-3 font-semibold gap-2">
+        <div
+          className="col-span-6 grid grid-cols-3 font-semibold gap-2"
+          id={props.orient._id}
+        >
           <p className="">{stationInfo.start}</p>
           <p className="">{stationInfo.end}</p>
           <p className="">{stationInfo.machineHeight}</p>

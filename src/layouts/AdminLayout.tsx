@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   UserOutlined,
   SafetyOutlined,
@@ -36,6 +36,8 @@ const items: MenuItem[] = [
 ];
 const AdminLayout = (props: Props) => {
   const { menuBarStatus } = useSelector((state: RootState) => state.adminSlice);
+  const { userDetail } = useSelector((state: RootState) => state.userSlice);
+
   const dispatch = useDispatch();
   const renderContent = (status: string) => {
     if (status === "user") {
@@ -46,6 +48,9 @@ const AdminLayout = (props: Props) => {
       return <EndpointManagerment />;
     }
   };
+  // useEffect(()=>{
+  //   if(userDetail ||userDetail.)
+  // },[userDetail])
   return (
     <div className="grid grid-cols-5 ">
       <div className=" col-span-1">
