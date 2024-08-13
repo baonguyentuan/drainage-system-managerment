@@ -44,10 +44,16 @@ export const API_URL = {
     deleteOrientation: "measurement/orientation",
     updateOrientation: "measurement/orientation",
   },
-  bookElevation: {
-    createBook: "book/elevation/create",
-    getAllBook: "book/elevation",
-    getBookById: "book/elevation/:id",
+  bookAltitude: {
+    createBook: "altitude",
+    getBookByOrder: "altitude",
+    getBookById: "altitude",
+    deleteBook: "altitude",
+    updateNameBook: "altitude/name",
+    swapOrientation: "altitude/swap",
+    createOrientation: "altitude",
+    deleteOrientation: "altitude/orientation",
+    updateOrientation: "altitude/orientation",
   },
 };
 

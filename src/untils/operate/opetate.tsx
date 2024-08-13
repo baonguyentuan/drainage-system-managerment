@@ -1,7 +1,7 @@
 import {
   OrientationCalculateStatsModel,
   StationItemModel,
-} from "../../models/bookModels";
+} from "../../models/altitude.models";
 import { PointModel } from "../../models/cadModel";
 import { BOUNDARY_ORDINATE } from "../config/configCad";
 
