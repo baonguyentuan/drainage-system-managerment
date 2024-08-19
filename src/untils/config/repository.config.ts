@@ -1,7 +1,7 @@
 import axios from "axios";
 import authRepository from "../../repository/auth.repository";
 
-const BASE_DOMAIN = "http://localhost:8080";
+// const BASE_DOMAIN = "https://draining-system-be.onrender.com";
 export const API_URL = {
   auth: {
     refreshToken: "auth/refreshToken",
@@ -58,10 +58,10 @@ export const API_URL = {
 };
 
 export const publicRequest = axios.create({
-  baseURL: BASE_DOMAIN,
+  baseURL: process.env.BASE_DOMAIN,
 });
 export const privateRequest = axios.create({
-  baseURL: BASE_DOMAIN,
+  baseURL: process.env.BASE_DOMAIN,
   headers: {
     Authorization: `Bearer ${
       localStorage.getItem("accessToken")
