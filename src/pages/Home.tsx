@@ -14,7 +14,7 @@ const Home = (props: Props) => {
       <div className=" home__item__box">
         <img className="imgThumb" src={bookImg} alt="book" />
         <div>
-          <NavLink to={configRouter.private.book} className="home__link ">
+          <NavLink to={configRouter.private.altitude} className="home__link ">
             Sổ đo thủy chuẩn
           </NavLink>
         </div>
@@ -23,7 +23,7 @@ const Home = (props: Props) => {
         <img className="imgThumb" src={bookImg} alt="book" />
         <div>
           <NavLink
-            to={configRouter.private.mesurement_book}
+            to={configRouter.private.measurement}
             className="home__link "
           >
             Sổ đo mặt bằng

@@ -1,7 +1,8 @@
 import { Button, Form, Input } from "antd";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { NavLink } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "../redux/auth.slice";
 
 type Props = {};
 type InputsLogin = {
@@ -16,11 +17,9 @@ const Login = (props: Props) => {
     setValue,
     formState: { errors },
   } = useForm<InputsLogin>();
-  console.log(watch("email"));
-
-  // const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const dispatch: any = useDispatch();
   return (
-    <div className="w-screen h-screen flex justify-center items-center bg-gradient-to-r from-indigo-200 from-10% via-sky-200 via-30% to-emerald-200 to-90%">
+    <div className="w-screen h-screen flex justify-center items-center bg-slate-300">
       <Form
         className="w-full max-w-xl border-2 border-black rounded-2xl p-4 bg-slate-100"
         onSubmitCapture={() => {
@@ -35,9 +34,6 @@ const Login = (props: Props) => {
             {...(register("email"), { required: true })}
             onChange={(e) => setValue("email", e.target.value.trim())}
           />
-          <p className="mb-4 text-left absolute left-0 -bottom-10 text-red-500">
-            {errors.email ? "Không được bỏ trống" : ""}
-          </p>
         </Form.Item>
         <Form.Item className="relative">
           <Input.Password
@@ -46,9 +42,6 @@ const Login = (props: Props) => {
             {...(register("password"), { required: true, minLength: 6 })}
             onChange={(e) => setValue("password", e.target.value.trim())}
           />
-          <p className="mb-4 text-left  absolute left-0 -bottom-10 text-red-500">
-            {errors.password ? "Không được bỏ trống" : ""}
-          </p>
         </Form.Item>
         <Form.Item>
           <p className="mb-4 text-right">Quên mật khẩu</p>
@@ -57,9 +50,12 @@ const Login = (props: Props) => {
             className="bg-gradient-to-r from-green-300 to-blue-300 hover:from-pink-300 hover:to-yellow-300 text-2xl font-semibold w-1/2"
             style={{ color: "black", height: "auto" }}
             onClick={handleSubmit(() => {
-              console.log(watch("email"));
-
-              // console.log("err", errors.email);
+              const response = dispatch(
+                login({
+                  mail: watch("email"),
+                  password: watch("password"),
+                })
+              );
             })}
           >
             Đăng nhập

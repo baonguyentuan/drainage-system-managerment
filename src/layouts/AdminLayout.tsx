@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   UserOutlined,
   SafetyOutlined,
   PartitionOutlined,
 } from "@ant-design/icons";
-import type { MenuProps } from "antd";
-import { Button, Menu } from "antd";
-import { Outlet } from "react-router-dom";
+import { Menu, type MenuProps } from "antd";
 import UserManagerment from "../pages/UserManagerment";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/configStore";
+import RoleManagerment from "../pages/RoleManagerment";
+import { setMenuBarStatus } from "../redux/admin.slice";
+import EndpointManagerment from "../pages/EndpointManagerment";
 
 type MenuItem = Required<MenuProps>["items"][number];
 type Props = {};
@@ -27,27 +30,45 @@ function getItem(
   } as MenuItem;
 }
 const items: MenuItem[] = [
-  getItem("User", "1", <UserOutlined />),
-  getItem("Role", "2", <SafetyOutlined />),
-  getItem("Endpoint", "3", <PartitionOutlined />),
+  getItem("User", "user", <UserOutlined />),
+  getItem("Role", "role", <SafetyOutlined />),
+  getItem("Endpoint", "endpoint", <PartitionOutlined />),
 ];
 const AdminLayout = (props: Props) => {
+  const { menuBarStatus } = useSelector((state: RootState) => state.adminSlice);
+  const { userDetail } = useSelector((state: RootState) => state.userSlice);
+
+  const dispatch = useDispatch();
+  const renderContent = (status: string) => {
+    if (status === "user") {
+      return <UserManagerment />;
+    } else if (status === "role") {
+      return <RoleManagerment />;
+    } else {
+      return <EndpointManagerment />;
+    }
+  };
+  // useEffect(()=>{
+  //   if(userDetail ||userDetail.)
+  // },[userDetail])
   return (
     <div className="grid grid-cols-5 ">
       <div className=" col-span-1">
         <Menu
           // style={{ width: 256 }}
           className="h-screen w-full"
-          defaultSelectedKeys={["1"]}
-          defaultOpenKeys={["sub1"]}
+          selectedKeys={[menuBarStatus]}
+          // defaultSelectedKeys={["user"]}
+          // defaultOpenKeys={["user"]}
           mode="inline"
           theme="dark"
           items={items}
+          onClick={async (value) => {
+            await dispatch(setMenuBarStatus({ status: value.key }));
+          }}
         />
       </div>
-      <div className="col-span-4">
-        <UserManagerment />
-      </div>
+      <div className="col-span-4">{renderContent(menuBarStatus)}</div>
     </div>
   );
 };

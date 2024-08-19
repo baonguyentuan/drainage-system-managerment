@@ -1,99 +1,191 @@
-import { Button, Col, Input, Row, Space, Table, TableProps, Tag } from "antd";
+import {
+  Button,
+  Col,
+  Input,
+  Radio,
+  Row,
+  Select,
+  Space,
+  Switch,
+  Table,
+  TableProps,
+  Tag,
+} from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import CreateUser from "../components/User/CreateUser";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/configStore";
+import {
+  deleteUser,
+  getAllUserByOrderApi,
+  getUserByIdApi,
+  setUserOption,
+} from "../redux/user.slice";
+import { USER_DETAIL } from "../models/user.model";
+import { getAllRoleByOrderApi } from "../redux/role.slice";
+import UpdateUser from "../components/User/UpdateUser";
 
 type Props = {};
-interface DataType {
-  _id: string;
-  name: string;
-  mail: number;
-  phoneNumber: string;
-  role: string;
-}
-const columns: TableProps<DataType>["columns"] = [
-  {
-    title: "Tên",
-    dataIndex: "name",
-    key: "name",
-    render: (text) => <a>{text}</a>,
-  },
-  {
-    title: "Mail",
-    dataIndex: "mail",
-    key: "mail",
-  },
-  {
-    title: "Điện thoại",
-    dataIndex: "address",
-    key: "address",
-  },
-  {
-    title: "Loại",
-    key: "role",
-    dataIndex: "role",
-    render: (text) => (
-      <Tag color={"blue"} key={text}>
-        {text.toUpperCase()}
-      </Tag>
-    ),
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: () => (
-      <Space size="middle">
-        <Button>
-          <EditOutlined />
-        </Button>
-        <Button>
-          <DeleteOutlined />
-        </Button>
-      </Space>
-    ),
-  },
-];
 
-const data: DataType[] = [
-  {
-    _id: "1",
-    name: "John Brown",
-    mail: 32,
-    phoneNumber: "New York No. 1 Lake Park",
-    role: "nice",
-  },
-  {
-    _id: "2",
-    name: "Jim Green",
-    mail: 42,
-    phoneNumber: "London No. 1 Lake Park",
-    role: "loser",
-  },
-  {
-    _id: "3",
-    name: "Joe Black",
-    mail: 32,
-    phoneNumber: "Sydney No. 1 Lake Park",
-    role: "cool",
-  },
-];
 const UserManagerment = (props: Props) => {
+  const { userLst, userOption, currentUserAdmin } = useSelector(
+    (state: RootState) => state.userSlice
+  );
+  console.log(currentUserAdmin);
+
+  const { roleLst } = useSelector((state: RootState) => state.roleSlice);
+  const [isCreateStatus, setIsCreateStatus] = useState<boolean>(false);
+  const dispatch: any = useDispatch();
+  const columns: TableProps<USER_DETAIL>["columns"] = [
+    {
+      title: "Tên",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Mail",
+      dataIndex: "mail",
+      key: "mail",
+    },
+    {
+      title: "Điện thoại",
+      dataIndex: "phoneNumber",
+      key: "phoneNumber",
+    },
+    {
+      title: "Loại",
+      key: "role",
+      dataIndex: "role",
+      render: (text) => (
+        <Tag color={"blue"} key={text._id}>
+          {text.name.toUpperCase()}
+        </Tag>
+      ),
+    },
+    {
+      title: "Trạng thái",
+      key: "isActive",
+      dataIndex: "isActive",
+      render: (item) => (
+        <div className="flex items-center">
+          <span className={`ml-2 ${item ? "text-green-500" : "text-red-500"}`}>
+            {item ? "Active" : "Block"}
+          </span>
+        </div>
+      ),
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (item) => (
+        <Space size="middle">
+          <Button
+            onClick={() => {
+              dispatch(getUserByIdApi(item._id));
+            }}
+          >
+            <EditOutlined />
+          </Button>
+          <Button
+            danger
+            onClick={() => {
+              dispatch(deleteUser(item._id));
+            }}
+          >
+            <DeleteOutlined />
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+  const roleSelector = roleLst.map((role) => {
+    return { label: role.name, value: role._id };
+  });
+  roleSelector.push({
+    label: "Tất cả",
+    value: "all",
+  });
+
+  useEffect(() => {
+    dispatch(getAllUserByOrderApi(userOption));
+    dispatch(getAllRoleByOrderApi({ value: "", sort: 1, page: 1 }));
+  }, [userOption]);
   return (
     <div className="m-4">
-      <h1 className="mb-4">Quản lý nhân sự</h1>
-      <Row>
-        <Col span={12}>
-          <Button>Tạo người dùng</Button>
-        </Col>
-        <Col span={12}>
-          <Input
-            placeholder="Tìm kiếm"
-            size="large"
-            allowClear
-            className="mb-4"
-          />
-        </Col>
-      </Row>
-      <Table columns={columns} dataSource={data} />
+      <h1 className="mb-4 font-bold text-2xl">Quản lý nhân sự</h1>
+
+      {isCreateStatus ? (
+        <CreateUser setOpen={setIsCreateStatus} />
+      ) : (
+        <div>
+          <Row>
+            <Col span={12}>
+              <Button onClick={() => setIsCreateStatus(true)}>
+                Tạo người dùng
+              </Button>
+            </Col>
+            <Col span={12}>
+              <Input
+                placeholder="Tìm kiếm"
+                size="large"
+                allowClear
+                className="mb-4"
+                onChange={(event) => {
+                  dispatch(
+                    setUserOption({
+                      option: {
+                        ...userOption,
+                        searchValue: event.target.value,
+                      },
+                    })
+                  );
+                }}
+              />
+            </Col>
+            <Col>
+              <span>Bộ lọc: </span>
+              <span>Loại: </span>
+              <Select
+                className="mb-4"
+                style={{ width: 120 }}
+                options={roleSelector}
+                value={userOption.role}
+                onChange={(value) => {
+                  dispatch(
+                    setUserOption({
+                      option: {
+                        ...userOption,
+                        role: value,
+                      },
+                    })
+                  );
+                }}
+              />
+              <span className="ml-2">Trạng thái: </span>
+              <Radio.Group
+                value={userOption.status}
+                onChange={(event) => {
+                  dispatch(
+                    setUserOption({
+                      option: {
+                        ...userOption,
+                        status: event.target.value,
+                      },
+                    })
+                  );
+                }}
+              >
+                <Radio value={0}>Tất cả</Radio>
+                <Radio value={1}>Active</Radio>
+                <Radio value={-1}>Block</Radio>
+              </Radio.Group>
+            </Col>
+          </Row>
+          <Table columns={columns} dataSource={userLst} rowKey={"_id"} />
+          {currentUserAdmin !== null ? <UpdateUser /> : ""}
+        </div>
+      )}
     </div>
   );
 };

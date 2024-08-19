@@ -1,22 +1,20 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import configRouter from "./untils/config/configRouter";
-import Book from "./components/Book/BookElevation";
 import HomeLayout from "./layouts/HomeLayout";
 import Home from "./pages/Home";
 import { Provider } from "react-redux";
 import { store } from "./redux/configStore";
 import TextTool from "./pages/TextTool";
-import BookCaculation from "./components/Book/BookCaculation";
-import BookLayout from "./layouts/BookLayout";
 import CadGGEarth from "./pages/CadGGEarth";
 import MapPoint from "./pages/MapPoint";
-import ElevationPlacemark from "./components/Book/ElevationPlacemark";
 import CaptureMap from "./pages/CaptureMap";
-import MeasurementBook from "./pages/MeasurementBook";
+import MeasurementBookDetail from "./pages/MeasurementBookDetail";
 import Login from "./pages/Login";
 import AdminLayout from "./layouts/AdminLayout";
-import BookManager from "./components/Book/BookManager";
+import MeasurementMenu from "./components/measurement/MeasurementMenu";
+import AltitudeMenu from "./components/Altitude/AltitudeMenu";
+import AltitudeBookDetail from "./pages/AltitudeBookDetail";
 
 function App() {
   return (
@@ -38,10 +36,13 @@ function App() {
               />
             </Route>
             <Route
-              path={configRouter.private.book}
-              element={<BookManager />}
+              path={configRouter.private.altitude}
+              element={<AltitudeMenu />}
             ></Route>
-            <Route path={configRouter.private.book_detail} element={<Book />} />
+            <Route
+              path={configRouter.private.altitude_book_detail}
+              element={<AltitudeBookDetail />}
+            />
             {/* <Route
               path={configRouter.private.book_detail}
               element={<BookLayout />}
@@ -53,10 +54,10 @@ function App() {
               />
               <Route path={"/:id"} element={<Book />} />
             </Route> */}
-            <Route
+            {/* <Route
               path={`${configRouter.private.book}/${configRouter.private.book_placemark}/:id`}
               element={<ElevationPlacemark />}
-            />
+            /> */}
             <Route
               path={configRouter.private.map_point}
               element={<MapPoint />}
@@ -66,8 +67,12 @@ function App() {
               element={<CaptureMap />}
             />
             <Route
-              path={configRouter.private.mesurement_book}
-              element={<MeasurementBook />}
+              path={configRouter.private.measurement_book_detail}
+              element={<MeasurementBookDetail />}
+            />
+            <Route
+              path={configRouter.private.measurement}
+              element={<MeasurementMenu />}
             />
             <Route
               path={configRouter.admin.base}
