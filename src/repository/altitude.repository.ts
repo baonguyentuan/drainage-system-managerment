@@ -42,11 +42,11 @@ export default {
   },
   createOrientation(
     altitudeId: string,
-    orientationDto: AltitudeOrientationDtoModel
+    orientationLst: AltitudeOrientationDtoModel[]
   ) {
     return privateRequest.post(
       `${API_URL.bookAltitude.createOrientation}/${altitudeId}`,
-      orientationDto
+      orientationLst
     );
   },
   updateOrientation(

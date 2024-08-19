@@ -7,9 +7,9 @@ export default {
   },
   private: {
     map_manager: "/map_manager",
-    book_manager: "/book_manager",
-    book: "/book",
-    book_detail: "/book/:id",
+    // book_manager: "/book_manager",
+    altitude: "/altitude",
+    altitude_book_detail: "/altitude/:id",
     book_placemark: "book_placemark/",
     text_tool: "/text_tool",
     book_calculate: "/book_calculate",

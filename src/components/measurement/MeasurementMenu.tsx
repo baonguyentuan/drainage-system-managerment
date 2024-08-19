@@ -10,6 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import dummyData from "../../dummy.json";
 import { MeasurementOrientationDtoModel } from "../../models/measurement.model";
+import { autocompleteString } from "../../untils/operate/autocomplete";
 type Props = {};
 
 const MeasurementMenu = (props: Props) => {
@@ -62,7 +63,6 @@ const MeasurementMenu = (props: Props) => {
                 startIndex: 1,
               })
             );
-            console.log(response);
           }}
         >
           Tạo sổ đo mới

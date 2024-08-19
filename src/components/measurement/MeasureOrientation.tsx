@@ -102,81 +102,81 @@ const MeasureOrientation = (props: Props) => {
       {props.orient.stationInfo !== null
         ? renderStationInfo(props.orient.stationInfo)
         : ""}
-      <Popover
-        content={
-          <Space>
-            <Button
-              onClick={() => {
-                setCurrentId(props.orient._id);
-              }}
-            >
-              <EditOutlined />
-            </Button>
-            <Button
-              onClick={() => {
-                dispatch(
-                  deleteOrientationMeasurementApi({
-                    measurementId: props.meaId,
-                    orientationId: props.orient._id,
-                  })
-                );
-              }}
-            >
-              <DeleteOutlined />
-            </Button>
-          </Space>
-        }
-        title="Hành động"
-        trigger="click"
-      >
-        {currentId !== "" ? (
-          <div className="col-span-6 grid grid-cols-6 items-center gap-2 mb-2">
-            <p className="col-span-1">{props.index + 1}</p>
-            <Input
-              className="col-span-4"
-              value={orientEdit.note}
-              onChange={(e) => {
-                setOrientEdit({ ...orientEdit, note: e.target.value });
-              }}
-            />
-            <InputNumber
-              className="col-span-1"
-              value={orientEdit.prismHeight}
-              onChange={(value) => {
-                if (value !== null) {
-                  setOrientEdit({ ...orientEdit, prismHeight: value });
-                } else {
-                  setOrientEdit({ ...orientEdit, prismHeight: 0 });
-                }
-              }}
-            />
-            <Button
-              className="col-span-6 bg-green-200"
-              onClick={() => {
-                dispatch(
-                  updateOrientationMeasurementApi({
-                    orientId: props.orient._id,
-                    orientDto: {
-                      note: orientEdit.note,
-                      prismHeight: orientEdit.prismHeight,
-                      stationInfo: orientEdit.stationInfo,
-                    },
-                  })
-                );
-                setCurrentId("");
-              }}
-            >
-              <CheckOutlined />
-            </Button>
-          </div>
-        ) : (
+      {currentId !== "" ? (
+        <div className="col-span-6 grid grid-cols-6 items-center gap-2 mb-2">
+          <p className="col-span-1">{props.index + 1}</p>
+          <Input
+            className="col-span-4"
+            value={orientEdit.note}
+            onChange={(e) => {
+              setOrientEdit({ ...orientEdit, note: e.target.value });
+            }}
+          />
+          <InputNumber
+            className="col-span-1"
+            value={orientEdit.prismHeight}
+            onChange={(value) => {
+              if (value !== null) {
+                setOrientEdit({ ...orientEdit, prismHeight: value });
+              } else {
+                setOrientEdit({ ...orientEdit, prismHeight: 0 });
+              }
+            }}
+          />
+          <Button
+            className="col-span-6 bg-green-200"
+            onClick={() => {
+              dispatch(
+                updateOrientationMeasurementApi({
+                  orientId: props.orient._id,
+                  orientDto: {
+                    note: orientEdit.note,
+                    prismHeight: orientEdit.prismHeight,
+                    stationInfo: orientEdit.stationInfo,
+                  },
+                })
+              );
+              setCurrentId("");
+            }}
+          >
+            <CheckOutlined />
+          </Button>
+        </div>
+      ) : (
+        <Popover
+          content={
+            <Space>
+              <Button
+                onClick={() => {
+                  setCurrentId(props.orient._id);
+                }}
+              >
+                <EditOutlined />
+              </Button>
+              <Button
+                onClick={() => {
+                  dispatch(
+                    deleteOrientationMeasurementApi({
+                      measurementId: props.meaId,
+                      orientationId: props.orient._id,
+                    })
+                  );
+                }}
+              >
+                <DeleteOutlined />
+              </Button>
+            </Space>
+          }
+          title="Hành động"
+          trigger="click"
+        >
           <div className="col-span-6 grid grid-cols-6 ">
             <p className="col-span-1 py-1">{props.index + 1}</p>
             <p className="col-span-4 py-1 text-left">{props.orient.note}</p>
             <p className="col-span-1 py-1">{props.orient.prismHeight}</p>
           </div>
-        )}
-      </Popover>
+        </Popover>
+      )}
     </div>
   );
 };

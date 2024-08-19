@@ -16,6 +16,7 @@ import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   ToolOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/configStore";
@@ -36,6 +37,10 @@ import {
 import { SortableContext } from "@dnd-kit/sortable";
 import MeasureOrientation from "../components/measurement/MeasureOrientation";
 import { saveAs } from "file-saver";
+import {
+  autocompleteList,
+  autocompleteString,
+} from "../untils/operate/autocomplete";
 
 type Props = {};
 const MeasurementBookDetail = (props: Props) => {
@@ -61,13 +66,11 @@ const MeasurementBookDetail = (props: Props) => {
   const [nameEdit, setNameEdit] = useState<string>(
     measurmentBook?.nameStructure ? measurmentBook.nameStructure : ""
   );
-
   let [prismDefault, setPrismDefault] = useState<number>(130);
   let [prism, setPrism] = useState<number>(prismDefault);
   let [stationInfo, setStationInfo] =
     useState<MeasurementStationInfoModel | null>(null);
   const areaHtml = document.getElementById("dataArea");
-
   const checkDisableBtnAdd = () => {
     if (note === "" || measurmentBook?.nameStructure === "") {
       return true;
@@ -83,6 +86,25 @@ const MeasurementBookDetail = (props: Props) => {
         <div>
           <div className="fixed top-0 left-0 w-full bg-slate-200">
             <div className="flex">
+              <Popover
+                placement="topLeft"
+                title={"Autocomplete"}
+                content={
+                  <div style={{ maxHeight: 250 }} className="overflow-y-scroll">
+                    {autocompleteList.map((auto, index) => {
+                      return (
+                        <p className="p-2 border-b-2">
+                          {auto.label} : {auto.value}
+                        </p>
+                      );
+                    })}
+                  </div>
+                }
+              >
+                <Button className="px-2" type="link">
+                  <UnorderedListOutlined />
+                </Button>
+              </Popover>
               {currentId === "" ? (
                 <h1
                   className="flex-1 text-center text-lg font-bold mb-4"
@@ -127,7 +149,19 @@ const MeasurementBookDetail = (props: Props) => {
                   measurmentBook.startIndex
                 } - `}
                 value={note}
-                onChange={(e) => setNote(e.target.value)}
+                onChange={(e) => {
+                  if (e.target.value[e.target.value.length - 1] === " ") {
+                    let arrValue = e.target.value.split(" ");
+                    if (arrValue.length > 1) {
+                      arrValue[arrValue.length - 2] = autocompleteString(
+                        arrValue[arrValue.length - 2]
+                      );
+                      setNote(autocompleteString(arrValue.join(" ")));
+                    }
+                  } else {
+                    setNote(e.target.value);
+                  }
+                }}
               />
               {stationInfo !== null ? (
                 <Row gutter={16} className="mb-2">
@@ -279,12 +313,9 @@ const MeasurementBookDetail = (props: Props) => {
                       return (
                         <p
                           key={ori._id}
-                          className="border-b-2 py-2 hover:bg-green-200 cursor-pointer"
-                          style={{ width: 150 }}
+                          className="border-b-2 p-2 hover:bg-green-200 cursor-pointer"
                           onClick={() => {
                             const selectHtml = document.getElementById(ori._id);
-                            console.log(selectHtml?.offsetTop);
-
                             areaHtml?.scrollTo({
                               top: selectHtml?.offsetTop
                                 ? selectHtml?.offsetTop - 150

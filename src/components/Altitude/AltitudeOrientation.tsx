@@ -1,7 +1,12 @@
 import React, { useState } from "react";
-import { Button, Input, InputNumber, Popover, Space } from "antd";
+import { Button, Input, Popover, Space, Switch } from "antd";
 import { useDispatch } from "react-redux";
-import { EditOutlined, DeleteOutlined, CheckOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -32,88 +37,117 @@ const AltitudeOrientation = (props: Props) => {
   return (
     <div
       key={props.orient._id}
-      className="grid grid-cols-6 border-b-2"
+      className="grid grid-cols-6"
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
     >
-      <Popover
-        content={
-          <Space>
-            <Button
-              onClick={() => {
-                setCurrentId(props.orient._id);
-              }}
-            >
-              <EditOutlined />
-            </Button>
-            <Button
-              onClick={() => {
-                dispatch(
-                  deleteOrientationAltitudeApi({
-                    altitudeId: props.altId,
-                    orientationId: props.orient._id,
-                  })
-                );
-              }}
-            >
-              <DeleteOutlined />
-            </Button>
-          </Space>
-        }
-        title="Hành động"
-        trigger="click"
-      >
-        {currentId !== "" ? (
-          <div className="col-span-6 grid grid-cols-6 items-center gap-2 mb-2">
-            <Input
-              className="col-span-6"
-              value={orientEdit.note}
-              onChange={(e) => {
-                setOrientEdit({ ...orientEdit, note: e.target.value });
+      {currentId !== "" ? (
+        <div className="col-span-6 grid grid-cols-6 items-center gap-2 mb-2">
+          <Input
+            className="col-span-6"
+            value={orientEdit.note}
+            onChange={(e) => {
+              setOrientEdit({ ...orientEdit, note: e.target.value });
+            }}
+          />
+          <div className="col-span-2">
+            <span>MS</span>
+            <Switch
+              className="mx-2"
+              checked={orientEdit.isStart}
+              onChange={(value) => {
+                setOrientEdit({ ...orientEdit, isStart: value });
               }}
             />
-
-            <Button
-              className="col-span-6 bg-green-200"
-              onClick={() => {
-                dispatch(
-                  updateOrientationAltitudeApi({
-                    orientId: props.orient._id,
-                    orientDto: {
-                      note: orientEdit.note,
-                      upNumber: orientEdit.upNumber,
-                      downNumber: orientEdit.downNumber,
-                      centerNumber: orientEdit.centerNumber,
-                      isStart: orientEdit.isStart,
-                    },
-                  })
-                );
-                setCurrentId("");
-              }}
-            >
-              <CheckOutlined />
-            </Button>
+            <span>MT</span>
           </div>
-        ) : (
+          <Button
+            size="large"
+            className="col-span-2"
+            onClick={() => {
+              setCurrentId("");
+            }}
+          >
+            <CloseOutlined />
+          </Button>
+          <Button
+            size="large"
+            className="col-span-2 bg-green-200"
+            onClick={() => {
+              dispatch(
+                updateOrientationAltitudeApi({
+                  orientId: props.orient._id,
+                  orientDto: {
+                    placemarkId: orientEdit.placemarkId,
+                    note: orientEdit.note,
+                    topNumber: orientEdit.topNumber,
+                    bottomNumber: orientEdit.bottomNumber,
+                    centerNumber: orientEdit.centerNumber,
+                    isStart: orientEdit.isStart,
+                  },
+                })
+              );
+              setCurrentId("");
+            }}
+          >
+            <CheckOutlined />
+          </Button>
+        </div>
+      ) : (
+        <Popover
+          content={
+            <Space>
+              <Button
+                onClick={() => {
+                  setCurrentId(props.orient._id);
+                }}
+              >
+                <EditOutlined />
+              </Button>
+              <Button
+                onClick={() => {
+                  dispatch(
+                    deleteOrientationAltitudeApi({
+                      altitudeId: props.altId,
+                      orientationId: props.orient._id,
+                    })
+                  );
+                }}
+              >
+                <DeleteOutlined />
+              </Button>
+            </Space>
+          }
+          title="Hành động"
+          trigger="click"
+        >
           <div className="col-span-6 grid grid-cols-6 ">
-            <p className="col-span-1 py-1 text-left">{props.orient.upNumber}</p>
+            {props.orient.isStart === true ? (
+              <hr className="col-span-6 border-2 border-gray-400" />
+            ) : (
+              ""
+            )}
+            <p className="col-span-1 py-1 text-left">
+              {props.orient.topNumber}
+            </p>
             <p className="col-span-1 py-1 text-left">
               {props.orient.centerNumber}
             </p>
             <p className="col-span-1 py-1 text-left">
-              {props.orient.downNumber}
+              {props.orient.bottomNumber}
             </p>
             <p className="col-span-1 py-1">
-              {((props.orient.upNumber - props.orient.downNumber) / 10).toFixed(
-                1
-              )}
+              {(
+                (props.orient.topNumber - props.orient.bottomNumber) /
+                10
+              ).toFixed(1)}
             </p>
             <p className="col-span-2 py-1 text-left">{props.orient.note}</p>
           </div>
-        )}
-      </Popover>
+        </Popover>
+      )}
     </div>
   );
 };
