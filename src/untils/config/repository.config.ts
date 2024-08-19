@@ -1,7 +1,5 @@
 import axios from "axios";
 import authRepository from "../../repository/auth.repository";
-
-// const BASE_DOMAIN = "https://draining-system-be.onrender.com";
 export const API_URL = {
   auth: {
     refreshToken: "auth/refreshToken",
@@ -85,6 +83,8 @@ privateRequest.interceptors.request.use(
 );
 privateRequest.interceptors.response.use(
   (res) => {
+    console.log(process.env.BASE_DOMAIN);
+
     return res;
   },
   async (error) => {
