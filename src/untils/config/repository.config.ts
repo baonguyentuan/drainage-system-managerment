@@ -56,10 +56,10 @@ export const API_URL = {
 };
 
 export const publicRequest = axios.create({
-  baseURL: process.env.BASE_DOMAIN,
+  baseURL: process.env.REACT_APP_BASE_DOMAIN,
 });
 export const privateRequest = axios.create({
-  baseURL: process.env.BASE_DOMAIN,
+  baseURL: process.env.REACT_APP_BASE_DOMAIN,
   headers: {
     Authorization: `Bearer ${
       localStorage.getItem("accessToken")
@@ -83,8 +83,6 @@ privateRequest.interceptors.request.use(
 );
 privateRequest.interceptors.response.use(
   (res) => {
-    console.log(process.env.BASE_DOMAIN);
-
     return res;
   },
   async (error) => {
