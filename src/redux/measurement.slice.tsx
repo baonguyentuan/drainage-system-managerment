@@ -67,7 +67,10 @@ const measurementBookSlice = createSlice({
       openNotificationWithIcon("success", "Cập nhật thành công", "");
     });
     builder.addMatcher(
-      isAnyOf(getAllMeasurementByOrderApi.rejected),
+      isAnyOf(
+        getAllMeasurementByOrderApi.rejected,
+        swapOrientationMeasurementApi.rejected
+      ),
       (state, action) => {
         openNotificationWithIcon("error", "Lỗi", "");
       }
@@ -192,15 +195,15 @@ export const swapOrientationMeasurementApi = createAsyncThunk(
   async (
     measurement: {
       measurementId: string;
-      orientationId1: string;
-      orientationId2: string;
+      orientationId: string;
+      status: boolean;
     },
     thunkApi
   ) => {
     const response = await measurementRepository.swapOrientation(
       measurement.measurementId,
-      measurement.orientationId1,
-      measurement.orientationId2
+      measurement.orientationId,
+      measurement.status
     );
     if (response.status === 200 || response.status === 201) {
       thunkApi.dispatch(

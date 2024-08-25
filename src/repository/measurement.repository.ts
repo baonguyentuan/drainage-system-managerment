@@ -30,12 +30,12 @@ export default {
   },
   swapOrientation(
     measurementId: string,
-    orientationId1: string,
-    orientationId2: string
+    orientationId: string,
+    status: boolean
   ) {
     return privateRequest.patch(
       `${API_URL.bookMeasurement.swapOrientation}/${measurementId}`,
-      { orientationId1, orientationId2 }
+      { orientationId, status }
     );
   },
   deleteMeasurement(measurementId: string) {

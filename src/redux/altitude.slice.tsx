@@ -160,7 +160,7 @@ export const deleteAltitudeApi = createAsyncThunk(
   async (altitudeId: string, thunkApi) => {
     const response = await altitudeRepository.deleteAltitude(altitudeId);
     if (response.status === 200 || response.status === 201) {
-      thunkApi.dispatch(
+      await thunkApi.dispatch(
         editAltitudeOption({ option: { page: 1, sort: 1, value: "" } })
       );
     }
@@ -180,7 +180,7 @@ export const deleteOrientationAltitudeApi = createAsyncThunk(
       altitude.orientationId
     );
     if (response.status === 200 || response.status === 201) {
-      thunkApi.dispatch(
+      await thunkApi.dispatch(
         editAltitudeOption({ option: { page: 1, sort: 1, value: "" } })
       );
     }
@@ -202,7 +202,7 @@ export const swapOrientationAltitudeApi = createAsyncThunk(
       altitude.orientationId2
     );
     if (response.status === 200 || response.status === 201) {
-      thunkApi.dispatch(
+      await thunkApi.dispatch(
         editAltitudeOption({ option: { page: 1, sort: 1, value: "" } })
       );
     }
@@ -214,6 +214,8 @@ export const updateOrientationAltitudeApi = createAsyncThunk(
     orient: { orientId: string; orientDto: AltitudeOrientationDtoModel },
     thunkApi
   ) => {
+    console.log(orient);
+
     const response = await altitudeRepository.updateOrientation(
       orient.orientId,
       orient.orientDto
@@ -221,7 +223,7 @@ export const updateOrientationAltitudeApi = createAsyncThunk(
     console.log(response);
 
     if (response.status === 200 || response.status === 201) {
-      thunkApi.dispatch(
+      await thunkApi.dispatch(
         editAltitudeOption({ option: { page: 1, sort: 1, value: "" } })
       );
     }

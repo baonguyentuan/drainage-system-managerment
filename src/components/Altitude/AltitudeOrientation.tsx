@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Input, Popover, Space, Switch } from "antd";
 import { useDispatch } from "react-redux";
 import {
@@ -27,6 +27,7 @@ const AltitudeOrientation = (props: Props) => {
   const [orientEdit, setOrientEdit] = useState<AltitudeOrientationModel>(
     props.orient
   );
+  console.log(props.orient);
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: props.orient._id });
@@ -34,6 +35,9 @@ const AltitudeOrientation = (props: Props) => {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+  useEffect(() => {
+    setOrientEdit(props.orient);
+  }, [props.orient]);
   return (
     <div
       key={props.orient._id}
@@ -53,7 +57,6 @@ const AltitudeOrientation = (props: Props) => {
             }}
           />
           <div className="col-span-2">
-            <span>MS</span>
             <Switch
               className="mx-2"
               checked={orientEdit.isStart}
@@ -61,7 +64,7 @@ const AltitudeOrientation = (props: Props) => {
                 setOrientEdit({ ...orientEdit, isStart: value });
               }}
             />
-            <span>MT</span>
+            <span>{orientEdit.isStart ? "MT" : "MS"}</span>
           </div>
           <Button
             size="large"
@@ -96,57 +99,55 @@ const AltitudeOrientation = (props: Props) => {
           </Button>
         </div>
       ) : (
-        <Popover
-          content={
-            <Space>
-              <Button
-                onClick={() => {
-                  setCurrentId(props.orient._id);
-                }}
-              >
-                <EditOutlined />
-              </Button>
-              <Button
-                onClick={() => {
-                  dispatch(
-                    deleteOrientationAltitudeApi({
-                      altitudeId: props.altId,
-                      orientationId: props.orient._id,
-                    })
-                  );
-                }}
-              >
-                <DeleteOutlined />
-              </Button>
-            </Space>
-          }
-          title="Hành động"
-          trigger="click"
-        >
-          <div className="col-span-6 grid grid-cols-6 ">
-            {props.orient.isStart === true ? (
-              <hr className="col-span-6 border-2 border-gray-400" />
-            ) : (
-              ""
-            )}
-            <p className="col-span-1 py-1 text-left">
-              {props.orient.topNumber}
-            </p>
-            <p className="col-span-1 py-1 text-left">
-              {props.orient.centerNumber}
-            </p>
-            <p className="col-span-1 py-1 text-left">
-              {props.orient.bottomNumber}
-            </p>
-            <p className="col-span-1 py-1">
-              {(
-                (props.orient.topNumber - props.orient.bottomNumber) /
-                10
-              ).toFixed(1)}
-            </p>
+        <div className="col-span-6 grid grid-cols-6 ">
+          {props.orient.isStart === true ? (
+            <hr className="col-span-6 border-2 border-gray-400" />
+          ) : (
+            ""
+          )}
+          <p className="col-span-1 py-1 text-left">{props.orient.topNumber}</p>
+          <p className="col-span-1 py-1 text-left">
+            {props.orient.centerNumber}
+          </p>
+          <p className="col-span-1 py-1 text-left">
+            {props.orient.bottomNumber}
+          </p>
+          <p className="col-span-1 py-1">
+            {(
+              (props.orient.topNumber - props.orient.bottomNumber) /
+              10
+            ).toFixed(1)}
+          </p>
+          <Popover
+            content={
+              <Space>
+                <Button
+                  onClick={() => {
+                    setCurrentId(props.orient._id);
+                  }}
+                >
+                  <EditOutlined />
+                </Button>
+                <Button
+                  onClick={() => {
+                    dispatch(
+                      deleteOrientationAltitudeApi({
+                        altitudeId: props.altId,
+                        orientationId: props.orient._id,
+                      })
+                    );
+                  }}
+                >
+                  <DeleteOutlined />
+                </Button>
+              </Space>
+            }
+            title="Hành động"
+            trigger="click"
+          >
             <p className="col-span-2 py-1 text-left">{props.orient.note}</p>
-          </div>
-        </Popover>
+          </Popover>
+        </div>
       )}
     </div>
   );

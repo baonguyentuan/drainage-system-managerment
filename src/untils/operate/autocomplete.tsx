@@ -16,9 +16,13 @@ export const autocompleteList = [
   { label: "mdc", value: "mepduongcong" },
   { label: "dk", value: "dinhke" },
   { label: "mpn", value: "mepnuoc" },
+  { label: "gb", value: "gocbon" },
+  { label: "hgb", value: "hegocbon" },
 ];
 export const autocompleteString = (str: string) => {
-  let checkStr = autocompleteList.find((item) => item.label === str);
+  let checkStr = autocompleteList.find(
+    (item) => item.label === str.toLocaleLowerCase()
+  );
   if (checkStr === undefined) {
     return str;
   } else {

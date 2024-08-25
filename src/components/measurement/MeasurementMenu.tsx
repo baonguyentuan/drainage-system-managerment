@@ -1,16 +1,12 @@
-import { Button, Input, InputNumber, Space } from "antd";
+import { Button, Input, InputNumber } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/configStore";
 import {
   createMeasurementApi,
-  createOrientationApi,
   getAllMeasurementByOrderApi,
 } from "../../redux/measurement.slice";
 import { useNavigate } from "react-router-dom";
-import dummyData from "../../dummy.json";
-import { MeasurementOrientationDtoModel } from "../../models/measurement.model";
-import { autocompleteString } from "../../untils/operate/autocomplete";
 type Props = {};
 
 const MeasurementMenu = (props: Props) => {
@@ -81,7 +77,7 @@ const MeasurementMenu = (props: Props) => {
             >
               <span>{measure.nameStructure}</span>
               <span>{measure.orientationLst.length} điểm</span>
-              <Button
+              {/* <Button
                 onClick={() => {
                   let oriArr: MeasurementOrientationDtoModel[] = dummyData.map(
                     (ori) => {
@@ -115,7 +111,7 @@ const MeasurementMenu = (props: Props) => {
                 }}
               >
                 Tạo dummy data
-              </Button>
+              </Button> */}
             </p>
           );
         })}

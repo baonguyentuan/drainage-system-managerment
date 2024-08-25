@@ -4,15 +4,20 @@ import {
   MeasurementStationInfoModel,
 } from "../../models/measurement.model";
 import { Button, Input, InputNumber, Popover, Space } from "antd";
-import { useDispatch } from "react-redux";
-import { EditOutlined, DeleteOutlined, CheckOutlined } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  CheckOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+} from "@ant-design/icons";
 import {
   deleteOrientationMeasurementApi,
-  updateNameMeasurementApi,
+  swapOrientationMeasurementApi,
   updateOrientationMeasurementApi,
 } from "../../redux/measurement.slice";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { RootState } from "../../redux/configStore";
 type Props = {
   meaId: string;
   orient: MeasurementOrientationModel;
@@ -21,18 +26,13 @@ type Props = {
 
 const MeasureOrientation = (props: Props) => {
   const dispatch: any = useDispatch();
+  const { measurmentBook } = useSelector(
+    (state: RootState) => state.measurementBookSlice
+  );
   const [currentId, setCurrentId] = useState<string>("");
   const [orientEdit, setOrientEdit] = useState<MeasurementOrientationModel>(
     props.orient
   );
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: props.orient._id,
-    });
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-  };
   const renderStationInfo = (stationInfo: MeasurementStationInfoModel) => {
     if (currentId === "") {
       return (
@@ -91,14 +91,7 @@ const MeasureOrientation = (props: Props) => {
     }
   };
   return (
-    <div
-      key={props.orient._id}
-      className="grid grid-cols-6 border-b-2"
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-    >
+    <div key={props.orient._id} className="grid grid-cols-6 border-b-2">
       {props.orient.stationInfo !== null
         ? renderStationInfo(props.orient.stationInfo)
         : ""}
@@ -143,39 +136,86 @@ const MeasureOrientation = (props: Props) => {
           </Button>
         </div>
       ) : (
-        <Popover
-          content={
-            <Space>
-              <Button
-                onClick={() => {
-                  setCurrentId(props.orient._id);
-                }}
-              >
-                <EditOutlined />
-              </Button>
-              <Button
-                onClick={() => {
-                  dispatch(
-                    deleteOrientationMeasurementApi({
-                      measurementId: props.meaId,
-                      orientationId: props.orient._id,
-                    })
-                  );
-                }}
-              >
-                <DeleteOutlined />
-              </Button>
-            </Space>
-          }
-          title="Hành động"
-          trigger="click"
-        >
-          <div className="col-span-6 grid grid-cols-6 ">
-            <p className="col-span-1 py-1">{props.index + 1}</p>
-            <p className="col-span-4 py-1 text-left">{props.orient.note}</p>
+        <div className="col-span-6 grid grid-cols-6 hover:bg-green-100">
+          <p className="col-span-1 py-1">{props.index}</p>
+          <p className="col-span-4 py-1 text-left">{props.orient.note}</p>
+          <Popover
+            placement="topRight"
+            content={
+              <Space>
+                {measurmentBook ? (
+                  <Button
+                    disabled={
+                      measurmentBook.startIndex < props.index ? false : true
+                    }
+                    onClick={() => {
+                      dispatch(
+                        swapOrientationMeasurementApi({
+                          measurementId: props.meaId,
+                          orientationId: props.orient._id,
+                          status: true,
+                        })
+                      );
+                    }}
+                  >
+                    <ArrowUpOutlined />
+                  </Button>
+                ) : (
+                  ""
+                )}
+                {measurmentBook ? (
+                  <Button
+                    disabled={
+                      measurmentBook.orientationLst.length +
+                        measurmentBook.startIndex -
+                        1 >
+                      props.index
+                        ? false
+                        : true
+                    }
+                    onClick={() => {
+                      dispatch(
+                        swapOrientationMeasurementApi({
+                          measurementId: props.meaId,
+                          orientationId: props.orient._id,
+                          status: false,
+                        })
+                      );
+                    }}
+                  >
+                    <ArrowDownOutlined />
+                  </Button>
+                ) : (
+                  ""
+                )}
+
+                <Button
+                  onClick={() => {
+                    setCurrentId(props.orient._id);
+                  }}
+                >
+                  <EditOutlined />
+                </Button>
+                <Button
+                  onClick={() => {
+                    dispatch(
+                      deleteOrientationMeasurementApi({
+                        measurementId: props.meaId,
+                        orientationId: props.orient._id,
+                      })
+                    );
+                  }}
+                >
+                  <DeleteOutlined />
+                </Button>
+              </Space>
+            }
+            title="Hành động"
+            trigger="click"
+          >
             <p className="col-span-1 py-1">{props.orient.prismHeight}</p>
-          </div>
-        </Popover>
+          </Popover>
+        </div>
       )}
     </div>
   );
