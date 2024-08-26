@@ -20,6 +20,11 @@ const MeasurementBookDetail = (props: Props) => {
   const { measurmentBook, measurementOption } = useSelector(
     (state: RootState) => state.measurementBookSlice
   );
+
+  let reverseBook: any[] = [];
+  if (measurmentBook) {
+    reverseBook = [...measurmentBook.orientationLst].reverse();
+  }
   const dispatch: any = useDispatch();
   const areaHtml = document.getElementById("dataArea");
   useEffect(() => {
@@ -27,7 +32,7 @@ const MeasurementBookDetail = (props: Props) => {
   }, [measurementOption]);
   return (
     <div id="dataArea" className="w-screen h-screen overflow-y-scroll">
-      {measurmentBook !== null ? (
+      {reverseBook && measurmentBook ? (
         <div>
           <MeasurementControl />
           <div className="fixed bottom-0 right-0 w-14 m-2">
@@ -96,14 +101,18 @@ const MeasurementBookDetail = (props: Props) => {
               <p className="col-span-4">Ghi chú</p>
               <p className="col-span-1">Gương</p>
             </div>
-
-            {measurmentBook?.orientationLst.map((orient, index) => {
+            {reverseBook.map((orient, index) => {
               return (
                 <MeasureOrientation
                   key={orient._id}
                   meaId={meaId}
                   orient={orient}
-                  index={index + measurmentBook.startIndex}
+                  index={
+                    measurmentBook.orientationLst.length -
+                    index -
+                    1 +
+                    measurmentBook.startIndex
+                  }
                 />
               );
             })}

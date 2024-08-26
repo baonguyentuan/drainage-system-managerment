@@ -16,7 +16,11 @@ import {
   autocompleteString,
 } from "../../untils/operate/autocomplete";
 import { saveAs } from "file-saver";
-import { CheckOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import {
+  CheckOutlined,
+  UnorderedListOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import {
   createOrientationApi,
   updateNameMeasurementApi,
@@ -80,19 +84,28 @@ const MeasurementControl = (props: Props) => {
                 className="mb-2"
                 placeholder="Tên Công trình"
                 suffix={
-                  <Button
-                    onClick={async () => {
-                      await dispatch(
-                        updateNameMeasurementApi({
-                          measurementId: measurmentBook._id,
-                          name: nameEdit,
-                        })
-                      );
-                      await setEditNameStatus(false);
-                    }}
-                  >
-                    <CheckOutlined />
-                  </Button>
+                  <Space>
+                    <Button
+                      onClick={() => {
+                        setEditNameStatus(false);
+                      }}
+                    >
+                      <CloseOutlined />
+                    </Button>
+                    <Button
+                      onClick={async () => {
+                        await dispatch(
+                          updateNameMeasurementApi({
+                            measurementId: measurmentBook._id,
+                            name: nameEdit,
+                          })
+                        );
+                        await setEditNameStatus(false);
+                      }}
+                    >
+                      <CheckOutlined />
+                    </Button>
+                  </Space>
                 }
                 value={nameEdit}
                 onChange={(e) => setNameEdit(e.target.value)}
@@ -118,7 +131,7 @@ const MeasurementControl = (props: Props) => {
                     if (tempStr === ".") {
                       tempStr =
                         measurmentBook.orientationLst[
-                          measurmentBook.orientationLst.length - 2
+                          measurmentBook.orientationLst.length - 1
                         ].note;
                     }
                     arrValue[arrValue.length - 2] = tempStr;
@@ -220,12 +233,6 @@ const MeasurementControl = (props: Props) => {
                   if (response.meta.requestStatus === "fulfilled") {
                     await setNote("");
                     await setStationInfo(null);
-                    const areaHtml = document.getElementById("dataArea");
-                    await areaHtml?.scrollTo({
-                      top: areaHtml.scrollHeight,
-                      left: 0,
-                      behavior: "smooth",
-                    });
                   }
                 }}
               >

@@ -23,8 +23,6 @@ const MeasurementMenu = (props: Props) => {
   return (
     <div className="p-4">
       <div className="grid grid-cols-6 gap-1">
-        {/* <Button size="large">Mở sổ đo có sẵn</Button> */}
-
         <Input
           className=" col-span-5 sm:col-span-3"
           size="large"
@@ -56,7 +54,7 @@ const MeasurementMenu = (props: Props) => {
               createMeasurementApi({
                 nameStructure: name.trim(),
                 orientationLst: [],
-                startIndex: 1,
+                startIndex: startIndex,
               })
             );
           }}
@@ -77,41 +75,6 @@ const MeasurementMenu = (props: Props) => {
             >
               <span>{measure.nameStructure}</span>
               <span>{measure.orientationLst.length} điểm</span>
-              {/* <Button
-                onClick={() => {
-                  let oriArr: MeasurementOrientationDtoModel[] = dummyData.map(
-                    (ori) => {
-                      if (ori.length === 2) {
-                        return {
-                          note: ori[0],
-                          prismHeight: Number(ori[1]),
-                          stationInfo: null,
-                        };
-                      } else {
-                        return {
-                          note: ori[0],
-                          prismHeight: Number(ori[1]),
-                          stationInfo: {
-                            start: ori[2],
-                            end: ori[3],
-                            machineHeight: Number(ori[4]),
-                          },
-                        };
-                      }
-                    }
-                  );
-                  console.log(oriArr);
-
-                  dispatch(
-                    createOrientationApi({
-                      measurementId: measure._id,
-                      orientDto: oriArr,
-                    })
-                  );
-                }}
-              >
-                Tạo dummy data
-              </Button> */}
             </p>
           );
         })}

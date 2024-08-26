@@ -11,6 +11,7 @@ import {
   CheckOutlined,
   ArrowUpOutlined,
   ArrowDownOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import {
   deleteOrientationMeasurementApi,
@@ -69,6 +70,7 @@ const MeasureOrientation = (props: Props) => {
             }}
           />
           <InputNumber
+            className="mx-auto w-full"
             value={orientEdit.stationInfo?.machineHeight}
             onChange={(value) => {
               if (typeof value === "number") {
@@ -92,9 +94,6 @@ const MeasureOrientation = (props: Props) => {
   };
   return (
     <div key={props.orient._id} className="grid grid-cols-6 border-b-2">
-      {props.orient.stationInfo !== null
-        ? renderStationInfo(props.orient.stationInfo)
-        : ""}
       {currentId !== "" ? (
         <div className="col-span-6 grid grid-cols-6 items-center gap-2 mb-2">
           <p className="col-span-1">{props.index + 1}</p>
@@ -106,7 +105,7 @@ const MeasureOrientation = (props: Props) => {
             }}
           />
           <InputNumber
-            className="col-span-1"
+            className="col-span-1 mx-auto w-full"
             value={orientEdit.prismHeight}
             onChange={(value) => {
               if (value !== null) {
@@ -117,7 +116,15 @@ const MeasureOrientation = (props: Props) => {
             }}
           />
           <Button
-            className="col-span-6 bg-green-200"
+            className="col-span-3 "
+            onClick={() => {
+              setCurrentId("");
+            }}
+          >
+            <CloseOutlined />
+          </Button>
+          <Button
+            className="col-span-3 bg-green-200"
             onClick={() => {
               dispatch(
                 updateOrientationMeasurementApi({
@@ -146,14 +153,19 @@ const MeasureOrientation = (props: Props) => {
                 {measurmentBook ? (
                   <Button
                     disabled={
-                      measurmentBook.startIndex < props.index ? false : true
+                      props.index ===
+                        measurmentBook.orientationLst.length +
+                          measurmentBook.startIndex -
+                          1 || props.index === measurmentBook.startIndex
+                        ? true
+                        : false
                     }
                     onClick={() => {
                       dispatch(
                         swapOrientationMeasurementApi({
                           measurementId: props.meaId,
                           orientationId: props.orient._id,
-                          status: true,
+                          status: false,
                         })
                       );
                     }}
@@ -166,19 +178,19 @@ const MeasureOrientation = (props: Props) => {
                 {measurmentBook ? (
                   <Button
                     disabled={
-                      measurmentBook.orientationLst.length +
-                        measurmentBook.startIndex -
-                        1 >
-                      props.index
-                        ? false
-                        : true
+                      props.index ===
+                        measurmentBook.orientationLst.length +
+                          measurmentBook.startIndex -
+                          1 || props.index === measurmentBook.startIndex
+                        ? true
+                        : false
                     }
                     onClick={() => {
                       dispatch(
                         swapOrientationMeasurementApi({
                           measurementId: props.meaId,
                           orientationId: props.orient._id,
-                          status: false,
+                          status: true,
                         })
                       );
                     }}
@@ -217,6 +229,9 @@ const MeasureOrientation = (props: Props) => {
           </Popover>
         </div>
       )}
+      {props.orient.stationInfo !== null
+        ? renderStationInfo(props.orient.stationInfo)
+        : ""}
     </div>
   );
 };
