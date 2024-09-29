@@ -5,6 +5,7 @@ import {
   Input,
   InputNumber,
   Popover,
+  Radio,
   Row,
   Space,
 } from "antd";
@@ -20,6 +21,7 @@ import {
   CheckOutlined,
   UnorderedListOutlined,
   CloseOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import {
   createOrientationApi,
@@ -49,7 +51,7 @@ const MeasurementControl = (props: Props) => {
     <div className="fixed top-0 left-0 w-full p-2 bg-slate-200">
       {measurmentBook ? (
         <Fragment>
-          <div className="flex">
+          <div className="flex items-center mb-2">
             <Popover
               placement="topLeft"
               title={"Autocomplete"}
@@ -65,23 +67,22 @@ const MeasurementControl = (props: Props) => {
                 </div>
               }
             >
-              <Button className="px-2" type="link">
+              <Button className="px-2" type="link" size="large">
                 <UnorderedListOutlined />
               </Button>
             </Popover>
             {editNameStatus === false ? (
               <h1
-                className="flex-1 text-center text-lg font-bold mb-4"
+                className="flex-1 text-center text-lg font-bold"
                 onClick={() => {
                   setNameEdit(measurmentBook.nameStructure);
                   setEditNameStatus(true);
                 }}
               >
-                Sổ đo MB : {measurmentBook.nameStructure}
+                Sổ đo: {measurmentBook.nameStructure}
               </h1>
             ) : (
               <Input
-                className="mb-2"
                 placeholder="Tên Công trình"
                 suffix={
                   <Space>
@@ -111,6 +112,33 @@ const MeasurementControl = (props: Props) => {
                 onChange={(e) => setNameEdit(e.target.value)}
               />
             )}
+            <Button
+              size="large"
+              disabled={
+                measurmentBook.orientationLst.length >= 10 ? false : true
+              }
+              onClick={async () => {
+                let contentRender = ``;
+                measurmentBook.orientationLst.forEach((orient, index) => {
+                  contentRender += `${
+                    index + measurmentBook.startIndex
+                  }\t${orient.note.toUpperCase()}\t${orient.prismHeight}`;
+                  if (orient.stationInfo !== null) {
+                    contentRender += `\t${orient.stationInfo.start.toUpperCase()}\t${orient.stationInfo.end.toUpperCase()}\t${
+                      orient.stationInfo.machineHeight
+                    }\n`;
+                  } else {
+                    contentRender += `\n`;
+                  }
+                });
+                const fileText = new Blob([contentRender], {
+                  type: "text/plain",
+                });
+                await saveAs(fileText, `${measurmentBook.nameStructure}.txt`);
+              }}
+            >
+              <DownloadOutlined />
+            </Button>
           </div>
           <div>
             <Input
@@ -192,9 +220,9 @@ const MeasurementControl = (props: Props) => {
             ) : (
               ""
             )}
-            <Space>
+            <div className="grid grid-cols-5">
               <InputNumber
-                className="ml-4"
+                className="col-span-1 w-full"
                 size="large"
                 value={prism}
                 onChange={(value) => {
@@ -203,7 +231,24 @@ const MeasurementControl = (props: Props) => {
                   }
                 }}
               />
+              <Radio.Group
+                className="col-span-3"
+                options={[
+                  { label: "130", value: 130 },
+                  { label: "136", value: 136 },
+                  { label: "215", value: 215 },
+                  { label: "0", value: 0 },
+                ]}
+                value={prism}
+                size="large"
+                optionType="button"
+                buttonStyle="solid"
+                onChange={(e) => {
+                  setPrism(e.target.value);
+                }}
+              />
               <Checkbox
+                className="items-center col-span-1"
                 checked={stationInfo !== null ? true : false}
                 onChange={(event) => {
                   if (event.target.checked) {
@@ -217,9 +262,10 @@ const MeasurementControl = (props: Props) => {
                   }
                 }}
               >
-                Trạm máy
+                Trạm
               </Checkbox>
               <Button
+                className="col-span-5 mt-2"
                 size="large"
                 disabled={checkDisableBtnAdd()}
                 onClick={async () => {
@@ -238,34 +284,7 @@ const MeasurementControl = (props: Props) => {
               >
                 Thêm điểm
               </Button>
-              <Button
-                size="large"
-                disabled={
-                  measurmentBook.orientationLst.length >= 10 ? false : true
-                }
-                onClick={async () => {
-                  let contentRender = ``;
-                  measurmentBook.orientationLst.forEach((orient, index) => {
-                    contentRender += `${
-                      index + measurmentBook.startIndex
-                    }\t${orient.note.toUpperCase()}\t${orient.prismHeight}`;
-                    if (orient.stationInfo !== null) {
-                      contentRender += `\t${orient.stationInfo.start.toUpperCase()}\t${orient.stationInfo.end.toUpperCase()}\t${
-                        orient.stationInfo.machineHeight
-                      }\n`;
-                    } else {
-                      contentRender += `\n`;
-                    }
-                  });
-                  const fileText = new Blob([contentRender], {
-                    type: "text/plain",
-                  });
-                  await saveAs(fileText, `${measurmentBook.nameStructure}.txt`);
-                }}
-              >
-                Tải sổ đo
-              </Button>
-            </Space>
+            </div>
           </div>
         </Fragment>
       ) : (

@@ -1,4 +1,4 @@
-import { Button, Input, InputNumber, Popover, Switch } from "antd";
+import { Button, Input, InputNumber, Popover, Space, Switch } from "antd";
 import React, { Fragment, useState } from "react";
 import {
   AltitudeOrientationDtoModel,
@@ -14,7 +14,7 @@ import {
 } from "../../redux/altitude.slice";
 import { formatText } from "../../untils/operate/opetate";
 import { saveAs } from "file-saver";
-import { CheckOutlined, ToolOutlined } from "@ant-design/icons";
+import { CheckOutlined, ToolOutlined, CloseOutlined } from "@ant-design/icons";
 type Props = {};
 
 const AltitudeControl = (props: Props) => {
@@ -30,7 +30,7 @@ const AltitudeControl = (props: Props) => {
     centerNumber: 0,
     bottomNumber: 0,
   });
-  const [currentId, setCurrentId] = useState<string>("");
+  const [isNameEdit, setIsNameEdit] = useState<boolean>(false);
   const [nameEdit, setNameEdit] = useState<string>(
     altitudeBook?.nameStructure ? altitudeBook.nameStructure : ""
   );
@@ -73,7 +73,7 @@ const AltitudeControl = (props: Props) => {
     return false;
   };
   return (
-    <div className="fixed top-0 left-0 w-full bg-slate-300 px-2">
+    <div className="fixed top-0 left-0 w-full bg-slate-200 px-2">
       {altitudeBook ? (
         <Fragment>
           <div className="flex p-2">
@@ -95,7 +95,7 @@ const AltitudeControl = (props: Props) => {
                   />
                   <Button
                     size="large"
-                    className="w-full my-2"
+                    className="w-full my-2 bg-green-200"
                     onClick={() => {
                       let calLst: AltitudePointModel[] = [];
                       let currentCenterNumber: number = 0;
@@ -140,14 +140,19 @@ const AltitudeControl = (props: Props) => {
                   >
                     Tính toán
                   </Button>
-                  {calculationAltitude.map((cal) => {
-                    return (
-                      <div key={cal.id} className="grid grid-cols-2">
-                        <p>{cal.point}</p>
-                        <p>{cal.altitude}</p>
-                      </div>
-                    );
-                  })}
+                  <div className="overflow-y-scroll h-52">
+                    {calculationAltitude.map((cal) => {
+                      return (
+                        <div
+                          key={cal.id}
+                          className="grid grid-cols-3 border-b-2"
+                        >
+                          <p className="col-span-2">{cal.point}</p>
+                          <p className="col-span-1">{cal.altitude}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
                   <Button
                     className="w-full"
                     size="large"
@@ -182,7 +187,6 @@ const AltitudeControl = (props: Props) => {
                           }\n`;
                         }
                       });
-                      console.log(renderText);
                       const fileText = new Blob([renderText], {
                         type: "text/plain",
                       });
@@ -194,16 +198,16 @@ const AltitudeControl = (props: Props) => {
                 </div>
               }
             >
-              <Button>
-                <ToolOutlined />
+              <Button className="border-blue-400 mr-2" type="link" size="large">
+                <ToolOutlined className="text-blue-500" />
               </Button>
             </Popover>
-            {currentId === "" ? (
+            {!isNameEdit ? (
               <h1
                 className="flex-1 text-center text-lg font-bold mb-4"
                 onClick={() => {
                   setNameEdit(altitudeBook.nameStructure);
-                  setCurrentId(altitudeBook._id);
+                  setIsNameEdit(true);
                 }}
               >
                 Sổ đo: {altitudeBook.nameStructure}
@@ -213,26 +217,35 @@ const AltitudeControl = (props: Props) => {
                 className="mb-2"
                 placeholder="Tên Công trình"
                 suffix={
-                  <Button
-                    onClick={async () => {
-                      await dispatch(
-                        updateNameAltitudeApi({
-                          altitudeId: altitudeBook._id,
-                          name: nameEdit,
-                        })
-                      );
-                      await setCurrentId("");
-                    }}
-                  >
-                    <CheckOutlined />
-                  </Button>
+                  <Space>
+                    <Button
+                      onClick={async () => {
+                        await setIsNameEdit(false);
+                      }}
+                    >
+                      <CloseOutlined />
+                    </Button>
+                    <Button
+                      onClick={async () => {
+                        await dispatch(
+                          updateNameAltitudeApi({
+                            altitudeId: altitudeBook._id,
+                            name: nameEdit,
+                          })
+                        );
+                        await setIsNameEdit(false);
+                      }}
+                    >
+                      <CheckOutlined />
+                    </Button>
+                  </Space>
                 }
                 value={nameEdit}
                 onChange={(e) => setNameEdit(e.target.value)}
               />
             )}
           </div>
-          <div className="grid grid-cols-3 gap-2 pb-2">
+          <div className="grid grid-cols-3 gap-2 pb-2 items-center">
             <InputNumber
               className="col-span-1"
               addonBefore="T"
@@ -275,6 +288,7 @@ const AltitudeControl = (props: Props) => {
             <Input
               className="mb-2 col-span-3"
               placeholder="Ghi chú"
+              size="large"
               value={altitudeDto.note}
               onChange={(e) =>
                 setAltitudeDto({ ...altitudeDto, note: e.target.value })
@@ -316,18 +330,19 @@ const AltitudeControl = (props: Props) => {
               <span>KCCD: </span>
               <span>{calculateCumulativeDistance()}m</span>
             </p>
-            <div>
-              <span>MS</span>
+            <div className="">
               <Switch
-                className="mx-2"
+                unCheckedChildren="Mia sau"
+                checkedChildren="Mia trước"
+                className=" w-full h-full bg-gray-400"
                 checked={altitudeDto.isStart}
                 onChange={(value) => {
                   setAltitudeDto({ ...altitudeDto, isStart: value });
                 }}
               />
-              <span>MT</span>
             </div>
             <Button
+              className="bg-green-200 col-span-2"
               size="large"
               disabled={checkDisableBtnAdd()}
               onClick={async () => {

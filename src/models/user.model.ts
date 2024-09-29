@@ -32,3 +32,8 @@ export interface USER_ADMIN_SHOW {
   isActive: boolean;
   role: string;
 }
+export interface USER_ADMIN {
+  _id: string;
+  isActive: boolean;
+  role: string;
+}

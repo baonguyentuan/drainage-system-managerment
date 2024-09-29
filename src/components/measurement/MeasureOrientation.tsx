@@ -3,7 +3,15 @@ import {
   MeasurementOrientationModel,
   MeasurementStationInfoModel,
 } from "../../models/measurement.model";
-import { Button, Input, InputNumber, Popover, Space } from "antd";
+import {
+  Button,
+  Input,
+  InputNumber,
+  Popconfirm,
+  Popover,
+  Radio,
+  Space,
+} from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
   EditOutlined,
@@ -95,17 +103,19 @@ const MeasureOrientation = (props: Props) => {
   return (
     <div key={props.orient._id} className="grid grid-cols-6 border-b-2">
       {currentId !== "" ? (
-        <div className="col-span-6 grid grid-cols-6 items-center gap-2 mb-2">
-          <p className="col-span-1">{props.index + 1}</p>
+        <div className="col-span-6 grid grid-cols-6 items-center gap-2 mb-2 px-2">
+          <p className="col-span-1">{props.index}</p>
           <Input
-            className="col-span-4"
+            size="large"
+            className="col-span-5"
             value={orientEdit.note}
             onChange={(e) => {
               setOrientEdit({ ...orientEdit, note: e.target.value });
             }}
           />
           <InputNumber
-            className="col-span-1 mx-auto w-full"
+            size="large"
+            className="col-span-2 mx-auto w-full"
             value={orientEdit.prismHeight}
             onChange={(value) => {
               if (value !== null) {
@@ -115,7 +125,24 @@ const MeasureOrientation = (props: Props) => {
               }
             }}
           />
+          <Radio.Group
+            className="col-span-4 w-full text-right"
+            options={[
+              { label: "130", value: 130 },
+              { label: "136", value: 136 },
+              { label: "215", value: 215 },
+              { label: "0", value: 0 },
+            ]}
+            value={orientEdit.prismHeight}
+            size="large"
+            optionType="button"
+            buttonStyle="solid"
+            onChange={(e) => {
+              setOrientEdit({ ...orientEdit, prismHeight: e.target.value });
+            }}
+          />
           <Button
+            size="large"
             className="col-span-3 "
             onClick={() => {
               setCurrentId("");
@@ -124,6 +151,7 @@ const MeasureOrientation = (props: Props) => {
             <CloseOutlined />
           </Button>
           <Button
+            size="large"
             className="col-span-3 bg-green-200"
             onClick={() => {
               dispatch(
@@ -152,6 +180,7 @@ const MeasureOrientation = (props: Props) => {
               <Space>
                 {measurmentBook ? (
                   <Button
+                    size="large"
                     disabled={
                       props.index ===
                         measurmentBook.orientationLst.length +
@@ -177,6 +206,7 @@ const MeasureOrientation = (props: Props) => {
                 )}
                 {measurmentBook ? (
                   <Button
+                    size="large"
                     disabled={
                       props.index ===
                         measurmentBook.orientationLst.length +
@@ -202,14 +232,20 @@ const MeasureOrientation = (props: Props) => {
                 )}
 
                 <Button
+                  size="large"
                   onClick={() => {
                     setCurrentId(props.orient._id);
                   }}
                 >
                   <EditOutlined />
                 </Button>
-                <Button
-                  onClick={() => {
+                <Popconfirm
+                  placement="topRight"
+                  title={"Xóa điểm đo"}
+                  okType="dashed"
+                  okText="YES"
+                  cancelText="NO"
+                  onConfirm={() => {
                     dispatch(
                       deleteOrientationMeasurementApi({
                         measurementId: props.meaId,
@@ -218,8 +254,10 @@ const MeasureOrientation = (props: Props) => {
                     );
                   }}
                 >
-                  <DeleteOutlined />
-                </Button>
+                  <Button danger size="large">
+                    <DeleteOutlined />
+                  </Button>
+                </Popconfirm>
               </Space>
             }
             title="Hành động"

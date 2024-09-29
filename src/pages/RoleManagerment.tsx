@@ -1,5 +1,10 @@
-import { Button, Input, Space, Table, TableProps } from "antd";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Button, Input, Popconfirm, Space, Table, TableProps } from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  CaretDownOutlined,
+  CaretUpOutlined,
+} from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -12,7 +17,6 @@ import { RootState } from "../redux/configStore";
 import CreateRole from "../components/Role/CreateRole";
 import { ROLE_DETAIL } from "../models/role.model";
 import UpdateRole from "../components/Role/UpdateRole";
-import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 type Props = {};
 
 const RoleManagerment = (props: Props) => {
@@ -77,14 +81,20 @@ const RoleManagerment = (props: Props) => {
           >
             <EditOutlined />
           </Button>
-          <Button
-            danger
-            onClick={() => {
+          <Popconfirm
+            placement="topRight"
+            title={"Xóa role"}
+            okType="dashed"
+            okText="YES"
+            cancelText="NO"
+            onConfirm={() => {
               dispatch(deleteRoleApi(item._id));
             }}
           >
-            <DeleteOutlined />
-          </Button>
+            <Button danger>
+              <DeleteOutlined />
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },

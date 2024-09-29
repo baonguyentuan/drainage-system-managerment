@@ -11,6 +11,8 @@ import { RootState } from "../redux/configStore";
 import RoleManagerment from "../pages/RoleManagerment";
 import { setMenuBarStatus } from "../redux/admin.slice";
 import EndpointManagerment from "../pages/EndpointManagerment";
+import MeasurementManagerment from "../pages/MeasurementManagerment";
+import AltitudeManagerment from "../pages/AltitudeManagerment";
 
 type MenuItem = Required<MenuProps>["items"][number];
 type Props = {};
@@ -33,6 +35,8 @@ const items: MenuItem[] = [
   getItem("User", "user", <UserOutlined />),
   getItem("Role", "role", <SafetyOutlined />),
   getItem("Endpoint", "endpoint", <PartitionOutlined />),
+  getItem("Measurement", "measurement", <PartitionOutlined />),
+  getItem("Altitude", "altitude", <PartitionOutlined />),
 ];
 const AdminLayout = (props: Props) => {
   const { menuBarStatus } = useSelector((state: RootState) => state.adminSlice);
@@ -44,8 +48,12 @@ const AdminLayout = (props: Props) => {
       return <UserManagerment />;
     } else if (status === "role") {
       return <RoleManagerment />;
-    } else {
+    } else if (status === "endpoint") {
       return <EndpointManagerment />;
+    } else if (status === "measurement") {
+      return <MeasurementManagerment />;
+    } else {
+      return <AltitudeManagerment />;
     }
   };
   // useEffect(()=>{

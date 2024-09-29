@@ -10,7 +10,7 @@ export default {
     return publicRequest.post(API_URL.auth.login, userLogin);
   },
   refreshToken() {
-    return privateRequest.get(API_URL.auth.refreshToken);
+    return privateRequest.post(API_URL.auth.refreshToken);
   },
   logout() {
     return privateRequest.post(API_URL.auth.logout);

@@ -3,6 +3,7 @@ import {
   Col,
   Dropdown,
   Input,
+  Popconfirm,
   Row,
   Select,
   Space,
@@ -30,8 +31,6 @@ const EndpointManagerment = (props: Props) => {
     (state: RootState) => state.endpointSlice
   );
   const [isCreateStatus, setIsCreateStatus] = useState<boolean>(false);
-  console.log(currentEndpoint);
-
   const dispatch: any = useDispatch();
   const columns: TableProps<ENDPOINT_DETAIL>["columns"] = [
     {
@@ -62,6 +61,8 @@ const EndpointManagerment = (props: Props) => {
               { label: "user", value: "user" },
               { label: "role", value: "role" },
               { label: "endpoint", value: "endpoint" },
+              { label: "measurement", value: "measurement" },
+              { label: "altitude", value: "altitude" },
             ]}
           />
         </div>
@@ -88,14 +89,20 @@ const EndpointManagerment = (props: Props) => {
           >
             <EditOutlined />
           </Button>
-          <Button
-            danger
-            onClick={() => {
+          <Popconfirm
+            placement="topRight"
+            title={"Xóa endpoint"}
+            okType="dashed"
+            okText="YES"
+            cancelText="NO"
+            onConfirm={() => {
               dispatch(deleteEndpointApi(item._id));
             }}
           >
-            <DeleteOutlined />
-          </Button>
+            <Button danger>
+              <DeleteOutlined />
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },

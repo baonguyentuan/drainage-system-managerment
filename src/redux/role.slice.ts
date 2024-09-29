@@ -38,10 +38,10 @@ const roleSlice = createSlice({
   },
   extraReducers(builder) {
     builder.addCase(getAllRoleByOrderApi.fulfilled, (state, action) => {
-      state.roleLst = action.payload.data.data;
+      state.roleLst = action.payload.data;
     });
     builder.addCase(getRoleDetailApi.fulfilled, (state, action) => {
-      state.currentRole = action.payload.data.data;
+      state.currentRole = action.payload.data;
     });
     builder.addCase(createRoleApi.fulfilled, (state, action) => {
       openNotificationWithIcon("success", "Tạo Role thành công", "");

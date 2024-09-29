@@ -1,5 +1,5 @@
 import { UserOrderOptionDetail } from "../models/order.model";
-import { USER_DTO } from "../models/user.model";
+import { USER_ADMIN, USER_DTO } from "../models/user.model";
 import {
   API_URL,
   privateRequest,
@@ -21,5 +21,11 @@ export default {
   },
   deleteUser(userId: string) {
     return privateRequest.delete(`${API_URL.user.deleteUser}/${userId}`);
+  },
+  updateUserAdmin(userDto: USER_ADMIN) {
+    return privateRequest.patch(
+      `${API_URL.user.updateUserAdmin}/${userDto._id}`,
+      { role: userDto.role, isActive: userDto.isActive }
+    );
   },
 };

@@ -14,9 +14,18 @@ import {
   AltitudeOrientationDtoModel,
   AltitudeUploadDtoModel,
 } from "../../models/altitude.models";
-import { RightOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  RightOutlined,
+  UploadOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 type Props = {};
-
+interface AdjustModel {
+  start: string;
+  end: string;
+  distanceTotal: number;
+  altitudeTotal: number;
+}
 const AltitudeMenu = (props: Props) => {
   const [name, setName] = useState<string>("");
   const { altitudeLst, altitudeOption } = useSelector(
@@ -25,7 +34,8 @@ const AltitudeMenu = (props: Props) => {
   const [orientDtoLst, setOrientDtoLst] = useState<
     AltitudeOrientationDtoModel[]
   >([]);
-
+  const [adjustSelected, setAdjustSelected] = useState<number[]>([]);
+  const [adjustLst, setAdjustLst] = useState<AdjustModel[]>([]);
   const dispatch: any = useDispatch();
   const navigate = useNavigate();
   useEffect(() => {
@@ -97,7 +107,6 @@ const AltitudeMenu = (props: Props) => {
                 setOrientDtoLst(lst);
               };
               reader.readAsText(file);
-
               return false;
             }}
           >
@@ -107,29 +116,129 @@ const AltitudeMenu = (props: Props) => {
           </Upload>
         </div>
       </div>
+
       {orientDtoLst.length > 0 ? (
-        <div>
-          <div className="grid grid-cols-5 border-b-2 font-bold">
-            <p className="col-span-1">Trên</p>
-            <p className="col-span-1">Giữa</p>
-            <p className="col-span-1">Dưới</p>
-            <p className="col-span-2">Ghi chú</p>
+        <div className="grid grid-cols-3 mt-2">
+          <div className="col-span-2">
+            <div className="grid grid-cols-5 border-b-2 font-bold">
+              <p className="col-span-1">Trên</p>
+              <p className="col-span-1">Giữa</p>
+              <p className="col-span-1">Dưới</p>
+              <p className="col-span-2">Ghi chú</p>
+            </div>
+            {orientDtoLst.map((ori, index) => {
+              let checkIndex = adjustSelected.findIndex((adj) => adj === index);
+              return (
+                <div
+                  className={`grid grid-cols-6 ${
+                    checkIndex === -1 ? "bg-white" : "bg-green-100"
+                  }`}
+                  key={index}
+                >
+                  {ori.isStart && index !== 0 ? (
+                    <hr className="col-span-6 border-2" />
+                  ) : (
+                    ""
+                  )}
+                  <p className="col-span-1">{ori.topNumber}</p>
+                  <p className="col-span-1">{ori.centerNumber}</p>
+                  <p className="col-span-1">{ori.bottomNumber}</p>
+                  <p className="col-span-2 text-left">{ori.note}</p>
+                  <Button
+                    type="link"
+                    onClick={() => {
+                      if (checkIndex !== -1) {
+                        setAdjustSelected(adjustSelected.splice(index, 1));
+                      } else {
+                        setAdjustSelected(adjustSelected.concat(index));
+                      }
+                    }}
+                  >
+                    <RightOutlined />
+                  </Button>
+                </div>
+              );
+            })}
           </div>
-          {orientDtoLst.map((ori, index) => {
-            return (
-              <div className="grid grid-cols-5" key={index}>
-                {ori.isStart && index !== 0 ? (
-                  <hr className="col-span-5 border-2" />
-                ) : (
-                  ""
-                )}
-                <p className="col-span-1">{ori.topNumber}</p>
-                <p className="col-span-1">{ori.centerNumber}</p>
-                <p className="col-span-1">{ori.bottomNumber}</p>
-                <p className="col-span-2 text-left">{ori.note}</p>
-              </div>
-            );
-          })}
+          <div>
+            <div className="grid grid-cols-4 border-b-2 font-bold">
+              <p className="col-span-1">Khởi đầu</p>
+              <p className="col-span-1">Kết thúc</p>
+              <p className="col-span-1">Khoảng cách</p>
+              <p className="col-span-1">Chênh cao</p>
+            </div>
+            {adjustLst.map((adj, index) => {
+              return (
+                <div className="grid grid-cols-4">
+                  <p className="col-span-1">{adj.start}</p>
+                  <p className="col-span-1">{adj.end}</p>
+                  <p className="col-span-1">{adj.distanceTotal}</p>
+                  <p className="col-span-1">{adj.altitudeTotal}</p>
+                  <hr />
+                </div>
+              );
+            })}
+            <Button
+              onClick={() => {
+                let flagStart: boolean = false;
+                let start: string = "";
+                let end: string = "";
+                let distanceTotal: number = 0;
+                let altitudeTotal: number = 0;
+                let adjLst: AdjustModel[] = [];
+                orientDtoLst.forEach((ori, index) => {
+                  let checkIndex = adjustSelected.findIndex(
+                    (adj) => adj === index
+                  );
+                  if (checkIndex === -1) {
+                    if (flagStart && ori.isStart) {
+                      distanceTotal +=
+                        (ori.topNumber - ori.bottomNumber) / 10 +
+                        (orientDtoLst[index - 1].topNumber -
+                          orientDtoLst[index - 1].bottomNumber) /
+                          10;
+                      altitudeTotal +=
+                        ori.centerNumber - orientDtoLst[index - 1].centerNumber;
+                    }
+                    if (!flagStart && ori.isStart) {
+                      distanceTotal += (ori.topNumber - ori.bottomNumber) / 10;
+                      altitudeTotal += ori.centerNumber;
+                      flagStart = true;
+                    }
+                  } else {
+                    if (flagStart) {
+                      end = ori.note;
+                      distanceTotal += (ori.topNumber - ori.bottomNumber) / 10;
+                      altitudeTotal -= ori.centerNumber;
+                      adjLst.push({
+                        start,
+                        end,
+                        distanceTotal: Number(distanceTotal.toFixed(1)),
+                        altitudeTotal,
+                      });
+                      end = "";
+                      distanceTotal = 0;
+                      altitudeTotal = 0;
+                      if (index < orientDtoLst.length - 1) {
+                        start = orientDtoLst[index + 1].note;
+                      } else {
+                        start = "";
+                      }
+                      flagStart = false;
+                    } else {
+                      start = ori.note;
+                      distanceTotal = (ori.topNumber - ori.bottomNumber) / 10;
+                      altitudeTotal = ori.centerNumber;
+                      flagStart = true;
+                    }
+                  }
+                });
+                setAdjustLst(adjLst);
+              }}
+            >
+              Tính
+            </Button>
+          </div>
         </div>
       ) : (
         ""

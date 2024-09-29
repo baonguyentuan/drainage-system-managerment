@@ -6,6 +6,7 @@ import {
   editEndpointDetail,
   updateEndpointApi,
 } from "../../redux/endpoint.slice";
+import { endpointConfig } from "../../untils/config/configEndpoint";
 
 type Props = {};
 
@@ -70,12 +71,7 @@ function UpdateEndpoint({}: Props) {
               );
             }
           }}
-          options={[
-            { value: "auth", label: "auth" },
-            { value: "user", label: "user" },
-            { value: "role", label: "role" },
-            { value: "endpoint", label: "endpoint" },
-          ]}
+          options={endpointConfig.endpointLst}
         />
         <Input
           size="large"

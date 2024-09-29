@@ -5,6 +5,7 @@ import { ENDPOINT_DTO } from "../../models/endpoint.model";
 import { createEndpointApi } from "../../redux/endpoint.slice";
 import { UploadOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
+import { endpointConfig } from "../../untils/config/configEndpoint";
 type Props = {
   setOpen: Function;
 };
@@ -123,12 +124,7 @@ const CreateEndpoint = (props: Props) => {
             onChange={(value) => {
               setEndpointDetail({ ...endpointDetail, group: value });
             }}
-            options={[
-              { value: "auth", label: "auth" },
-              { value: "user", label: "user" },
-              { value: "role", label: "role" },
-              { value: "endpoint", label: "endpoint" },
-            ]}
+            options={endpointConfig.endpointLst}
           />
           <Input
             size="large"

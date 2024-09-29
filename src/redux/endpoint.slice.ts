@@ -74,7 +74,7 @@ export const createEndpointApi = createAsyncThunk(
   "endpoint/create",
   async (endpointDto: ENDPOINT_DTO, thunkApi) => {
     const response = await endpointRepository.createEndpoint(endpointDto);
-    if (response.status === 200 || response.status === 201) {
+    if (response.status === 200) {
       thunkApi.dispatch(
         setEndpoitOption({
           option: {

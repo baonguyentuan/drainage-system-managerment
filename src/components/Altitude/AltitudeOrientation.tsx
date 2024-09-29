@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Input, Popover, Space, Switch } from "antd";
+import { Button, Input, Popconfirm, Popover, Space, Switch } from "antd";
 import { useDispatch } from "react-redux";
 import {
   EditOutlined,
@@ -27,8 +27,6 @@ const AltitudeOrientation = (props: Props) => {
   const [orientEdit, setOrientEdit] = useState<AltitudeOrientationModel>(
     props.orient
   );
-  console.log(props.orient);
-
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: props.orient._id });
   const style = {
@@ -99,19 +97,10 @@ const AltitudeOrientation = (props: Props) => {
           </Button>
         </div>
       ) : (
-        <div className="col-span-6 grid grid-cols-6 ">
-          {props.orient.isStart === true ? (
-            <hr className="col-span-6 border-2 border-gray-400" />
-          ) : (
-            ""
-          )}
-          <p className="col-span-1 py-1 text-left">{props.orient.topNumber}</p>
-          <p className="col-span-1 py-1 text-left">
-            {props.orient.centerNumber}
-          </p>
-          <p className="col-span-1 py-1 text-left">
-            {props.orient.bottomNumber}
-          </p>
+        <div className="col-span-6 grid grid-cols-6 hover:bg-green-100">
+          <p className="col-span-1 py-1 ">{props.orient.topNumber}</p>
+          <p className="col-span-1 py-1 ">{props.orient.centerNumber}</p>
+          <p className="col-span-1 py-1 ">{props.orient.bottomNumber}</p>
           <p className="col-span-1 py-1">
             {(
               (props.orient.topNumber - props.orient.bottomNumber) /
@@ -122,14 +111,20 @@ const AltitudeOrientation = (props: Props) => {
             content={
               <Space>
                 <Button
+                  size="large"
                   onClick={() => {
                     setCurrentId(props.orient._id);
                   }}
                 >
                   <EditOutlined />
                 </Button>
-                <Button
-                  onClick={() => {
+                <Popconfirm
+                  placement="topRight"
+                  title={"Xóa điểm mia"}
+                  okType="dashed"
+                  okText="YES"
+                  cancelText="NO"
+                  onConfirm={() => {
                     dispatch(
                       deleteOrientationAltitudeApi({
                         altitudeId: props.altId,
@@ -138,8 +133,10 @@ const AltitudeOrientation = (props: Props) => {
                     );
                   }}
                 >
-                  <DeleteOutlined />
-                </Button>
+                  <Button danger size="large">
+                    <DeleteOutlined />
+                  </Button>
+                </Popconfirm>
               </Space>
             }
             title="Hành động"
@@ -147,6 +144,11 @@ const AltitudeOrientation = (props: Props) => {
           >
             <p className="col-span-2 py-1 text-left">{props.orient.note}</p>
           </Popover>
+          {props.orient.isStart === true ? (
+            <hr className="col-span-6 border-2 border-gray-400" />
+          ) : (
+            ""
+          )}
         </div>
       )}
     </div>

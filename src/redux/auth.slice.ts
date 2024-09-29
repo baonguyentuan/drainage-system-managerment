@@ -12,13 +12,11 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers(builder) {
     builder.addCase(login.fulfilled, (state, action) => {
-      localStorage.setItem("accessToken", action.payload.data.accessToken);
-      localStorage.setItem("userId", action.payload.data.userId);
+      localStorage.setItem("accessToken", action.payload.data);
       window.location.replace("/home");
     });
     builder.addCase(logout.fulfilled, (state, action) => {
       localStorage.removeItem("accessToken");
-      localStorage.removeItem("userId");
       window.location.replace("/login");
     });
     builder.addMatcher(isAnyOf(login.rejected), (state, action) => {
@@ -34,20 +32,15 @@ export default authSlice.reducer;
 export const login = createAsyncThunk(
   "auth/login",
   async (userDto: USER_LOGIN_DTO, thunkApi) => {
-    // try {
-    const response = await authRepository.login(userDto);
-    //   console.log(response);
-    // } catch (error) {
-    //   console.log(error);
-    // }
-    return response.data;
+    try {
+      const response = await authRepository.login(userDto);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
   }
 );
 export const logout = createAsyncThunk("auth/logout", async () => {
-  // try {
   const response = await authRepository.logout();
-  //   console.log(response);
-  // } catch (error) {
-  //   console.log(error);
-  // }
 });

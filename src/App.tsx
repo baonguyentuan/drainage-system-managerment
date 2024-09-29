@@ -15,6 +15,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import MeasurementMenu from "./components/measurement/MeasurementMenu";
 import AltitudeMenu from "./components/Altitude/AltitudeMenu";
 import AltitudeBookDetail from "./pages/AltitudeBookDetail";
+import MapManager from "./pages/MapManager";
 
 function App() {
   return (
@@ -65,6 +66,10 @@ function App() {
             <Route
               path={configRouter.private.capture_map}
               element={<CaptureMap />}
+            />
+            <Route
+              path={configRouter.private.map_manager}
+              element={<MapManager />}
             />
             <Route
               path={configRouter.private.measurement_book_detail}

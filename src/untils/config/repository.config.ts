@@ -1,17 +1,26 @@
 import axios from "axios";
 import authRepository from "../../repository/auth.repository";
+import { log } from "console";
+export const HTTP_STATUS_CODE = {
+  succeeded: 200,
+  created: 201,
+  badRequest: 400,
+  unauthorized: 401,
+  forbidden: 403,
+  notFound: 404,
+};
 export const API_URL = {
   auth: {
-    refreshToken: "auth/refreshToken",
+    refreshToken: "auth/refresh",
     login: "auth/login",
     logout: "auth/logout",
   },
   user: {
     createUser: "user",
     updateUser: "user",
-    updateUserPassword: "user/update/password",
+    updateUserPassword: "user/password",
     resetPassword: "user/reset/password",
-    updateUserAdmin: "user/update/admin",
+    updateUserAdmin: "user/admin",
     getAllUser: "user",
     getUserById: "user",
     getUserDetail: "user/detail",
@@ -86,16 +95,14 @@ privateRequest.interceptors.response.use(
     return res;
   },
   async (error) => {
-    console.log(error);
-
     const originRequest = error.config;
-    if (error.response.status === 500) {
+    if (error.response.status === 403) {
       const resRefresh = await authRepository.refreshToken();
-      if (resRefresh.status === 200 || resRefresh.status === 201) {
-        localStorage.setItem("accessToken", resRefresh.data.accessToken);
+      if (resRefresh.status === 201) {
+        localStorage.setItem("accessToken", resRefresh.data.data);
         return privateRequest(originRequest);
       } else {
-        return Promise.reject(error);
+        return Promise.reject(resRefresh.data);
       }
     }
     return Promise.reject(error);

@@ -54,6 +54,12 @@ const Home = (props: Props) => {
           Cắt ảnh
         </NavLink>
       </div>
+      <div className=" home__item__box">
+        <img className="imgThumb" src={bookImg} alt="book" />
+        <NavLink to={configRouter.private.map_manager} className="home__link">
+          Quản lý bản đồ
+        </NavLink>
+      </div>
     </div>
   );
 };

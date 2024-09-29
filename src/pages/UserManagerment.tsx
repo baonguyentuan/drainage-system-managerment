@@ -2,6 +2,7 @@ import {
   Button,
   Col,
   Input,
+  Popconfirm,
   Radio,
   Row,
   Select,
@@ -32,7 +33,7 @@ const UserManagerment = (props: Props) => {
   const { userLst, userOption, currentUserAdmin } = useSelector(
     (state: RootState) => state.userSlice
   );
-  console.log(currentUserAdmin);
+  console.log(userOption);
 
   const { roleLst } = useSelector((state: RootState) => state.roleSlice);
   const [isCreateStatus, setIsCreateStatus] = useState<boolean>(false);
@@ -87,14 +88,20 @@ const UserManagerment = (props: Props) => {
           >
             <EditOutlined />
           </Button>
-          <Button
-            danger
-            onClick={() => {
+          <Popconfirm
+            placement="topRight"
+            title={"Xóa user"}
+            okType="dashed"
+            okText="YES"
+            cancelText="NO"
+            onConfirm={() => {
               dispatch(deleteUser(item._id));
             }}
           >
-            <DeleteOutlined />
-          </Button>
+            <Button danger>
+              <DeleteOutlined />
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -109,8 +116,10 @@ const UserManagerment = (props: Props) => {
 
   useEffect(() => {
     dispatch(getAllUserByOrderApi(userOption));
-    dispatch(getAllRoleByOrderApi({ value: "", sort: 1, page: 1 }));
   }, [userOption]);
+  useEffect(() => {
+    dispatch(getAllRoleByOrderApi({ value: "", sort: 1, page: 1 }));
+  }, []);
   return (
     <div className="m-4">
       <h1 className="mb-4 font-bold text-2xl">Quản lý nhân sự</h1>
@@ -131,8 +140,8 @@ const UserManagerment = (props: Props) => {
                 size="large"
                 allowClear
                 className="mb-4"
-                onChange={(event) => {
-                  dispatch(
+                onChange={async (event) => {
+                  await dispatch(
                     setUserOption({
                       option: {
                         ...userOption,
@@ -147,8 +156,8 @@ const UserManagerment = (props: Props) => {
               <span>Bộ lọc: </span>
               <span>Loại: </span>
               <Select
-                className="mb-4"
-                style={{ width: 120 }}
+                className="mb-4 text-left"
+                style={{ width: 200 }}
                 options={roleSelector}
                 value={userOption.role}
                 onChange={(value) => {
@@ -164,6 +173,8 @@ const UserManagerment = (props: Props) => {
               />
               <span className="ml-2">Trạng thái: </span>
               <Radio.Group
+                buttonStyle="solid"
+                optionType="button"
                 value={userOption.status}
                 onChange={(event) => {
                   dispatch(

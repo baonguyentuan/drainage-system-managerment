@@ -8,17 +8,14 @@ import {
   resetCurrentRole,
   updateRoleApi,
 } from "../../redux/role.slice";
-import { ROLE_DETAIL } from "../../models/role.model";
-
+import { endpointConfig } from "../../untils/config/configEndpoint";
 type Props = {};
-
 const UpdateRole = (props: Props) => {
   const { endpointLst } = useSelector(
     (state: RootState) => state.endpointSlice
   );
 
   const { currentRole } = useSelector((state: RootState) => state.roleSlice);
-
   const dispatch: any = useDispatch();
   const checkExistEnpoint = (endpointCheck: string) => {
     let findIndex = currentRole?.endpointIds.findIndex(
@@ -122,11 +119,9 @@ const UpdateRole = (props: Props) => {
               }}
             />
           </Col>
-          {renderGroupEndpoint("auth")}
-          {renderGroupEndpoint("user")}
-          {renderGroupEndpoint("role")}
-          {renderGroupEndpoint("endpoint")}
-
+          {endpointConfig.endpointLst.map((ep) => {
+            return renderGroupEndpoint(ep.value);
+          })}
           <Col span={12} className="mt-2">
             <Button
               className="w-full"

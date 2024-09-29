@@ -19,6 +19,7 @@ import { SortableContext } from "@dnd-kit/sortable";
 import AltitudeOrientation from "../components/Altitude/AltitudeOrientation";
 
 import AltitudeControl from "../components/Altitude/AltitudeControl";
+import { AltitudeOrientationModel } from "../models/altitude.models";
 type Props = {};
 const AltitudeBookDetail = (props: Props) => {
   const param = useParams();
@@ -37,90 +38,87 @@ const AltitudeBookDetail = (props: Props) => {
     (state: RootState) => state.altitudeSlice
   );
   const dispatch: any = useDispatch();
-
+  let reserveBook: AltitudeOrientationModel[] = [];
+  if (altitudeBook) {
+    reserveBook = [...altitudeBook.orientationLst].reverse();
+  }
   useEffect(() => {
     dispatch(getAltitudeDetailApi(altiId));
   }, [altitudeOption]);
   return (
     <div id="dataArea" className="w-screen h-screen overflow-y-scroll">
-      {altitudeBook !== null ? (
-        <div>
-          <div className="fixed bottom-0 right-0 w-14 m-2 ">
-            <Button
-              size="large"
-              className="border-2 border-blue-300 bg-blue-200"
-              onClick={() => {
-                const areaHtml = document.getElementById("dataArea");
-                areaHtml?.scrollTo({
-                  top: 0,
-                  left: 0,
-                  behavior: "smooth",
-                });
-              }}
-            >
-              <ArrowUpOutlined />
-            </Button>
-            <Button
-              size="large"
-              className="border-2 border-blue-300 bg-blue-200 mt-2"
-              onClick={() => {
-                const areaHtml = document.getElementById("dataArea");
-                areaHtml?.scrollTo({
-                  top: areaHtml.scrollHeight,
-                  left: 0,
-                  behavior: "smooth",
-                });
-              }}
-            >
-              <ArrowDownOutlined />
-            </Button>
-          </div>
-          <AltitudeControl />
-          <div className="px-2">
-            <div className="grid grid-cols-6 border-b-2 font-bold mt-60">
-              <p className="col-span-1">Trên</p>
-              <p className="col-span-1">Giữa</p>
-              <p className="col-span-1">Dưới</p>
-              <p className="col-span-1">KC</p>
-              <p className="col-span-2">Ghi chú</p>
-            </div>
-            <DndContext
-              onDragEnd={(event) => {
-                if (event.over?.id) {
-                  dispatch(
-                    swapOrientationAltitudeApi({
-                      altitudeId: altiId,
-                      orientationId1: event.active.id.toString(),
-                      orientationId2: event.over.id.toString(),
-                    })
-                  );
-                }
-              }}
-              sensors={sensors}
-            >
-              <SortableContext
-                key={altiId}
-                items={altitudeBook.orientationLst.map((orient) =>
-                  orient._id.toString()
-                )}
-              >
-                {altitudeBook.orientationLst.map((orient, index) => {
-                  return (
-                    <AltitudeOrientation
-                      key={orient._id}
-                      altId={altiId}
-                      orient={orient}
-                      index={index}
-                    />
-                  );
-                })}
-              </SortableContext>
-            </DndContext>
-          </div>
+      <div>
+        <div className="fixed bottom-0 right-0 w-14 m-2 ">
+          <Button
+            size="large"
+            className="border-2 border-blue-300 bg-blue-200"
+            onClick={() => {
+              const areaHtml = document.getElementById("dataArea");
+              areaHtml?.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: "smooth",
+              });
+            }}
+          >
+            <ArrowUpOutlined />
+          </Button>
+          <Button
+            size="large"
+            className="border-2 border-blue-300 bg-blue-200 mt-2"
+            onClick={() => {
+              const areaHtml = document.getElementById("dataArea");
+              areaHtml?.scrollTo({
+                top: areaHtml.scrollHeight,
+                left: 0,
+                behavior: "smooth",
+              });
+            }}
+          >
+            <ArrowDownOutlined />
+          </Button>
         </div>
-      ) : (
-        ""
-      )}
+        <AltitudeControl />
+        <div className="px-2">
+          <div className="grid grid-cols-6 border-b-2 font-bold mt-64">
+            <p className="col-span-1">Trên</p>
+            <p className="col-span-1">Giữa</p>
+            <p className="col-span-1">Dưới</p>
+            <p className="col-span-1">KC</p>
+            <p className="col-span-2">Ghi chú</p>
+          </div>
+          <DndContext
+            onDragEnd={(event) => {
+              if (event.over?.id) {
+                dispatch(
+                  swapOrientationAltitudeApi({
+                    altitudeId: altiId,
+                    orientationId1: event.active.id.toString(),
+                    orientationId2: event.over.id.toString(),
+                  })
+                );
+              }
+            }}
+            sensors={sensors}
+          >
+            <SortableContext
+              key={altiId}
+              items={reserveBook.map((orient) => orient._id.toString())}
+            >
+              {reserveBook.map((orient, index) => {
+                return (
+                  <AltitudeOrientation
+                    key={orient._id}
+                    altId={altiId}
+                    orient={orient}
+                    index={index}
+                  />
+                );
+              })}
+            </SortableContext>
+          </DndContext>
+        </div>
+      </div>
     </div>
   );
 };

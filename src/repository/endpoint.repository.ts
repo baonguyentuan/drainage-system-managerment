@@ -17,7 +17,7 @@ export default {
     return privateRequest.post(API_URL.endpoint.createEnpoint, endpointDto);
   },
   updateEndpoint(endpointId: string, endpointDto: ENDPOINT_DTO) {
-    return privateRequest.put(
+    return privateRequest.patch(
       `${API_URL.endpoint.updateEndpoint}/${endpointId}`,
       endpointDto
     );

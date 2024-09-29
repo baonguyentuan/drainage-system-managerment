@@ -16,8 +16,9 @@ export const autocompleteList = [
   { label: "mdc", value: "mepduongcong" },
   { label: "dk", value: "dinhke" },
   { label: "mpn", value: "mepnuoc" },
-  { label: "gb", value: "gocbon" },
+  { label: "bm", value: "bomuong" },
   { label: "hgb", value: "hegocbon" },
+  { label: "hcvc", value: "hecong > trucong" },
 ];
 export const autocompleteString = (str: string) => {
   let checkStr = autocompleteList.find(

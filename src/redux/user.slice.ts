@@ -5,6 +5,7 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit";
 import {
+  USER_ADMIN,
   USER_ADMIN_SHOW,
   USER_DETAIL,
   USER_DTO,
@@ -40,10 +41,16 @@ const userSlice = createSlice({
     resetCurrentUserAdmin: (state) => {
       state.currentUserAdmin = null;
     },
+    editCurrentUserAdmin: (
+      state,
+      action: PayloadAction<{ detail: USER_ADMIN_SHOW }>
+    ) => {
+      state.currentUserAdmin = action.payload.detail;
+    },
   },
   extraReducers(builder) {
     builder.addCase(getAllUserByOrderApi.fulfilled, (state, action) => {
-      state.userLst = action.payload?.data;
+      state.userLst = action.payload.data;
     });
     builder.addCase(getUserDetail.fulfilled, (state, action) => {
       state.userDetail = action.payload.data;
@@ -57,11 +64,15 @@ const userSlice = createSlice({
     builder.addCase(deleteUser.fulfilled, (state, action) => {
       openNotificationWithIcon("success", "Xóa người dùng thành công", "");
     });
+    builder.addCase(updateUserAdminApi.fulfilled, (state, action) => {
+      openNotificationWithIcon("success", "Cập nhật thành công", "");
+    });
     builder.addMatcher(
       isAnyOf(
         createUser.rejected,
         getAllUserByOrderApi.rejected,
-        deleteUser.rejected
+        deleteUser.rejected,
+        updateUserAdminApi.rejected
       ),
       (state, action) => {
         openNotificationWithIcon("error", "Lỗi", "");
@@ -72,25 +83,20 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUserOption, resetCurrentUserAdmin } = userSlice.actions;
+export const { setUserOption, resetCurrentUserAdmin, editCurrentUserAdmin } =
+  userSlice.actions;
 
 export default userSlice.reducer;
 export const getAllUserByOrderApi = createAsyncThunk(
   "user/getAll",
   async (orderOption: UserOrderOptionDetail) => {
-    // try {
     const response = await userRepository.getAllByOrder(orderOption);
-    console.log(response);
     return response.data;
-    // } catch (error) {
-    //   console.log(error);
-    // }
   }
 );
 export const createUser = createAsyncThunk(
   "user/create",
   async (userDto: USER_DTO, thunkApi) => {
-    // try {
     const response = await userRepository.createUser(userDto);
     if (response.status === 200 || response.status === 201) {
       thunkApi.dispatch(
@@ -105,10 +111,6 @@ export const createUser = createAsyncThunk(
     } else {
       console.log(response);
     }
-    // } catch (error) {
-    //   console.log(error);
-    // }
-    // return response.data;
   }
 );
 export const deleteUser = createAsyncThunk(
@@ -116,7 +118,6 @@ export const deleteUser = createAsyncThunk(
   async (userId: string, thunkApi) => {
     try {
       const response = await userRepository.deleteUser(userId);
-
       if (response.status === 200) {
         thunkApi.dispatch(
           getAllUserByOrderApi({
@@ -131,29 +132,23 @@ export const deleteUser = createAsyncThunk(
     } catch (error) {
       console.log(error);
     }
-    // return response.data;
   }
 );
 export const getUserDetail = createAsyncThunk("user/getDetail", async () => {
-  // try {
   const response = await userRepository.getUserDetail();
-  console.log(response);
   return response.data;
-  // } catch (error) {
-  //   console.log(error);
-  // }
 });
 export const getUserByIdApi = createAsyncThunk(
   "user/getUserById",
   async (userId: string) => {
-    console.log(userId);
-
-    // try {
     const response = await userRepository.getUserById(userId);
-    console.log(response);
     return response.data;
-    // } catch (error) {
-    //   console.log(error);
-    // }
+  }
+);
+export const updateUserAdminApi = createAsyncThunk(
+  "user/updateUserAdmin",
+  async (userDetail: USER_ADMIN) => {
+    const response = await userRepository.updateUserAdmin(userDetail);
+    // return response;
   }
 );

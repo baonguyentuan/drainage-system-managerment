@@ -1,5 +1,5 @@
-import { Button, Popover } from "antd";
-import { useEffect } from "react";
+import { Button, Popover, Radio } from "antd";
+import { useEffect, useState } from "react";
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
@@ -12,6 +12,7 @@ import { useParams } from "react-router-dom";
 import MeasureOrientation from "../components/measurement/MeasureOrientation";
 
 import MeasurementControl from "../components/measurement/MeasurementControl";
+import { MeasurementOrientationModel } from "../models/measurement.model";
 
 type Props = {};
 const MeasurementBookDetail = (props: Props) => {
@@ -20,10 +21,20 @@ const MeasurementBookDetail = (props: Props) => {
   const { measurmentBook, measurementOption } = useSelector(
     (state: RootState) => state.measurementBookSlice
   );
-
-  let reverseBook: any[] = [];
+  const [toltalShow, setTotalShow] = useState<number>(500);
+  let reverseBook: MeasurementOrientationModel[] = [];
   if (measurmentBook) {
-    reverseBook = [...measurmentBook.orientationLst].reverse();
+    if (measurmentBook.orientationLst.length > toltalShow && toltalShow > -1) {
+      for (let i = 0; i < toltalShow; i++) {
+        reverseBook.push(
+          measurmentBook.orientationLst[
+            measurmentBook.orientationLst.length - i - 1
+          ]
+        );
+      }
+    } else {
+      reverseBook = [...measurmentBook.orientationLst].reverse();
+    }
   }
   const dispatch: any = useDispatch();
   const areaHtml = document.getElementById("dataArea");
@@ -53,7 +64,17 @@ const MeasurementBookDetail = (props: Props) => {
               trigger={"click"}
               content={
                 <div style={{ maxHeight: 250 }} className="overflow-y-scroll">
-                  {measurmentBook.orientationLst
+                  <Radio.Group
+                    value={toltalShow}
+                    options={[
+                      { label: "500", value: 500 },
+                      { label: "Full", value: -1 },
+                    ]}
+                    onChange={(e) => {
+                      setTotalShow(e.target.value);
+                    }}
+                  />
+                  {reverseBook
                     .filter((ori) => ori.stationInfo !== null)
                     .map((ori) => {
                       return (
@@ -64,7 +85,7 @@ const MeasurementBookDetail = (props: Props) => {
                             const selectHtml = document.getElementById(ori._id);
                             areaHtml?.scrollTo({
                               top: selectHtml?.offsetTop
-                                ? selectHtml?.offsetTop - 150
+                                ? selectHtml?.offsetTop - window.innerHeight / 2
                                 : 100,
                               left: 0,
                               behavior: "smooth",
@@ -95,7 +116,7 @@ const MeasurementBookDetail = (props: Props) => {
               <ArrowDownOutlined />
             </Button>
           </div>
-          <div className="mt-40">
+          <div className="mt-44">
             <div className="grid grid-cols-6 border-b-2 font-bold">
               <p className="col-span-1">STT</p>
               <p className="col-span-4">Ghi chú</p>
