@@ -170,59 +170,10 @@ const MeasurementControl = (props: Props) => {
                 }
               }}
             />
-            {stationInfo !== null ? (
-              <Row gutter={16} className="mb-2">
-                <Col span={8}>
-                  <Input
-                    prefix="S : "
-                    value={stationInfo?.start}
-                    onChange={(e) => {
-                      if (stationInfo !== null) {
-                        setStationInfo({
-                          ...stationInfo,
-                          start: e.target.value,
-                        });
-                      }
-                    }}
-                  />
-                </Col>
-                <Col span={8}>
-                  <Input
-                    prefix="M0 : "
-                    value={stationInfo.end}
-                    onChange={(e) => {
-                      if (stationInfo !== null) {
-                        setStationInfo({
-                          ...stationInfo,
-                          end: e.target.value,
-                        });
-                      }
-                    }}
-                  />
-                </Col>
-                <Col span={8}>
-                  <InputNumber
-                    prefix="H : "
-                    className="w-full"
-                    value={stationInfo?.machineHeight}
-                    onChange={(value) => {
-                      if (stationInfo !== null) {
-                        setStationInfo({
-                          ...stationInfo,
-                          machineHeight:
-                            typeof value === "number" ? Number(value) : 0,
-                        });
-                      }
-                    }}
-                  />
-                </Col>
-              </Row>
-            ) : (
-              ""
-            )}
-            <div className="grid grid-cols-5">
+
+            <div className="grid gap-2 grid-cols-6">
               <InputNumber
-                className="col-span-1 w-full"
+                className="col-span-2 w-full"
                 size="large"
                 value={prism}
                 onChange={(value) => {
@@ -232,7 +183,7 @@ const MeasurementControl = (props: Props) => {
                 }}
               />
               <Radio.Group
-                className="col-span-3"
+                className="col-span-4"
                 options={[
                   { label: "130", value: 130 },
                   { label: "136", value: 136 },
@@ -247,8 +198,57 @@ const MeasurementControl = (props: Props) => {
                   setPrism(e.target.value);
                 }}
               />
+              {stationInfo !== null ? (
+                <Fragment>
+                  <Input
+                    className="col-span-2"
+                    size="large"
+                    prefix="S : "
+                    value={stationInfo?.start}
+                    onChange={(e) => {
+                      if (stationInfo !== null) {
+                        setStationInfo({
+                          ...stationInfo,
+                          start: e.target.value,
+                        });
+                      }
+                    }}
+                  />
+                  <Input
+                    className="col-span-2"
+                    size="large"
+                    prefix="M0 : "
+                    value={stationInfo.end}
+                    onChange={(e) => {
+                      if (stationInfo !== null) {
+                        setStationInfo({
+                          ...stationInfo,
+                          end: e.target.value,
+                        });
+                      }
+                    }}
+                  />
+                  <InputNumber
+                    size="large"
+                    prefix="H : "
+                    className="w-full col-span-2"
+                    value={stationInfo?.machineHeight}
+                    onChange={(value) => {
+                      if (stationInfo !== null) {
+                        setStationInfo({
+                          ...stationInfo,
+                          machineHeight:
+                            typeof value === "number" ? Number(value) : 0,
+                        });
+                      }
+                    }}
+                  />
+                </Fragment>
+              ) : (
+                ""
+              )}
               <Checkbox
-                className="items-center col-span-1"
+                className="items-center justify-center col-span-2 bg-blue-200 rounded-xl text-center"
                 checked={stationInfo !== null ? true : false}
                 onChange={(event) => {
                   if (event.target.checked) {
@@ -262,14 +262,13 @@ const MeasurementControl = (props: Props) => {
                   }
                 }}
               >
-                Trạm
+                Trạm máy
               </Checkbox>
               <Button
-                className="col-span-5 mt-2"
+                className="col-span-4 bg-green-300"
                 size="large"
                 disabled={checkDisableBtnAdd()}
                 onClick={async () => {
-                  const areaHtml = document.getElementById("dataArea");
                   const response = await dispatch(
                     createOrientationApi({
                       measurementId: measurmentBook._id,

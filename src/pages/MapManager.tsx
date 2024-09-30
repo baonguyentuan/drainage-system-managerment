@@ -1,41 +1,20 @@
 import { LatLngTuple } from "leaflet";
-import React, { useEffect, useState } from "react";
-import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
-import { saveAs } from "file-saver";
-import domtoimage from "dom-to-image";
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  Modal,
-  Radio,
-  Row,
-  Slider,
-  Space,
-} from "antd";
-import { convertWgs84ToVn2000 } from "../untils/operate/vn2000andWgs84/wgs84toVn2000";
-import { DxfWriter, Units, point2d, point3d } from "@tarikjabiri/dxf";
-import { openNotificationWithIcon } from "../untils/operate/notify";
+import React, { useState } from "react";
+import { MapContainer, TileLayer } from "react-leaflet";
+
+import { Button, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 type Props = {};
-interface ImgRegionItem {
-  name: string;
-  pointCenter: LatLngTuple;
-}
+
 let snapStatus: boolean = false;
 const MapManager = (props: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(true);
   let [mapType, setMapType] = useState<number>(1);
   let [position, setPosition] = useState<LatLngTuple>([21.029098, 105.842385]);
-  let [region, setRegion] = useState<string>("XNKSTK");
-  let [zoomMap, setZoomMap] = useState<number>(16);
-  let [regionCapture, setRegionCapture] = useState<LatLngTuple[]>([]);
-  let [imgRegion, setImgRegion] = useState<ImgRegionItem[]>([]);
   let [bound, setBound] = useState<LatLngTuple[]>([
     [0, 0],
     [0, 0],
   ]);
-  let [sizeMap, setSizeMap] = useState<number[]>([0, 0]);
   let dx = Math.abs(bound[0][0] - bound[1][0]);
   let dy = Math.abs(bound[0][1] - bound[1][1]);
   const handleMapView = async () => {};
@@ -58,11 +37,35 @@ const MapManager = (props: Props) => {
               ? "http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}"
               : "http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
           }
-          // maxZoom={20}
           subdomains={["mt1", "mt2", "mt3"]}
         />
       </MapContainer>
-      <button
+      <Upload
+        className=""
+        accept=".kml"
+        showUploadList={false}
+        beforeUpload={async (file) => {
+          let lst: string[] = [];
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            let lineArr: string =
+              typeof e?.target?.result === "string" ? e?.target?.result : "";
+            // lineArr.split(/\n\s/).forEach((line, lineIndex) => {
+            //   lst.push(line);
+            // });
+            let parser = new DOMParser();
+            let xmlDoc = parser.parseFromString(lineArr, "text/xml");
+            console.log(xmlDoc.getElementsByTagName("Folder"));
+          };
+          reader.readAsText(file);
+          return false;
+        }}
+      >
+        <Button size="large">
+          <UploadOutlined />
+        </Button>
+      </Upload>
+      {/* <button
         className="opacity-0 fixed"
         id="btnSnapshot"
         onClick={() => {
@@ -70,7 +73,7 @@ const MapManager = (props: Props) => {
             handleMapView();
           }, 3000);
         }}
-      ></button>
+      ></button> */}
     </div>
   );
 };
