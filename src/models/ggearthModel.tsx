@@ -49,3 +49,35 @@ export interface PlacemarkModel {
   icon: string;
   imgSrc: string[];
 }
+export interface KmlPlacemarkModel {
+  id: string;
+  name: string;
+  type: number;
+  description: string;
+  sub: string[];
+  ordinate: number[][];
+  icon: string;
+  imgSrc: string[];
+}
+export interface FolderDetailModel {
+  id: string;
+  name: string;
+  description: string;
+  sub: string[];
+  lstPlacemark: KmlPlacemarkModel[];
+}
+export interface StyleKmlModel {
+  id: string;
+  name: string;
+  colorLabel: string;
+  scaleIcon: number;
+  colorIcon: string;
+  scaleLabel: number;
+  colorLine: string;
+  scaleLine: number;
+  colorPoly: string;
+  outlinePoly: number;
+  fillPoly: number;
+  description: string;
+  icon: string;
+}
