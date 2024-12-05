@@ -106,6 +106,7 @@ export const createAltitudeApi = createAsyncThunk(
         })
       );
     }
+    return response.data;
   }
 );
 export const getAltitudeDetailApi = createAsyncThunk(

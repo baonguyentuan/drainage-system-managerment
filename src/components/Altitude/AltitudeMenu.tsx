@@ -105,6 +105,7 @@ const AltitudeMenu = (props: Props) => {
                   }
                 });
                 setOrientDtoLst(lst);
+                setName(file.name);
               };
               reader.readAsText(file);
               return false;
@@ -238,6 +239,23 @@ const AltitudeMenu = (props: Props) => {
             >
               Tính
             </Button>
+            <Button
+              onClick={async () => {
+                let responseCreate = await dispatch(
+                  createAltitudeApi({ nameStructure: name, orientationLst: [] })
+                );
+                if (responseCreate.meta.requestStatus === "fulfilled") {
+                  await dispatch(
+                    createOrientationApi({
+                      altitudeId: responseCreate.payload.data._id,
+                      orientDtoLst: orientDtoLst,
+                    })
+                  );
+                }
+              }}
+            >
+              Upload
+            </Button>
           </div>
         </div>
       ) : (
@@ -252,35 +270,17 @@ const AltitudeMenu = (props: Props) => {
               key={alti._id}
               className="border-b-2 grid grid-cols-5 items-center p-1 hover:bg-green-50"
             >
-              <p className="col-span-2">{alti.nameStructure}</p>
+              <p className="col-span-3 text-left">{alti.nameStructure}</p>
               <p>{alti.orientationLst.length} điểm</p>
-              <div className="col-span-2">
-                {alti.orientationLst.length === 0 && orientDtoLst.length > 0 ? (
-                  <Button
-                    size="large"
-                    onClick={() => {
-                      dispatch(
-                        createOrientationApi({
-                          altitudeId: alti._id,
-                          orientDtoLst,
-                        })
-                      );
-                    }}
-                  >
-                    <UploadOutlined />
-                  </Button>
-                ) : (
-                  ""
-                )}
-                <Button
-                  size="large"
-                  onClick={() => {
-                    navigate(`/altitude/${alti._id}`);
-                  }}
-                >
-                  <RightOutlined />
-                </Button>
-              </div>
+
+              <Button
+                size="large"
+                onClick={() => {
+                  navigate(`/altitude/${alti._id}`);
+                }}
+              >
+                <RightOutlined />
+              </Button>
             </div>
           );
         })}

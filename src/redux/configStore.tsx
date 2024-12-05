@@ -7,7 +7,7 @@ import userSlice from "./user.slice";
 import authSlice from "./auth.slice";
 import endpointSlice from "./endpoint.slice";
 import altitudeSlice from "./altitude.slice";
-
+import mapmanagerSlice from "./mapmanager.slice";
 export const store = configureStore({
   reducer: {
     measurementBookSlice,
@@ -18,6 +18,7 @@ export const store = configureStore({
     userSlice,
     authSlice,
     endpointSlice,
+    mapmanagerSlice,
   },
 });
 export type RootState = ReturnType<typeof store.getState>;

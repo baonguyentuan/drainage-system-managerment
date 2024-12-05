@@ -57,6 +57,10 @@ const AltitudeControl = (props: Props) => {
           } else {
             startValue += calculateDistance(ori.topNumber, ori.bottomNumber);
           }
+        } else {
+          if (index === altitudeBook.orientationLst.length - 1) {
+            startValue -= calculateDistance(ori.topNumber, ori.bottomNumber);
+          }
         }
       });
     }
@@ -360,12 +364,6 @@ const AltitudeControl = (props: Props) => {
                     topNumber: 0,
                     centerNumber: 0,
                     bottomNumber: 0,
-                  });
-                  const areaHtml = document.getElementById("dataArea");
-                  areaHtml?.scrollTo({
-                    top: areaHtml.scrollHeight,
-                    left: 0,
-                    behavior: "smooth",
                   });
                 }
               }}

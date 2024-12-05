@@ -57,7 +57,17 @@ export interface KmlPlacemarkModel {
   sub: string[];
   ordinate: number[][];
   icon: string;
+  colorLabel: string;
+  scaleIcon: number;
+  colorIcon: string;
+  scaleLabel: number;
+  colorLine: string;
+  scaleLine: number;
+  colorPoly: string;
+  outlinePoly: number;
+  fillPoly: number;
   imgSrc: string[];
+  isShow: boolean;
 }
 export interface FolderDetailModel {
   id: string;
@@ -80,4 +90,14 @@ export interface StyleKmlModel {
   fillPoly: number;
   description: string;
   icon: string;
+}
+export interface StyleMapKmlModel {
+  id: string;
+  name: string;
+  normal: string;
+  highlight: string;
+}
+export interface MapOtionModel {
+  mapType: number;
+  mapOpacity: number;
 }
