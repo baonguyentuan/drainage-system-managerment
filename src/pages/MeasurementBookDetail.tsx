@@ -1,4 +1,4 @@
-import { Button, Popover, Radio } from "antd";
+import { Button, Popover } from "antd";
 import { useEffect, useState } from "react";
 import {
   ArrowUpOutlined,
@@ -10,40 +10,43 @@ import { RootState } from "../redux/configStore";
 import { getMeasurementDetailApi } from "../redux/measurement.slice";
 import { useParams } from "react-router-dom";
 import MeasureOrientation from "../components/measurement/MeasureOrientation";
-
 import MeasurementControl from "../components/measurement/MeasurementControl";
 import { MeasurementOrientationModel } from "../models/measurement.model";
-
 type Props = {};
 const MeasurementBookDetail = (props: Props) => {
   const param = useParams();
   const meaId = param.id === undefined ? "" : param.id;
-  const { measurmentBook, measurementOption } = useSelector(
+  const { measurmentBook } = useSelector(
     (state: RootState) => state.measurementBookSlice
   );
-  const [toltalShow, setTotalShow] = useState<number>(500);
-  let reverseBook: MeasurementOrientationModel[] = [];
+  let stationLst: MeasurementOrientationModel[][] = [];
+
+  const [currentStation, setCurrentStation] = useState<number>(
+    stationLst.length - 1
+  );
   if (measurmentBook) {
-    if (measurmentBook.orientationLst.length > toltalShow && toltalShow > -1) {
-      for (let i = 0; i < toltalShow; i++) {
-        reverseBook.push(
-          measurmentBook.orientationLst[
-            measurmentBook.orientationLst.length - i - 1
-          ]
-        );
+    measurmentBook.orientationLst.forEach((ori) => {
+      if (ori.stationInfo) {
+        stationLst.push([ori]);
+      } else {
+        stationLst[stationLst.length - 1].push(ori);
       }
-    } else {
-      reverseBook = [...measurmentBook.orientationLst].reverse();
-    }
+    });
   }
   const dispatch: any = useDispatch();
   const areaHtml = document.getElementById("dataArea");
+
   useEffect(() => {
     dispatch(getMeasurementDetailApi(meaId));
-  }, [measurementOption]);
+  }, [meaId]);
+  useEffect(() => {
+    if (currentStation !== stationLst.length - 1) {
+      setCurrentStation(stationLst.length - 1);
+    }
+  }, [measurmentBook]);
   return (
     <div id="dataArea" className="w-screen h-screen overflow-y-scroll">
-      {reverseBook && measurmentBook ? (
+      {stationLst && measurmentBook ? (
         <div>
           <MeasurementControl />
           <div className="fixed bottom-0 right-0 w-14 m-2">
@@ -64,38 +67,21 @@ const MeasurementBookDetail = (props: Props) => {
               trigger={"click"}
               content={
                 <div style={{ maxHeight: 250 }} className="overflow-y-scroll">
-                  <Radio.Group
-                    value={toltalShow}
-                    options={[
-                      { label: "500", value: 500 },
-                      { label: "Full", value: -1 },
-                    ]}
-                    onChange={(e) => {
-                      setTotalShow(e.target.value);
-                    }}
-                  />
-                  {reverseBook
-                    .filter((ori) => ori.stationInfo !== null)
-                    .map((ori) => {
-                      return (
-                        <p
-                          key={ori._id}
-                          className="border-b-2 p-2 hover:bg-green-200 cursor-pointer"
-                          onClick={() => {
-                            const selectHtml = document.getElementById(ori._id);
-                            areaHtml?.scrollTo({
-                              top: selectHtml?.offsetTop
-                                ? selectHtml?.offsetTop - window.innerHeight / 2
-                                : 100,
-                              left: 0,
-                              behavior: "smooth",
-                            });
-                          }}
-                        >
-                          {ori.stationInfo?.start} Mo {ori.stationInfo?.end}
-                        </p>
-                      );
-                    })}
+                  {stationLst.map((sta, index) => {
+                    return (
+                      <p
+                        key={sta[0]._id}
+                        className={`border-b-2 p-2 hover:bg-green-300 cursor-pointer ${
+                          index === currentStation ? "bg-green-200" : ""
+                        }`}
+                        onClick={() => {
+                          setCurrentStation(index);
+                        }}
+                      >
+                        {sta[0].stationInfo?.start} Mo {sta[0].stationInfo?.end}
+                      </p>
+                    );
+                  })}
                 </div>
               }
             >
@@ -122,21 +108,56 @@ const MeasurementBookDetail = (props: Props) => {
               <p className="col-span-4">Ghi chú</p>
               <p className="col-span-1">Gương</p>
             </div>
-            {reverseBook.map((orient, index) => {
-              return (
-                <MeasureOrientation
-                  key={orient._id}
-                  meaId={meaId}
-                  orient={orient}
-                  index={
-                    measurmentBook.orientationLst.length -
-                    index -
-                    1 +
-                    measurmentBook.startIndex
-                  }
-                />
-              );
-            })}
+            {currentStation !== -1 && stationLst.length > 0
+              ? stationLst[currentStation].reverse().map((orient, index) => {
+                  let startNum = stationLst.reduce((acc, cur, indexStart) => {
+                    if (currentStation > indexStart) {
+                      return acc + cur.length;
+                    } else {
+                      return acc;
+                    }
+                  }, 0);
+                  return (
+                    <MeasureOrientation
+                      key={orient._id}
+                      meaId={meaId}
+                      orient={orient}
+                      index={
+                        stationLst[currentStation].length -
+                        index -
+                        1 +
+                        measurmentBook.startIndex +
+                        startNum
+                      }
+                    />
+                  );
+                })
+              : ""}
+            {currentStation === -1 && stationLst.length > 0
+              ? stationLst[stationLst.length - 1]
+                  .reverse()
+                  .map((orient, index) => {
+                    let startNum = stationLst.reduce((acc, cur, indexStart) => {
+                      console.log(indexStart, acc);
+                      if (stationLst.length > indexStart) {
+                        return acc + cur.length;
+                      } else {
+                        return acc;
+                      }
+                    }, 0);
+
+                    return (
+                      <MeasureOrientation
+                        key={orient._id}
+                        meaId={meaId}
+                        orient={orient}
+                        index={
+                          -index - 1 + measurmentBook.startIndex + startNum
+                        }
+                      />
+                    );
+                  })
+              : ""}
           </div>
         </div>
       ) : (

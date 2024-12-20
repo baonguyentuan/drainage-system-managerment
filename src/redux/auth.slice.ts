@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice, isAnyOf } from "@reduxjs/toolkit";
 import authRepository from "../repository/auth.repository";
 import { USER_LOGIN_DTO } from "../models/user.model";
-import { useNavigate } from "react-router-dom";
 import { openNotificationWithIcon } from "../untils/operate/notify";
 
 const initialState = {};
@@ -26,8 +25,6 @@ const authSlice = createSlice({
   },
 });
 
-export const {} = authSlice.actions;
-
 export default authSlice.reducer;
 export const login = createAsyncThunk(
   "auth/login",
@@ -38,9 +35,10 @@ export const login = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.log(error);
+      return thunkApi.rejectWithValue(error);
     }
   }
 );
 export const logout = createAsyncThunk("auth/logout", async () => {
-  const response = await authRepository.logout();
+  return authRepository.logout();
 });

@@ -193,8 +193,8 @@ const UserManagerment = (props: Props) => {
               </Radio.Group>
             </Col>
           </Row>
-          <Table columns={columns} dataSource={userLst} rowKey={"_id"} />
           {currentUserAdmin !== null ? <UpdateUser /> : ""}
+          <Table columns={columns} dataSource={userLst} rowKey={"_id"} />
         </div>
       )}
     </div>
