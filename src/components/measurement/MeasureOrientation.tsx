@@ -156,6 +156,7 @@ const MeasureOrientation = (props: Props) => {
             onClick={() => {
               dispatch(
                 updateOrientationMeasurementApi({
+                  measurementId: props.meaId,
                   orientId: props.orient._id,
                   orientDto: {
                     note: orientEdit.note,

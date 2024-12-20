@@ -1,6 +1,5 @@
 import axios from "axios";
 import authRepository from "../../repository/auth.repository";
-import { log } from "console";
 export const HTTP_STATUS_CODE = {
   succeeded: 200,
   created: 201,
@@ -96,7 +95,7 @@ privateRequest.interceptors.response.use(
   },
   async (error) => {
     const originRequest = error.config;
-    if (error.response.status === 403) {
+    if (error.response.status === 500) {
       const resRefresh = await authRepository.refreshToken();
       if (resRefresh.status === 201) {
         localStorage.setItem("accessToken", resRefresh.data.data);
